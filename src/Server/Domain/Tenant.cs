@@ -3,7 +3,7 @@ using System.Globalization;
 namespace Everdue.Server.Domain;
 
 /// <summary>
-/// Schema-only multi-tenancy for v1: exactly one row, resolved from configuration.
+/// Schema-only multi-tenancy for now: exactly one row, resolved from configuration.
 /// The column set exists so the hosted version is a no-migration step later.
 /// </summary>
 public class Tenant
@@ -25,7 +25,7 @@ public class Tenant
     /// <summary>
     /// May this tenant fall back to the system's channel credentials when it has none of its own?
     /// True for self-host (where "system" and "tenant" are the same operator anyway). The hosted
-    /// product's free plan turns it off; the billing that would toggle it is v3 machinery.
+    /// product's free plan turns it off; the billing that would toggle it does not exist yet.
     /// </summary>
     public bool CanUseSystemChannels { get; set; } = true;
 

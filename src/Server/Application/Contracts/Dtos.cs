@@ -48,7 +48,7 @@ public sealed record CurrentUserDto(
 /// <summary>
 /// <paramref name="CustomFields"/> is display-only reference information, resolved against the tenant's
 /// definitions. It is deliberately the only extra thing an entity carries: no filter, sort, report
-/// column or webhook field reads it (guardrails §2).
+/// column or webhook field reads it.
 /// </summary>
 public sealed record EntityDto(
     Guid Id,
@@ -125,6 +125,14 @@ public sealed record WorkItemEventDto(
     WorkItemEventType EventType,
     WorkItemStatus? FromStatus,
     WorkItemStatus? ToStatus,
+    string? DataJson);
+
+public sealed record ResponsibilityEventDto(
+    Guid Id,
+    Guid UserId,
+    string UserDisplayName,
+    DateTimeOffset Timestamp,
+    ResponsibilityEventType EventType,
     string? DataJson);
 
 public sealed record CommentDto(

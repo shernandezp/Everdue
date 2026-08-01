@@ -37,7 +37,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
   const active = activeNav(location.pathname);
 
-  // Reports are admin-only in v1 — the simplest rule that fits, revisited with usage. The sections
+  // Reports are admin-only for now — the simplest rule that fits, revisited with usage. The sections
   // themselves say who may see them; this only filters.
   const sections = NAV_SECTIONS.filter((section) => isAdmin || !section.adminOnly);
 

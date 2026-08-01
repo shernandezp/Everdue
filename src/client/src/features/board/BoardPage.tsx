@@ -47,6 +47,10 @@ export function BoardPage() {
 
   const actions = useWorkItemActions();
 
+  // Which card's action is in flight, so that card — and only that card — can say so. Without this
+  // a tap on Complete gave no sign until the refetch landed, which reads as a broken button.
+  const pendingId = actions.isPending ? (actions.variables?.id ?? null) : null;
+
   // A pointer sensor with a small activation distance so a tap opens the card and a drag moves it.
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
@@ -124,6 +128,16 @@ export function BoardPage() {
 
       {board.isLoading && <Loader />}
 
+      {/*
+        The board fetches one page. Saying so beats silently under-counting: the column badges count
+        the cards on screen, and a manager reading "Open: 37" must be able to trust it.
+      */}
+      {board.data && board.data.totalCount > board.data.items.length && (
+        <Text size="xs" c="orange" mb="xs">
+          {t('board.truncated', { shown: board.data.items.length, total: board.data.totalCount })}
+        </Text>
+      )}
+
       <DndContext sensors={sensors} onDragEnd={onDragEnd}>
         <SimpleGrid cols={{ base: 1, sm: 2, lg: 3, xl: 5 }} spacing="sm">
           {BOARD_COLUMNS.map((column) => (
@@ -132,6 +146,7 @@ export function BoardPage() {
                 <WorkItemCard
                   key={item.id}
                   item={item}
+                  busy={pendingId === item.id}
                   onOpen={() => setOpenId(item.id)}
                   onStart={() => actions.mutate({ id: item.id, action: { kind: 'start' } })}
                   onHold={() => setHoldTarget(item.id)}

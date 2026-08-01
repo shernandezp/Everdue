@@ -187,6 +187,7 @@ public sealed class CreateResponsibilityHandler(
     IEverdueDbContext db,
     IUserDirectory users,
     ITenantProvider tenants,
+    ICurrentUser currentUser,
     IClock clock) : IRequestHandler<CreateResponsibilityCommand, ResponsibilityDto>
 {
     public async Task<ResponsibilityDto> Handle(CreateResponsibilityCommand request, CancellationToken cancellationToken = default)
@@ -219,6 +220,7 @@ public sealed class CreateResponsibilityHandler(
         };
 
         db.Responsibilities.Add(responsibility);
+        db.ResponsibilityEvents.Add(ResponsibilityEventFactory.Created(responsibility, currentUser.RequireUserId(), clock.UtcNow));
         await db.SaveChangesAsync(cancellationToken);
 
         return await Reload(db, users, tenants, clock, responsibility.Id, cancellationToken);
@@ -244,6 +246,7 @@ public sealed class UpdateResponsibilityHandler(
     IEverdueDbContext db,
     IUserDirectory users,
     ITenantProvider tenants,
+    ICurrentUser currentUser,
     IClock clock) : IRequestHandler<UpdateResponsibilityCommand, ResponsibilityDto>
 {
     public async Task<ResponsibilityDto> Handle(UpdateResponsibilityCommand request, CancellationToken cancellationToken = default)
@@ -260,7 +263,31 @@ public sealed class UpdateResponsibilityHandler(
             new RecurrenceRule(request.RecurrenceKind, request.DaysOfWeekMask, request.DayOfMonth, request.MonthOfYear, request.StartDate),
             cancellationToken);
 
-        responsibility.Title = request.Title.Trim();
+        // A responsibility edit rewrites what the ledger will record from here on — a rule change,
+        // a moved start date, a deactivation. The diff is computed before anything is overwritten,
+        // for the same reason work-item edits do it: the old value is the evidence.
+        var normalizedDaysOfWeekMask = request.RecurrenceKind == RecurrenceKind.WeeklyOnDays ? request.DaysOfWeekMask : null;
+        var normalizedDayOfMonth = request.RecurrenceKind is RecurrenceKind.MonthlyOnDay or RecurrenceKind.Yearly ? request.DayOfMonth : null;
+        var normalizedMonthOfYear = request.RecurrenceKind == RecurrenceKind.Yearly ? request.MonthOfYear : null;
+
+        var title = request.Title.Trim();
+
+        var changes = new FieldChangeSet()
+            .Track(ResponsibilityFields.Title, responsibility.Title, title)
+            .Track(ResponsibilityFields.Description, responsibility.Description, request.Description)
+            .Track(ResponsibilityFields.Owner, responsibility.OwnerUserId, request.OwnerUserId)
+            .Track(ResponsibilityFields.Entity, responsibility.EntityId, request.EntityId)
+            .Track(ResponsibilityFields.Department, responsibility.DepartmentId, request.DepartmentId)
+            .Track(ResponsibilityFields.RecurrenceKind, responsibility.RecurrenceKind.ToString(), request.RecurrenceKind.ToString())
+            .Track(ResponsibilityFields.DaysOfWeekMask, ResponsibilityEventFactory.Value(responsibility.DaysOfWeekMask), ResponsibilityEventFactory.Value(normalizedDaysOfWeekMask))
+            .Track(ResponsibilityFields.DayOfMonth, ResponsibilityEventFactory.Value(responsibility.DayOfMonth), ResponsibilityEventFactory.Value(normalizedDayOfMonth))
+            .Track(ResponsibilityFields.MonthOfYear, ResponsibilityEventFactory.Value(responsibility.MonthOfYear), ResponsibilityEventFactory.Value(normalizedMonthOfYear))
+            .Track(ResponsibilityFields.StartDate, ResponsibilityEventFactory.Value(responsibility.StartDate), ResponsibilityEventFactory.Value(request.StartDate))
+            .Track(ResponsibilityFields.Active, ResponsibilityEventFactory.Value(responsibility.Active), ResponsibilityEventFactory.Value(request.Active))
+            .Track(ResponsibilityFields.RequireChecklistToComplete, ResponsibilityEventFactory.Value(responsibility.RequireChecklistToComplete), ResponsibilityEventFactory.Value(request.RequireChecklistToComplete))
+            .Track(ResponsibilityFields.RequireAttachmentToComplete, ResponsibilityEventFactory.Value(responsibility.RequireAttachmentToComplete), ResponsibilityEventFactory.Value(request.RequireAttachmentToComplete));
+
+        responsibility.Title = title;
         responsibility.Description = request.Description;
         responsibility.OwnerUserId = request.OwnerUserId;
         responsibility.DepartmentId = request.DepartmentId;
@@ -274,6 +301,12 @@ public sealed class UpdateResponsibilityHandler(
         responsibility.RequireChecklistToComplete = request.RequireChecklistToComplete;
         responsibility.RequireAttachmentToComplete = request.RequireAttachmentToComplete;
 
+        if (changes.Any)
+        {
+            db.ResponsibilityEvents.Add(ResponsibilityEventFactory.Updated(
+                responsibility, currentUser.RequireUserId(), clock.UtcNow, changes.Changes));
+        }
+
         await db.SaveChangesAsync(cancellationToken);
 
         return await CreateResponsibilityHandler.Reload(db, users, tenants, clock, responsibility.Id, cancellationToken);
@@ -284,12 +317,19 @@ public sealed class DeactivateResponsibilityHandler(
     IEverdueDbContext db,
     IUserDirectory users,
     ITenantProvider tenants,
+    ICurrentUser currentUser,
     IClock clock) : IRequestHandler<DeactivateResponsibilityCommand, ResponsibilityDto>
 {
     public async Task<ResponsibilityDto> Handle(DeactivateResponsibilityCommand request, CancellationToken cancellationToken = default)
     {
         var responsibility = await db.Responsibilities.FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken)
                              ?? throw new NotFoundException(ResourceNames.Responsibility, request.Id);
+
+        if (responsibility.Active)
+        {
+            db.ResponsibilityEvents.Add(ResponsibilityEventFactory.Deactivated(
+                responsibility, currentUser.RequireUserId(), clock.UtcNow));
+        }
 
         responsibility.Active = false;
         await db.SaveChangesAsync(cancellationToken);
@@ -302,6 +342,7 @@ public sealed class PauseResponsibilityHandler(
     IEverdueDbContext db,
     IUserDirectory users,
     ITenantProvider tenants,
+    ICurrentUser currentUser,
     IClock clock) : IRequestHandler<PauseResponsibilityCommand, ResponsibilityDto>
 {
     public async Task<ResponsibilityDto> Handle(PauseResponsibilityCommand request, CancellationToken cancellationToken = default)
@@ -319,6 +360,8 @@ public sealed class PauseResponsibilityHandler(
 
         // Inclusive of the chosen date: work resumes at 00:00 the following local day.
         responsibility.PausedUntil = TenantTime.StartOfDay(request.Until.AddDays(1), timeZone);
+        db.ResponsibilityEvents.Add(ResponsibilityEventFactory.Paused(
+            responsibility, currentUser.RequireUserId(), clock.UtcNow, request.Until));
         await db.SaveChangesAsync(cancellationToken);
 
         return await CreateResponsibilityHandler.Reload(db, users, tenants, clock, responsibility.Id, cancellationToken);
@@ -329,6 +372,7 @@ public sealed class ResumeResponsibilityHandler(
     IEverdueDbContext db,
     IUserDirectory users,
     ITenantProvider tenants,
+    ICurrentUser currentUser,
     IClock clock) : IRequestHandler<ResumeResponsibilityCommand, ResponsibilityDto>
 {
     public async Task<ResponsibilityDto> Handle(ResumeResponsibilityCommand request, CancellationToken cancellationToken = default)
@@ -340,9 +384,42 @@ public sealed class ResumeResponsibilityHandler(
         // know which periods were sanctioned skips. Clearing the column would turn a pause into a
         // burst of misses on the next tick.
         responsibility.PausedUntil = clock.UtcNow;
+        db.ResponsibilityEvents.Add(ResponsibilityEventFactory.Resumed(
+            responsibility, currentUser.RequireUserId(), clock.UtcNow));
         await db.SaveChangesAsync(cancellationToken);
 
         return await CreateResponsibilityHandler.Reload(db, users, tenants, clock, responsibility.Id, cancellationToken);
+    }
+}
+
+public sealed class GetResponsibilityEventsHandler(IEverdueDbContext db, IUserDirectory users)
+    : IRequestHandler<GetResponsibilityEventsQuery, IReadOnlyList<ResponsibilityEventDto>>
+{
+    public async Task<IReadOnlyList<ResponsibilityEventDto>> Handle(GetResponsibilityEventsQuery request, CancellationToken cancellationToken = default)
+    {
+        if (!await db.Responsibilities.AnyAsync(r => r.Id == request.Id, cancellationToken))
+        {
+            throw new NotFoundException(ResourceNames.Responsibility, request.Id);
+        }
+
+        var events = await db.ResponsibilityEvents.AsNoTracking()
+            .Where(e => e.ResponsibilityId == request.Id)
+            .OrderBy(e => e.Timestamp)
+            .ThenBy(e => e.Id)
+            .Select(e => new { e.Id, e.UserId, e.Timestamp, e.EventType, e.DataJson })
+            .ToListAsync(cancellationToken);
+
+        var directory = await users.MapAsync(events.Select(e => e.UserId), cancellationToken);
+
+        return events
+            .Select(e => new ResponsibilityEventDto(
+                e.Id,
+                e.UserId,
+                directory.TryGetValue(e.UserId, out var user) ? user.DisplayName : "—",
+                e.Timestamp,
+                e.EventType,
+                e.DataJson))
+            .ToArray();
     }
 }
 

@@ -42,8 +42,8 @@ public class ChannelResolutionTests
     }
 
     /// <summary>
-    /// Acceptance criterion 9: the flag is the whole hosted-plan hook. Off means "bring your own",
-    /// and turning it on makes the same send work with no other change.
+    /// The flag is the whole hosted-plan hook. Off means "bring your own", and turning it on
+    /// makes the same send work with no other change.
     /// </summary>
     [Theory]
     [MemberData(nameof(Providers))]
@@ -99,7 +99,7 @@ public class ChannelResolutionTests
         });
     }
 
-    /// <summary>Acceptance criterion 10: the token is unreadable in the file and never comes back over the API.</summary>
+    /// <summary>The token is unreadable in the file and never comes back over the API.</summary>
     [Theory]
     [MemberData(nameof(Providers))]
     public async Task Secrets_are_encrypted_at_rest_and_never_returned(TestProvider provider)

@@ -8,7 +8,7 @@ public enum UserRole
 }
 
 /// <summary>
-/// The thin reference taxonomy. Entities are references, never business data (guardrails §2).
+/// The thin reference taxonomy. Entities are references, never business data.
 /// </summary>
 public enum EntityType
 {
@@ -21,7 +21,7 @@ public enum EntityType
 
 /// <summary>
 /// What a custom field on an entity can hold. Four scalar types and no more: anything richer starts
-/// answering questions about the customer rather than about the work (guardrails §2).
+/// answering questions about the customer rather than about the work.
 /// </summary>
 public enum EntityFieldType
 {
@@ -110,11 +110,32 @@ public enum WorkItemEventType
 
     /// <summary>
     /// The same field-diff payload as <see cref="Updated"/>, but typed separately when the diff
-    /// contains the owner. Appended in v1.5 so "who was handed what, and when" is an indexed query
+    /// contains the owner. Added later so "who was handed what, and when" is an indexed query
     /// on <c>(TenantId, EventType, Timestamp)</c> instead of a scan through JSON — which neither
-    /// provider can do portably. v1 rows stay <see cref="Updated"/>; nothing is rewritten.
+    /// provider can do portably. Existing rows stay <see cref="Updated"/>; nothing is rewritten.
     /// </summary>
     Reassigned = 5,
+}
+
+/// <summary>
+/// What happened to a responsibility. Work items have had this from the start; responsibilities gained it
+/// later, closing a real hole: changing a weekly rule to yearly silently stops nine-tenths of future
+/// misses from ever being recorded, so the rules that generate the ledger deserve the same
+/// who/what/old-value trail as the ledger itself.
+/// </summary>
+public enum ResponsibilityEventType
+{
+    Created = 0,
+
+    /// <summary>A field changed. The diff payload has the same shape as a work-item Updated event.</summary>
+    Updated = 1,
+
+    /// <summary>Same diff payload as <see cref="Updated"/>, typed separately when the owner moved.</summary>
+    Reassigned = 2,
+
+    Paused = 3,
+    Resumed = 4,
+    Deactivated = 5,
 }
 
 /// <summary>Who is performing a status transition. The engine may do things users may not, and vice versa.</summary>

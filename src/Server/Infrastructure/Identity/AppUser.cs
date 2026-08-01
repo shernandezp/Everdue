@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 namespace Everdue.Server.Infrastructure.Identity;
 
 /// <summary>
-/// ASP.NET Core Identity user plus the four fields v1 needs. Deactivated users cannot sign in;
+/// ASP.NET Core Identity user plus the extra fields Everdue needs. Deactivated users cannot sign in;
 /// their history (work items, comments, events) stays exactly where it is.
 /// </summary>
 public class AppUser : IdentityUser<Guid>, ITenantOwned

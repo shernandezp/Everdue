@@ -68,7 +68,7 @@ public class WorkItemTransitionTests
         withCancelled.Items.ShouldContain(i => i.Id == task.Id);
     }
 
-    /// <summary>Acceptance criterion 4.</summary>
+    /// <summary>Holding always requires a reason, and choosing "Other" requires explanatory text.</summary>
     [Theory]
     [MemberData(nameof(Providers))]
     public async Task Holding_without_a_reason_is_impossible_and_Other_requires_text(TestProvider provider)
@@ -93,7 +93,7 @@ public class WorkItemTransitionTests
         withText.HoldReasonText.ShouldBe("Waiting for the landlord");
     }
 
-    /// <summary>Acceptance criterion 2: the miss is never erased.</summary>
+    /// <summary>The miss is never erased.</summary>
     [Theory]
     [MemberData(nameof(Providers))]
     public async Task A_missed_occurrence_completes_late_and_stays_counted_as_missed(TestProvider provider)
@@ -116,6 +116,34 @@ public class WorkItemTransitionTests
 
         afterRow.Missed30.ShouldBe(1);           // compliance: still a miss
         afterRow.LastActivityAt.ShouldNotBeNull(); // activity: the work did happen
+    }
+
+    /// <summary>
+    /// The laundering sequence this forbids: Missed -> complete (CompletedLate) -> reopen (Open)
+    /// used to drop the item out of the 30/60/90-day miss counts until the engine's next tick put it
+    /// back — or forever, with the engine disabled. Reopening a late completion is refused outright.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(Providers))]
+    public async Task A_late_completion_cannot_be_reopened_to_erase_the_miss(TestProvider provider)
+    {
+        await using var app = await EverdueApp.StartAsync(provider);
+        var client = await app.SignInAsAdminAsync();
+
+        var (entityId, occurrence) = await CreateMissedOccurrenceAsync(app, client);
+
+        var completed = await client.PostJsonAsync<WorkItemDto>($"/api/v1/workitems/{occurrence.Id}/complete");
+        completed.Status.ShouldBe(WorkItemStatus.CompletedLate);
+
+        var reopen = await client.PostJsonAsync($"/api/v1/workitems/{occurrence.Id}/reopen");
+        reopen.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+
+        var health = await client.GetJsonAsync<PagedResult<EntityHealthRowDto>>("/api/v1/reports/entity-health");
+        health.Items.Single(r => r.EntityId == entityId).Missed30.ShouldBe(1);
+
+        // And the drawer offers no way out either: a late completion is terminal.
+        var detail = await client.GetJsonAsync<WorkItemDetailDto>($"/api/v1/workitems/{occurrence.Id}");
+        detail.AllowedTransitions.ShouldBeEmpty();
     }
 
     [Theory]

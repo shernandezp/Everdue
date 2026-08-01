@@ -88,7 +88,7 @@ public sealed class ExceptionsReportHandler(IEverdueDbContext db, ITenantProvide
                 e => e.EventType == WorkItemEventType.Reassigned && e.Timestamp >= from && e.Timestamp <= to,
                 cancellationToken);
 
-        // The first hand-over ever recorded as one. Before it, owner changes are v1 `Updated` rows,
+        // The first hand-over ever recorded as one. Before it, owner changes are plain `Updated` rows,
         // and saying so is better than quietly reporting a number that starts mid-history.
         var countingSince = await db.WorkItemEvents.AsNoTracking()
             .Where(e => e.EventType == WorkItemEventType.Reassigned)
@@ -114,7 +114,7 @@ public sealed class ExceptionsReportHandler(IEverdueDbContext db, ITenantProvide
 
     /// <summary>
     /// When the current hold started, taken from the event log: the most recent transition into
-    /// OnHold for each item. This is the raw material v2's hold-aging analysis is built from.
+    /// OnHold for each item. This is the raw material hold-aging analysis is built from.
     /// </summary>
     private async Task<Dictionary<HoldReason, DateTimeOffset>> OldestHoldPerReasonAsync(
         ListWorkItemsQuery onHold,

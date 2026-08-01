@@ -62,7 +62,8 @@
     "showing": "Showing",
     "everyone": "Everyone",
     "dropRejected": "That move is not allowed",
-    "newTask": "New task"
+    "newTask": "New task",
+    "truncated": "Showing {{shown}} of {{total}} items — pick a person to see the rest."
   },
   "bulk": {
     "selected": "{{count}} selected",
@@ -137,6 +138,7 @@
     "retry": "Try again",
     "required": "This field is required",
     "noResults": "Nothing to show",
+    "showingOf": "Showing the first {{shown}} of {{total}}. Refine the search or filters to see the rest.",
     "saved": "Saved",
     "name": "Name",
     "type": "Type",
@@ -377,7 +379,18 @@
     "dueFrom": "Due from",
     "dueTo": "Due to",
     "results": "{{count}} item",
-    "results_other": "{{count}} items"
+    "results_other": "{{count}} items",
+    "chip": {
+      "dueFrom": "Due from {{value}}",
+      "dueTo": "Due until {{value}}",
+      "completedFrom": "Completed from {{value}}",
+      "completedTo": "Completed until {{value}}",
+      "responsibility": "Responsibility: {{title}}",
+      "occurrencesOnly": "Recurring work only",
+      "oneOffOnly": "One-off tasks only",
+      "entityType": "Type: {{value}}",
+      "boardView": "Current work only"
+    }
   },
   "nav": {
     "myWork": "My work",
@@ -403,9 +416,6 @@
     "concentration": "Completed work",
     "holdAging": "Hold aging",
     "import": "Import",
-    "entityFields": "Custom fields",
-    "apiKeys": "API keys",
-    "webhooks": "Webhooks",
     "help": "Help"
   },
   "notifications": {
@@ -516,6 +526,20 @@
     "reassignedSince": "Counting since {{date}}",
     "reassignedNone": "Nothing has changed hands yet."
   },
+  "respEvent": {
+    "Created": "Created",
+    "Updated": "Edited",
+    "Reassigned": "Handed over",
+    "Paused": "Paused",
+    "Resumed": "Resumed",
+    "Deactivated": "Deactivated"
+  },
+  "respHistory": {
+    "title": "History — {{title}}",
+    "empty": "No changes recorded yet.",
+    "pausedUntil": "Paused through {{date}}",
+    "open": "History"
+  },
   "responsibility": {
     "title": "Responsibilities",
     "new": "New responsibility",
@@ -549,6 +573,7 @@
   },
   "settings": {
     "title": "Organization settings",
+    "tabGeneral": "General",
     "name": "Organization name",
     "timeZone": "Time zone (IANA)",
     "timeZoneHint": "All periods and due dates are computed in this zone.",
@@ -666,6 +691,7 @@
     "cancelOnlyOneOff": "Only one-off tasks can be cancelled. Pause or deactivate the responsibility instead.",
     "deleteComment": "Delete comment",
     "mention": "Mention",
-    "mentionPlaceholder": "Who should see this?"
+    "mentionPlaceholder": "Who should see this?",
+    "drag": "Drag to move"
   }
 }

@@ -58,7 +58,10 @@ export function resolveDrop(status: WorkItemStatus, target: BoardColumnId): Drop
       return status === 'Open' || status === 'InProgress' ? { kind: 'hold' } : { kind: 'rejected' };
 
     case 'open':
-      return status === 'InProgress' || status === 'OnHold' || status === 'Completed' || status === 'CompletedLate'
+      // CompletedLate is deliberately absent: a late completion always sits on a closed period, and
+      // reopening it would drop the item out of the miss counts. The miss is final; so is the late
+      // completion that answered it.
+      return status === 'InProgress' || status === 'OnHold' || status === 'Completed'
         ? { kind: 'reopen' }
         : { kind: 'rejected' };
 

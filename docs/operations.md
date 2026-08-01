@@ -33,15 +33,27 @@ that already contains data, so it cannot damage a real install.
 
 ### Single binary
 
+Download the archive for your platform from the GitHub Releases page and unpack it, or build one
+yourself:
+
 ```powershell
-./deploy/publish.ps1 -Runtime win-x64        # or linux-x64
+./deploy/publish.ps1 -Runtime win-x64        # or linux-x64, linux-arm64, osx-arm64
 cd publish/win-x64
 ./Everdue.Server
 ```
 
 One self-contained executable plus `appsettings.json` and `wwwroot`. No .NET runtime to install; the
 database and keys appear in `data/` beside it. Untrimmed on purpose — trimming breaks EF Core, and
-~90 MB is the price of "copy one file and run it".
+~90 MB is the price of "copy one folder and run it".
+
+With nothing configured it listens on **<http://localhost:5000>** — Kestrel's default when no URL is
+given. To choose the address, set `ASPNETCORE_URLS` (or the `EVERDUE_`-prefixed equivalent,
+`EVERDUE_URLS`) before starting it:
+
+```bash
+# Reachable from other machines on the LAN, on port 8080:
+ASPNETCORE_URLS=http://0.0.0.0:8080 ./Everdue.Server
+```
 
 ### As a service
 
@@ -66,10 +78,11 @@ all idempotent, and repeated safely on every start.
 
 1. Set `Tenant:TimeZoneId` **before** anyone creates responsibilities. Every period boundary and due
    date is computed in that zone.
-2. Set `Bootstrap:AdminEmail` and `Bootstrap:AdminPassword`. Without them **nobody can sign in**; the
-   log says so, and the admin is picked up on the next start once they are configured.
-3. Sign in, change the password when prompted, then set the organisation name, digest hour and default
-   language under **Administration → Settings**.
+2. Set `Bootstrap:AdminEmail` and `Bootstrap:AdminPassword` if you want to choose the first account.
+   Without them, an admin **`admin@everdue.local`** is created with a random password **printed once
+   in the startup log**, in a banner you cannot miss.
+3. Sign in, change the password when prompted, then set the organisation name, digest hour, reminder
+   hour and default language under **Administration → Settings**.
 
 The startup log always names the data directory, so it is never a mystery:
 
@@ -126,7 +139,7 @@ one until somebody configures a channel.
 |---|---|
 | Liveness | `GET /health` |
 | Delivery health | **Administration → Notification channels** — pending, failed in the last 24 h, and the last error per channel |
-| Webhook health | **Administration → Webhooks** — pending, failed in 24 h, last error, and whether a subscription auto-disabled |
+| Webhook health | **Administration → Settings → Webhooks tab** — pending, failed in 24 h, last error, and whether a subscription auto-disabled |
 | Engine | the tick logs one line whenever it creates or misses anything: `Occurrence tick: 3 created, 1 marked missed, 0 skipped` |
 
 Nothing here needs a metrics stack. If you have one, `/health` and the process's own logs are the two
@@ -150,7 +163,7 @@ things worth wiring.
 |---|---|
 | **Correct password refused, no error** | `Security:RequireHttps` is on behind a plain-HTTP proxy: the browser will not send a `Secure` cookie over HTTP. Turn it off, or terminate TLS at Everdue |
 | **Everyone is signed out after every restart** | `DataDir/keys` is not persistent (a container without a volume). Mount it |
-| **Nobody can sign in on a fresh install** | `Bootstrap:AdminEmail`/`AdminPassword` were not set. Set them and restart |
+| **Nobody can sign in on a fresh install** | `Bootstrap:AdminEmail`/`AdminPassword` were not set, so the first start generated `admin@everdue.local` and printed its password **once**, in that start's log. Find the banner in the log, or set the bootstrap values and start over with an empty data directory |
 | **`429` on sign-in** | `Security:LoginAttemptsPerMinute`, per client address. Wait a minute; raise it if a proxy collapses your office onto one address |
 | **No occurrences appear** | The responsibility is paused, deactivated, or its start date is in the future. Otherwise check `Engine:Enabled` and the tick log |
 | **A pile of misses appeared out of nowhere** | A responsibility was created with a start date in the past: the engine fills in every period between then and now, and those are real misses. Working as designed — see the manual's note on start dates |
@@ -189,11 +202,13 @@ first**.
 It asks for the workspace name typed out exactly and the caller's own password, refuses API keys
 outright, and is administrator-only.
 
-On a production install, turn it off entirely:
+It also **ships disabled**: with `Demo:AllowReset` at its default of `false` the endpoint answers
+`404` and the card is never rendered. To evaluate demo mode on a running install, turn it on
+deliberately:
 
 ```json
-{ "Demo": { "AllowReset": false } }
+{ "Demo": { "AllowReset": true } }
 ```
 
-The endpoint then answers `404` and the card is never rendered. `Demo:Seed` — the startup seeder for a
-fresh demo install — is unaffected and still refuses any database that already holds data.
+`Demo:Seed` — the startup seeder for a fresh demo install — works either way and still refuses any
+database that already holds data.

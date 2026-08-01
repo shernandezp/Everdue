@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Everdue.Server.Tests.Api;
 
 /// <summary>
-/// Acceptance criterion 6, verified rather than trusted: a row belonging to another tenant is
+/// Verified rather than trusted: a row belonging to another tenant is
 /// invisible to reads, to writes and to transitions.
 /// </summary>
 public class TenancyIsolationTests
@@ -146,7 +146,7 @@ public class TenancyIsolationTests
 }
 
 /// <summary>
-/// Members run the board; administrators run the instance. v1 keeps reports admin-only — the
+/// Members run the board; administrators run the instance. Reports stay admin-only for now — the
 /// simplest rule that fits the product, revisited when usage says otherwise.
 /// </summary>
 public class RoleGatingTests

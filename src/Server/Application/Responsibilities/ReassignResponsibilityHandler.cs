@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Everdue.Server.Application.Responsibilities;
 
 /// <summary>
-/// The genuinely new part of v1.5's reassignment: handing over a **responsibility**, not one
+/// The genuinely new part of responsibility reassignment: handing over a **responsibility**, not one
 /// occurrence. Future occurrences follow automatically because the engine copies the owner at spawn,
 /// so nothing has to be back-filled — only the work already on somebody's plate needs a decision,
 /// which is what the flag is for.
@@ -40,6 +40,15 @@ public sealed class ReassignResponsibilityHandler(
 
         var previousOwner = responsibility.OwnerUserId;
         responsibility.OwnerUserId = request.NewOwnerUserId;
+
+        if (previousOwner != request.NewOwnerUserId)
+        {
+            db.ResponsibilityEvents.Add(ResponsibilityEventFactory.Reassigned(
+                responsibility,
+                actor,
+                now,
+                [new FieldChange(ResponsibilityFields.Owner, previousOwner.ToString(), request.NewOwnerUserId.ToString())]));
+        }
 
         var moved = 0;
 

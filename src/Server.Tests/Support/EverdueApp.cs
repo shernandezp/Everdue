@@ -106,6 +106,10 @@ public sealed class EverdueApp : WebApplicationFactory<Program>
                      ["Bootstrap:AdminEmail"] = AdminEmail,
                      ["Bootstrap:AdminPassword"] = AdminPassword,
 
+                     // The shipped default is off; the demo-toggle tests exercise the feature, so the
+                     // harness turns it on. The test pinning the off-behaviour overrides this below.
+                     ["Demo:AllowReset"] = "true",
+
                      // The tests tick the engine themselves; a timer racing the assertions would make
                      // every occurrence count non-deterministic.
                      ["Engine:Enabled"] = "false",
@@ -265,9 +269,14 @@ public sealed class EverdueApp : WebApplicationFactory<Program>
             var users = services.GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<AppUser>>();
             var tenantContext = services.GetRequiredService<ITenantContext>();
 
-            var admin = await db.Users.SingleAsync(u => u.Email == AdminEmail);
-            admin.MustChangePassword = false;
-            await db.SaveChangesAsync();
+            // Absent when a test blanks the bootstrap settings to exercise the zero-config first run,
+            // in which case the app generated its own admin and there is nothing to clear here.
+            var admin = await db.Users.SingleOrDefaultAsync(u => u.Email == AdminEmail);
+            if (admin is not null)
+            {
+                admin.MustChangePassword = false;
+                await db.SaveChangesAsync();
+            }
 
             if (!await db.Users.AnyAsync(u => u.Email == MemberEmail))
             {

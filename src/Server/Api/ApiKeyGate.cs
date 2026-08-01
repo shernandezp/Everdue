@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace Everdue.Server.Api;
 
 // This lives in Api, not Infrastructure: it is middleware plus an endpoint convention, which is the same kind of
-// thing as PasswordChangeGate next to it. The spec's file layout put it under Infrastructure/ApiKeys; that was
-// wrong, and following it would have meant Infrastructure referencing ApiPolicies in the Api layer.
+// thing as PasswordChangeGate next to it. Putting it under Infrastructure/ApiKeys instead would have meant
+// Infrastructure referencing ApiPolicies in the Api layer.
 
 /// <summary>
 /// Marks an endpoint as reachable with an API key. Absent, an API-key caller gets a 403 whatever its actor's

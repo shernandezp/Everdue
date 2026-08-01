@@ -1,18 +1,82 @@
-import { Button, Card, NumberInput, Select, Stack, Switch, TextInput } from '@mantine/core';
-import { IconDeviceFloppy } from '@tabler/icons-react';
+import { Button, Card, NumberInput, Select, Stack, Switch, Tabs, TextInput } from '@mantine/core';
+import { IconDeviceFloppy, IconForms, IconKey, IconSettings, IconWebhook } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import { PageHeader } from '../../components/PageHeader';
 import { DemoModeCard } from './DemoModeCard';
+import { ApiKeysPanel } from './apikeys/ApiKeysPanel';
+import { EntityFieldDefsPanel } from './entityfields/EntityFieldDefsPanel';
+import { WebhooksPanel } from './webhooks/WebhooksPanel';
 import { api } from '../../lib/api';
 import { notifyError, notifySaved } from '../../lib/notify';
 import { useSession } from '../auth/session';
 import { keys } from '../../lib/queryKeys';
 import { useSupportedLanguages } from '../auth/languages';
+import { isSettingsTab, SETTINGS_TAB_PARAM, type SettingsTab } from '../../lib/routes';
 
+/**
+ * Settings, in tabs: the general organization form, and the three integrator surfaces — custom
+ * fields, API keys, webhooks — that used to be navigation entries of their own. They are visited
+ * rarely and by the same person, so they live here rather than widening the navbar.
+ *
+ * The open tab is the `?tab=` query parameter, so a link to one tab survives being pasted, and the
+ * old standalone routes redirect into it (see App.tsx).
+ */
 export function SettingsPage() {
+  const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const requested = searchParams.get(SETTINGS_TAB_PARAM);
+  const tab: SettingsTab = isSettingsTab(requested) ? requested : 'general';
+
+  const openTab = (value: string | null) => {
+    const next: SettingsTab = isSettingsTab(value) ? value : 'general';
+    setSearchParams(next === 'general' ? {} : { [SETTINGS_TAB_PARAM]: next });
+  };
+
+  return (
+    <>
+      <PageHeader title={t('settings.title')} />
+
+      {/* keepMounted={false}: a hidden tab's queries and one-shot secrets should not exist until it is opened. */}
+      <Tabs value={tab} onChange={openTab} keepMounted={false}>
+        <Tabs.List mb="md">
+          <Tabs.Tab value="general" leftSection={<IconSettings size={16} />}>
+            {t('settings.tabGeneral')}
+          </Tabs.Tab>
+          <Tabs.Tab value="custom-fields" leftSection={<IconForms size={16} />}>
+            {t('entityFields.title')}
+          </Tabs.Tab>
+          <Tabs.Tab value="api-keys" leftSection={<IconKey size={16} />}>
+            {t('apiKeys.title')}
+          </Tabs.Tab>
+          <Tabs.Tab value="webhooks" leftSection={<IconWebhook size={16} />}>
+            {t('webhooks.title')}
+          </Tabs.Tab>
+        </Tabs.List>
+
+        <Tabs.Panel value="general">
+          <GeneralSettingsPanel />
+        </Tabs.Panel>
+        <Tabs.Panel value="custom-fields">
+          <EntityFieldDefsPanel />
+        </Tabs.Panel>
+        <Tabs.Panel value="api-keys">
+          <ApiKeysPanel />
+        </Tabs.Panel>
+        <Tabs.Panel value="webhooks">
+          <WebhooksPanel />
+        </Tabs.Panel>
+      </Tabs>
+    </>
+  );
+}
+
+/** The organization form and, last because it is the only destructive thing here, the demo-mode card. */
+function GeneralSettingsPanel() {
   const { t } = useTranslation();
   const languages = useSupportedLanguages();
   const { refresh } = useSession();
@@ -60,8 +124,6 @@ export function SettingsPage() {
 
   return (
     <>
-      <PageHeader title={t('settings.title')} />
-
       <Card withBorder maw={560}>
         <form onSubmit={form.onSubmit((values) => save.mutate(values))}>
           <Stack>

@@ -61,3 +61,6 @@ public sealed record DeactivateResponsibilityCommand(Guid Id) : ICommand<Respons
 public sealed record PauseResponsibilityCommand(Guid Id, DateOnly Until) : ICommand<ResponsibilityDto>;
 
 public sealed record ResumeResponsibilityCommand(Guid Id) : ICommand<ResponsibilityDto>;
+
+/// <summary>The responsibility's own history: who changed which rule, and what it said before.</summary>
+public sealed record GetResponsibilityEventsQuery(Guid Id) : IQuery<IReadOnlyList<ResponsibilityEventDto>>;

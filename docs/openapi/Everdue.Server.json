@@ -849,6 +849,40 @@
         }
       }
     },
+    "/api/v1/responsibilities/{id}/events": {
+      "get": {
+        "tags": [
+          "Responsibilities"
+        ],
+        "summary": "The responsibility's audit trail: who changed which rule, and what it said before.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResponsibilityEventDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/responsibilities/{id}/reassign": {
       "post": {
         "tags": [
@@ -1016,6 +1050,21 @@
             "in": "query",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "Sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Descending",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
             }
           },
           {
@@ -3643,7 +3692,7 @@
         "tags": [
           "Entity fields"
         ],
-        "summary": "Display-only reference fields. Never filterable, sortable or reportable — see the guardrails.",
+        "summary": "Display-only reference fields. Never filterable, sortable or reportable — Everdue manages work, not business data.",
         "parameters": [
           {
             "name": "EntityType",
@@ -3904,6 +3953,21 @@
             "in": "query",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "Sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Descending",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
             }
           },
           {
@@ -7619,6 +7683,53 @@
             "default": 0
           }
         }
+      },
+      "ResponsibilityEventDto": {
+        "required": [
+          "id",
+          "userId",
+          "userDisplayName",
+          "timestamp",
+          "eventType",
+          "dataJson"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userDisplayName": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "eventType": {
+            "$ref": "#/components/schemas/ResponsibilityEventType"
+          },
+          "dataJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "ResponsibilityEventType": {
+        "enum": [
+          "Created",
+          "Updated",
+          "Reassigned",
+          "Paused",
+          "Resumed",
+          "Deactivated"
+        ]
       },
       "SaveChannelRequest": {
         "required": [

@@ -25,6 +25,44 @@ which clients the team's work goes to, and where waiting time goes. That is
 
 ## Install
 
+Two paths need no toolchain at all — the published Docker image and the release archives. Building
+from source works too and is documented below.
+
+### Docker (one command)
+
+```bash
+docker run -d --name everdue -p 8080:8080 -v everdue-data:/data \
+  -e Tenant__TimeZoneId=America/Bogota \
+  ghcr.io/shernandezp/everdue:latest
+```
+
+Open <http://localhost:8080>. With no bootstrap credentials configured, the first start creates an
+admin **`admin@everdue.local`** with a random password printed **once** in the log
+(`docker logs everdue`) — sign in and change it when prompted. To choose the first account yourself,
+add `-e Bootstrap__AdminEmail=… -e Bootstrap__AdminPassword=…`. Images are tagged per release
+(`ghcr.io/shernandezp/everdue:<version>`) as well as `:latest`.
+
+### Download a release (no toolchain)
+
+Grab the archive for your platform from the GitHub **Releases** page —
+`everdue-<version>-win-x64.zip`, `…-linux-x64.tar.gz`, `…-linux-arm64.tar.gz` or
+`…-osx-arm64.tar.gz` — unpack it, and run `./Everdue.Server` from the unpacked folder.
+
+One self-contained executable plus `appsettings.json` and a `wwwroot/` folder. No .NET runtime to
+install; the database is one SQLite file under `data/`. Untrimmed on purpose — trimming breaks EF
+Core, and ~90 MB is the price of "copy one folder and run it".
+
+It listens on **<http://localhost:5000>** unless told otherwise. To bind another address or port —
+here, reachable from the rest of the LAN on 8080 — set `ASPNETCORE_URLS` (or its `EVERDUE_`-prefixed
+equivalent, `EVERDUE_URLS`) before starting:
+
+```bash
+ASPNETCORE_URLS=http://0.0.0.0:8080 ./Everdue.Server
+```
+
+The same first-run behaviour applies: configure `Bootstrap:AdminEmail`/`AdminPassword` in
+`appsettings.json` to choose the first account, or take the generated one from the startup log.
+
 ### Demo mode (one command)
 
 Before installing anything for real, look at it with data in it:
@@ -44,14 +82,16 @@ ledger, the compliance strip and the health table are all invisible without hist
 It is a **demo**: the passwords are public and it lives in its own volume. The startup seeder refuses outright on a
 database that already contains data, so it cannot damage a real install.
 
-**Already installed and want the same tour?** An administrator can switch demo mode on from **Settings** in the
+**Already installed and want the same tour?** On an install with `Demo:AllowReset=true` (**off by
+default** — the demo compose file sets it), an administrator can switch demo mode on from **Settings** in the
 running app, and switch it off again when they are done. Read the warning first: **it deletes everything in the
 workspace, in both directions** — every work item, responsibility, entity, attachment and user account except the
 one performing it, with no undo. It asks for the workspace name typed out and your own password before it will
-run, and an operator can remove the capability from a production install entirely with `Demo:AllowReset=false`.
-See [docs/configuration.md](docs/configuration.md#demo-mode).
+run. See [docs/configuration.md](docs/configuration.md#demo-mode).
 
-### Docker (three commands)
+### Building from source
+
+The compose file builds the image locally instead of pulling it:
 
 ```bash
 git clone https://github.com/shernandezp/everdue && cd everdue
@@ -61,17 +101,13 @@ docker compose -f deploy/docker-compose.yml up -d --build
 
 Open <http://localhost:8080>, sign in with the bootstrap admin, and choose a new password when asked.
 
-### Single binary (Windows or Linux)
+Or produce the same folder a release archive contains (needs the .NET SDK and Node):
 
 ```powershell
-./deploy/publish.ps1 -Runtime win-x64        # or linux-x64
+./deploy/publish.ps1 -Runtime win-x64        # or linux-x64, linux-arm64, osx-arm64
 cd publish/win-x64
-./Everdue.Server
+./Everdue.Server                             # http://localhost:5000
 ```
-
-One self-contained executable plus `appsettings.json`. No .NET runtime to install; the database is
-one SQLite file under `data/`. Untrimmed on purpose — trimming breaks EF Core, and ~90 MB is the
-price of "copy one file and run it".
 
 ### Windows service
 
@@ -99,7 +135,7 @@ are the settings almost every install touches:
 | Setting | Default | Notes |
 |---|---|---|
 | `Tenant:TimeZoneId` | `UTC` | **IANA** id. Every period and due date is computed in this zone — set it before anyone creates responsibilities. |
-| `Bootstrap:AdminEmail` / `AdminPassword` | *(empty)* | First-run admin. A password change is forced at first login. |
+| `Bootstrap:AdminEmail` / `AdminPassword` | *(empty)* | First-run admin. Unset ⇒ `admin@everdue.local` is generated with a random password printed once in the startup log. Either way a password change is forced at first login. |
 | `Database:Provider` | `Sqlite` | `Sqlite` or `Postgres`. |
 | `ConnectionStrings:Default` | *(empty)* | Empty + SQLite ⇒ `DataDir/everdue.db`, WAL enabled. Required for Postgres. |
 | `DataDir` | `./data` | SQLite file, data-protection keys **and attachment files**. This directory is the whole backup. |
@@ -108,9 +144,10 @@ are the settings almost every install touches:
 | `App:PublicBaseUrl` | *(empty)* | Where this install is reachable, used to put a link in a notification. Empty means messages carry no link, which beats carrying a broken one. |
 
 First run applies migrations, seeds the default tenant and creates the bootstrap admin. All of it is
-idempotent and repeats safely on every start. **If `Bootstrap:AdminEmail`/`AdminPassword` are not
-set on a fresh database, nobody can sign in** — the app logs a warning saying exactly that, and
-picks the admin up on the next start once they are configured.
+idempotent and repeats safely on every start. If `Bootstrap:AdminEmail`/`AdminPassword` are not set
+on a fresh database, the app **generates** an admin — `admin@everdue.local`, random password, printed
+once in the startup log in a banner you cannot miss — so a zero-config first run still yields an app
+somebody can sign into. The forced first-login password change applies to it like any bootstrap admin.
 
 The app finds `appsettings.json` and the built SPA next to its own executable, not in the working
 directory, so it behaves identically started by hand, by `sc.exe`, or by systemd.

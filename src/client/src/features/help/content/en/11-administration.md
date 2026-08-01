@@ -64,7 +64,7 @@ That is the first place to look when somebody says they got nothing.
 
 ## Custom fields
 
-**Administration → Custom fields.** Up to ten extra fields per entity type — text, number, date, or a
+**Administration → Settings → Custom fields tab.** Up to ten extra fields per entity type — text, number, date, or a
 list to choose from.
 
 They are **display-only**: nothing filters, sorts, reports or sends a webhook on them. Deleting a
@@ -85,7 +85,7 @@ and occurrences can never be imported, because those are Everdue's to create fro
 
 ## API keys
 
-**Administration → API keys.** For a script or an automation platform that needs to read or write work.
+**Administration → Settings → API keys tab.** For a script or an automation platform that needs to read or write work.
 
 - The token is shown **once**. Store it somewhere safe; Everdue keeps only a fingerprint.
 - **Read-only** or **read-write**.
@@ -96,7 +96,7 @@ and occurrences can never be imported, because those are Everdue's to create fro
 
 ## Webhooks
 
-**Administration → Webhooks.** Everdue calls out to your systems when something happens.
+**Administration → Settings → Webhooks tab.** Everdue calls out to your systems when something happens.
 
 Six events: work item created, completed, missed, put on hold, handed over, and entity created.
 

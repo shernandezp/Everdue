@@ -7,8 +7,8 @@ using Microsoft.EntityFrameworkCore;
 namespace Everdue.Server.Tests.Engine;
 
 /// <summary>
-/// The digest is the only user-facing text the server renders, and the only part of acceptance
-/// criterion 11 the i18n check cannot see — so it is asserted in both languages here.
+/// The digest is the only user-facing text the server renders, and the only part of the
+/// localization guarantee the i18n check cannot see — so it is asserted in both languages here.
 /// </summary>
 public class DigestTests
 {

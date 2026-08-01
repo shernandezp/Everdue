@@ -7,7 +7,7 @@ namespace Everdue.Server.Tests.Notifications;
 /// <summary>
 /// "Is this channel configured" has to have exactly one answer. The administrator's screen, the
 /// health table and the list a user picks from all ask it, and an install that has been sending
-/// mail since v1 — from appsettings, with no ChannelSettings row — must not be told otherwise.
+/// mail since the beginning — from appsettings, with no ChannelSettings row — must not be told otherwise.
 /// </summary>
 public class ChannelAvailabilityTests
 {
@@ -19,7 +19,7 @@ public class ChannelAvailabilityTests
         ["Smtp:From"] = "everdue@example.test",
     };
 
-    /// <summary>The v1 upgrade path: SMTP in appsettings, no row anywhere, and e-mail is available.</summary>
+    /// <summary>The upgrade path for existing installs: SMTP in appsettings, no row anywhere, and e-mail is available.</summary>
     [Theory]
     [MemberData(nameof(Providers))]
     public async Task Appsettings_smtp_counts_as_a_configured_email_channel(TestProvider provider)

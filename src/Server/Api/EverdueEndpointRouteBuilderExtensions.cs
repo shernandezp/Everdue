@@ -30,7 +30,7 @@ public static class EverdueEndpointRouteBuilderExtensions
         api.MapDigestSubscriptionEndpoints();
         api.MapSavedViewEndpoints();
 
-        // v2.5.
+        // Checklist, entity-field, export, import, API key, webhook, meta and demo endpoints.
         api.MapChecklistEndpoints();
         api.MapEntityFieldEndpoints();
         api.MapExportEndpoints();

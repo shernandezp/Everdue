@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Everdue.Server.Infrastructure.Tenancy;
 
 /// <summary>
-/// v1 resolution: the single configured tenant, fixed once at startup. Registered as a singleton
+/// Current resolution: the single configured tenant, fixed once at startup. Registered as a singleton
 /// so every scope — request, engine tick, digest run — sees the same id.
 /// </summary>
 public sealed class TenantContext : ITenantContext

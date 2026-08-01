@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Everdue.Server.Application.Abstractions;
 using Everdue.Server.Domain;
 using Everdue.Server.Infrastructure.Demo;
@@ -118,20 +119,21 @@ public sealed class DatabaseInitializer(
         }
 
         var options = bootstrapOptions.Value;
-        if (string.IsNullOrWhiteSpace(options.AdminEmail) || string.IsNullOrWhiteSpace(options.AdminPassword))
-        {
-            logger.LogWarning(
-                "No users exist and Bootstrap:AdminEmail / Bootstrap:AdminPassword are not configured. " +
-                "Nobody can sign in until they are set and the app is restarted.");
-            return;
-        }
+        var configured = !string.IsNullOrWhiteSpace(options.AdminEmail) && !string.IsNullOrWhiteSpace(options.AdminPassword);
+
+        // With nothing configured, first run must still produce an app somebody can sign into — a
+        // zero-config start that boots to a locked door is indistinguishable from a broken install.
+        // So an admin is generated, its password printed once, and MustChangePassword makes the
+        // printed password unusable beyond the first sign-in.
+        var email = configured ? options.AdminEmail! : GeneratedAdminEmail;
+        var password = configured ? options.AdminPassword! : GeneratePassword();
 
         var admin = new AppUser
         {
             Id = Guid.CreateVersion7(),
             TenantId = tenant.Id,
-            UserName = options.AdminEmail,
-            Email = options.AdminEmail,
+            UserName = email,
+            Email = email,
             EmailConfirmed = true,
             DisplayName = options.AdminDisplayName,
             Role = UserRole.Admin,
@@ -140,13 +142,65 @@ public sealed class DatabaseInitializer(
             CreatedAt = clock.UtcNow,
         };
 
-        var result = await userManager.CreateAsync(admin, options.AdminPassword);
+        var result = await userManager.CreateAsync(admin, password);
         if (!result.Succeeded)
         {
             throw new InvalidOperationException(
                 "Could not create the bootstrap admin: " + string.Join("; ", result.Errors.Select(e => e.Description)));
         }
 
-        logger.LogInformation("Seeded bootstrap admin '{Email}'. A password change is required on first login.", admin.Email);
+        if (configured)
+        {
+            logger.LogInformation("Seeded bootstrap admin '{Email}'. A password change is required on first login.", admin.Email);
+            return;
+        }
+
+        // Warning, not Information: this is the only time the password is ever shown, and it must
+        // survive an install whose minimum log level is Warning.
+        logger.LogWarning(
+            "No bootstrap credentials were configured, so a first-run admin was generated.\n" +
+            "==========================================================================\n" +
+            "  FIRST-RUN ADMIN - shown only this once\n" +
+            "  Email:    {Email}\n" +
+            "  Password: {Password}\n" +
+            "  Sign in now; a password change is forced at first sign-in.\n" +
+            "==========================================================================",
+            admin.Email,
+            password);
+    }
+
+    private const string GeneratedAdminEmail = "admin@everdue.local";
+
+    /// <summary>
+    /// 20 alphanumeric characters with the lookalikes (0/O, 1/l/I) removed — this password is read
+    /// off a log line and typed once. One character of each class is forced so the Identity policy
+    /// (length, digit, lower, upper) can never reject its own bootstrap.
+    /// </summary>
+    private static string GeneratePassword()
+    {
+        const string lower = "abcdefghijkmnopqrstuvwxyz";
+        const string upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+        const string digits = "23456789";
+        const string all = lower + upper + digits;
+
+        var chars = new char[20];
+        chars[0] = Pick(lower);
+        chars[1] = Pick(upper);
+        chars[2] = Pick(digits);
+        for (var i = 3; i < chars.Length; i++)
+        {
+            chars[i] = Pick(all);
+        }
+
+        // Fisher–Yates, so the forced classes do not always sit at the front.
+        for (var i = chars.Length - 1; i > 0; i--)
+        {
+            var j = RandomNumberGenerator.GetInt32(i + 1);
+            (chars[i], chars[j]) = (chars[j], chars[i]);
+        }
+
+        return new string(chars);
+
+        static char Pick(string alphabet) => alphabet[RandomNumberGenerator.GetInt32(alphabet.Length)];
     }
 }

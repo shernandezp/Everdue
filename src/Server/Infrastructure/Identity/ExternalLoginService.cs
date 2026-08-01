@@ -25,7 +25,7 @@ public sealed record ExternalSignInOutcome(bool Succeeded, ExternalSignInFailure
 /// <summary>
 /// Signs somebody in with a Google account **that already belongs to a user here**.
 ///
-/// No auto-provisioning: admin-created users is the rule v1 set, and an external provider is a way to
+/// No auto-provisioning: users are admin-created, and an external provider is a way to
 /// authenticate, not an invitation to join. The claim that matters is <c>email_verified</c> — without
 /// it, "the e-mail matches" only means somebody typed it into a Google profile.
 /// </summary>

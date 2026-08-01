@@ -5,7 +5,7 @@ namespace Everdue.Server.Domain;
 /// already URL-driven, so applying a view is handing the string back to the router — no serialization
 /// format to invent, and a filter added later works in old saved views for free.
 ///
-/// Personal only. Shared or team views are a permissions question, and permissions are v3.
+/// Personal only. Shared or team views are a permissions question, and permissions are out of scope for now.
 /// </summary>
 public class SavedView : ITenantOwned
 {

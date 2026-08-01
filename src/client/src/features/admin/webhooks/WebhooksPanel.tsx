@@ -16,7 +16,6 @@ import { DataTable } from 'mantine-datatable';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { WebhookSubscription } from '../../../api/types';
-import { PageHeader } from '../../../components/PageHeader';
 import { api } from '../../../lib/api';
 import { formatDateTime } from '../../../lib/format';
 import { notifyError, notifySaved } from '../../../lib/notify';
@@ -25,13 +24,14 @@ import { WebhookForm, type WebhookDraft } from './WebhookForm';
 import { WebhookHealthCard } from './WebhookHealthCard';
 
 /**
- * Where a tenant wants to be told about work.
+ * Where a tenant wants to be told about work. A tab of the settings page — the header above it
+ * belongs to Settings.
  *
- * Outbound only, and the page says so: Everdue makes HTTP calls out, which a home or office router permits, and
+ * Outbound only, and the screen says so: Everdue makes HTTP calls out, which a home or office router permits, and
  * never needs an inbound endpoint. Delivery is at-least-once, so the note about `webhook-id` being the receiver's
- * idempotency key is on the page rather than only in the docs.
+ * idempotency key is on the screen rather than only in the docs.
  */
-export function WebhooksPage() {
+export function WebhooksPanel() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
@@ -87,15 +87,14 @@ export function WebhooksPage() {
 
   return (
     <Stack>
-      <PageHeader
-        title={t('webhooks.title')}
-        description={t('webhooks.description')}
-        actions={
-          <Button size="xs" leftSection={<IconPlus size={14} />} onClick={() => setCreating(true)}>
-            {t('webhooks.add')}
-          </Button>
-        }
-      />
+      <Group justify="space-between" align="flex-start" wrap="wrap" gap="sm">
+        <Text size="sm" c="dimmed" maw={640}>
+          {t('webhooks.description')}
+        </Text>
+        <Button size="xs" leftSection={<IconPlus size={14} />} onClick={() => setCreating(true)}>
+          {t('webhooks.add')}
+        </Button>
+      </Group>
 
       <WebhookHealthCard health={health.data ?? []} />
 

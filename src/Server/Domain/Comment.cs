@@ -1,6 +1,6 @@
 namespace Everdue.Server.Domain;
 
-/// <summary>Create, list, delete (own or Admin). No editing in v1 — comments are a record, not a document.</summary>
+/// <summary>Create, list, delete (own or Admin). No editing — comments are a record, not a document.</summary>
 public class Comment : ITenantOwned
 {
     public Guid Id { get; set; } = Guid.CreateVersion7();

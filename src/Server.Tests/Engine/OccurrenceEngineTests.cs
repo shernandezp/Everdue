@@ -53,7 +53,7 @@ public class OccurrenceEngineTests
         TenantTime.LocalDate(occurrences[0].PeriodStart!.Value, harness.TimeZone).ShouldBe(D("2026-08-03"));
     }
 
-    /// <summary>Acceptance criterion 1: three weeks untouched is three Missed rows and one Open.</summary>
+    /// <summary>Three weeks untouched is three Missed rows and one Open.</summary>
     [Fact]
     public async Task Three_untouched_weeks_produce_exactly_three_missed_and_one_open()
     {
@@ -77,7 +77,69 @@ public class OccurrenceEngineTests
         due.ShouldBe(new DateTime(2026, 7, 6, 23, 59, 59));
     }
 
-    /// <summary>Acceptance criterion 3: downtime must be invisible in the ledger.</summary>
+    /// <summary>
+    /// Moving the tenant's timezone west re-reads the stored instants as one civil day earlier, so
+    /// the cursor lands on a date the ledger already has — at different instants, which the unique
+    /// index cannot catch. The engine must recognize the already-covered day and step over it.
+    /// </summary>
+    [Fact]
+    public async Task Moving_the_timezone_west_never_duplicates_a_civil_day()
+    {
+        await using var harness = await EngineHarness.CreateAsync(); // Bogota, UTC-5
+        harness.Clock.Set("2026-08-02T15:00:00Z");
+
+        var responsibility = harness.AddResponsibility(RecurrenceKind.Daily, D("2026-08-01"));
+        await harness.Engine().TickAsync();
+        (await harness.OccurrencesAsync(responsibility.Id)).Count.ShouldBe(2); // 1 and 2 August
+
+        harness.Tenant.TimeZoneId = "America/Los_Angeles"; // UTC-7 in August
+        await harness.Db.SaveChangesAsync();
+
+        harness.Clock.Set("2026-08-04T20:00:00Z"); // early afternoon of 4 August in Los Angeles
+        await harness.Engine().TickAsync();
+
+        var occurrences = await harness.OccurrencesAsync(responsibility.Id);
+
+        // One row per civil day — 1 through 4 August — not five with 2 August twice.
+        occurrences.Count.ShouldBe(4);
+
+        // And no period sits mostly inside its predecessor.
+        for (var i = 1; i < occurrences.Count; i++)
+        {
+            var previous = occurrences[i - 1];
+            var midpoint = previous.PeriodStart!.Value + (previous.PeriodEnd!.Value - previous.PeriodStart!.Value) / 2;
+            occurrences[i].PeriodStart!.Value.ShouldBeGreaterThanOrEqualTo(midpoint);
+        }
+    }
+
+    /// <summary>
+    /// The opposite move: eastward, the boundary day's new period legitimately overlaps the old
+    /// period by a few hours. That overlap must not be mistaken for a duplicate — dropping the day
+    /// would silently skip a scheduled date.
+    /// </summary>
+    [Fact]
+    public async Task Moving_the_timezone_east_does_not_skip_a_scheduled_day()
+    {
+        await using var harness = await EngineHarness.CreateAsync(); // Bogota, UTC-5
+        harness.Clock.Set("2026-08-02T15:00:00Z");
+
+        var responsibility = harness.AddResponsibility(RecurrenceKind.Daily, D("2026-08-01"));
+        await harness.Engine().TickAsync();
+
+        harness.Tenant.TimeZoneId = "Europe/Madrid"; // UTC+2 in August
+        await harness.Db.SaveChangesAsync();
+
+        harness.Clock.Set("2026-08-04T12:00:00Z"); // afternoon of 4 August in Madrid
+        await harness.Engine().TickAsync();
+
+        var occurrences = await harness.OccurrencesAsync(responsibility.Id);
+
+        // 1 through 4 August: the boundary day (the 3rd) spawned despite its partial overlap.
+        occurrences.Count.ShouldBe(4);
+        occurrences.Select(o => o.PeriodStart!.Value).ShouldBeInOrder();
+    }
+
+    /// <summary>Downtime must be invisible in the ledger.</summary>
     [Fact]
     public async Task Fourteen_days_of_downtime_produces_the_same_ledger_as_running_continuously()
     {
@@ -252,7 +314,7 @@ public class OccurrenceEngineTests
 
         var occurrences = await harness.OccurrencesAsync(responsibility.Id);
         occurrences.ShouldNotBeEmpty();
-        occurrences.ShouldAllBe(o => o.OwnerUserId == harness.Owner.Id); // reassignment is v1.5
+        occurrences.ShouldAllBe(o => o.OwnerUserId == harness.Owner.Id); // the engine does not reassign automatically
     }
 
     [Fact]

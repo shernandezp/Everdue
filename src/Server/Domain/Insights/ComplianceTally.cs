@@ -7,7 +7,7 @@ namespace Everdue.Server.Domain.Insights;
 /// denominator, and an occurrence that is still outstanding when its period ends counts as a miss
 /// **immediately** — not when the engine's next tick happens to flip the row. The occurrence engine
 /// runs on a timer, so reading the stored status alone would make every rate depend on when a
-/// background service last ran, which is exactly what the v1 rule "lateness is derived from the
+/// background service last ran, which is exactly what the rule "lateness is derived from the
 /// period, not the status" exists to prevent.
 /// </summary>
 public sealed class ComplianceTally

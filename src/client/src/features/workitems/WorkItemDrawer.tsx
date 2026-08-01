@@ -260,6 +260,17 @@ export function WorkItemDrawer({ id, onClose }: { id: string | null; onClose: ()
             )}
           </Group>
 
+          {/*
+            The tooltip above only exists on hover, and a phone has no hover — without this line the
+            most important button in the product is silently dead on touch. The reason is always
+            visible text, not a secret for mouse users.
+          */}
+          {completionBlockedReason && (
+            <Text size="xs" c="orange">
+              {completionBlockedReason}
+            </Text>
+          )}
+
           {(checklistTotal > 0 || isWorkable) && (
             <>
               <Divider label={t('checklist.title')} labelPosition="left" />
@@ -457,8 +468,8 @@ const CHANGED_FIELD_LABELS: Record<string, string> = {
 };
 
 /**
- * The old and new due dates out of a `Rescheduled` event's payload. The dates have been written
- * since v1; only the reading of them is new.
+ * The old and new due dates out of a `Rescheduled` event's payload. The dates have always been
+ * written; only the reading of them is new.
  */
 function rescheduleDates(dataJson: string | null | undefined): string | null {
   if (!dataJson) return null;

@@ -37,8 +37,14 @@ export const routes = {
   settings: '/settings',
   channels: '/settings/channels',
 
-  /** v2.5. The import wizard takes `?kind=entities|workitems`, which is how empty states link into it. */
+  /** The import wizard takes `?kind=entities|workitems`, which is how empty states link into it. */
   import: '/import',
+
+  /**
+   * The integrator screens moved into Settings as tabs. These paths stay declared so old bookmarks
+   * and external links keep landing somewhere sensible: the router redirects each one to its tab.
+   * New code should link with {@link settingsTabLink} instead.
+   */
   entityFields: '/settings/entity-fields',
   apiKeys: '/settings/api-keys',
   webhooks: '/settings/webhooks',
@@ -51,6 +57,23 @@ export const routes = {
 /** Where an empty entities or work list sends somebody who has a spreadsheet. */
 export function importLink(kind: 'entities' | 'workitems'): string {
   return `${routes.import}?kind=${kind}`;
+}
+
+/** The query parameter the settings page reads to open one of its tabs. */
+export const SETTINGS_TAB_PARAM = 'tab';
+
+/** The tabs of the settings page. `general` is the default and is kept out of the URL. */
+export const SETTINGS_TABS = ['general', 'custom-fields', 'api-keys', 'webhooks'] as const;
+
+export type SettingsTab = (typeof SETTINGS_TABS)[number];
+
+export function isSettingsTab(value: string | null): value is SettingsTab {
+  return SETTINGS_TABS.includes(value as SettingsTab);
+}
+
+/** A deep link to one settings tab — what the old integrator routes redirect to. */
+export function settingsTabLink(tab: SettingsTab): string {
+  return tab === 'general' ? routes.settings : `${routes.settings}?${SETTINGS_TAB_PARAM}=${tab}`;
 }
 
 /** Route patterns, which differ from paths only where a parameter is declared. */

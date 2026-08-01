@@ -18,6 +18,8 @@ public interface IEverdueDbContext
 
     DbSet<Responsibility> Responsibilities { get; }
 
+    DbSet<ResponsibilityEvent> ResponsibilityEvents { get; }
+
     DbSet<WorkItem> WorkItems { get; }
 
     DbSet<WorkItemEvent> WorkItemEvents { get; }

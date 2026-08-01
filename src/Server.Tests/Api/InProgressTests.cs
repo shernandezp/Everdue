@@ -69,7 +69,7 @@ public class InProgressTests
         var detail = await client.GetJsonAsync<WorkItemDetailDto>($"/api/v1/workitems/{occurrence.Id}");
         detail.Item.Status.ShouldBe(WorkItemStatus.Missed);
 
-        // v2's hold-aging equivalent: the engine records what it interrupted.
+        // The data future hold-aging analysis will need: the engine records what it interrupted.
         var miss = detail.Events.Last(e => e.ToStatus == WorkItemStatus.Missed);
         miss.FromStatus.ShouldBe(WorkItemStatus.InProgress);
         miss.DataJson.ShouldNotBeNull();

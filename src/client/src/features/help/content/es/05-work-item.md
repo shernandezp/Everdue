@@ -18,12 +18,12 @@ Solo aparecen las acciones que ahora mismo son legales, así que nunca llegas a 
 | **Completar** | Termina el trabajo. Cuando el período ya cerró, dice *Completar (tarde)* |
 | **Empezar** | Lo marca como en curso. Es opcional: puedes completar directamente desde *Por hacer* |
 | **Poner en espera** | Lo aparca. El motivo es obligatorio |
-| **Reabrir** | Levanta una espera, o deshace una finalización (responsable o administrador) |
+| **Reabrir** | Levanta una espera, o deshace una finalización a tiempo (responsable o administrador). Una *completada tarde* no se puede reabrir: su período está cerrado y el incumplimiento se mantiene |
 | **Reprogramar** | Mueve la fecha de vencimiento |
 | **Editar** | Cambia título, descripción, responsable, entidad o departamento |
 | **Cancelar tarea** | Solo tareas puntuales |
 
-Si **Completar** está en gris, pasa el ratón por encima: el aviso dice exactamente qué falta — pasos
+Si **Completar** está en gris, el motivo aparece escrito justo debajo de los botones — pasos
 obligatorios sin marcar, o la foto que exige la responsabilidad.
 
 ## Lista de verificación

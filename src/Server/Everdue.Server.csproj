@@ -6,7 +6,8 @@
     <UserSecretsId>everdue-server-3f1a</UserSecretsId>
     <!--
       Single-file, self-contained, UNTRIMMED publish. Trimming breaks EF Core, so it stays off and
-      ~90 MB is the accepted price of "copy one file and run it".
+      ~90 MB is the accepted price of "copy one folder and run it" — the executable travels with
+      appsettings.json and wwwroot/ (the SPA is excluded from the single file below).
       Self-containment is opt-in (`-p:SelfContainedPublish=true`, which deploy/publish.ps1 and CI
       pass) because a self-contained executable cannot be referenced by the test project.
     -->

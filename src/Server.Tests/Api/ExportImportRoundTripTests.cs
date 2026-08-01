@@ -11,10 +11,10 @@ using Everdue.Server.Tests.Support;
 namespace Everdue.Server.Tests.Api;
 
 /// <summary>
-/// Acceptance criterion 7: an export of Spanish entity names, re-imported into an empty install, reproduces the same
+/// An export of Spanish entity names, re-imported into an empty install, reproduces the same
 /// entities — custom field values included — with zero failed rows.
 ///
-/// This is the criterion that ties the two halves of the version together, and the one most likely to break
+/// This is the case that ties export and import together, and the one most likely to break
 /// silently: the export writes a header per definition and the import matches headers by name, so a change to
 /// either side's naming would leave both features working and the round trip broken.
 /// </summary>

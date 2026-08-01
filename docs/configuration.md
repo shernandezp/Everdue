@@ -22,7 +22,7 @@ Two things behave differently from the framework's defaults, on purpose:
 | Setting | Default | What it does |
 |---|---|---|
 | `Tenant:TimeZoneId` | `UTC` | **IANA** id, e.g. `America/Bogota`. Every period boundary and due date is computed in this zone. Get this right before creating responsibilities |
-| `Bootstrap:AdminEmail` / `AdminPassword` | *(empty)* | The first-run administrator. A password change is forced at first sign-in. **On a fresh database with these unset, nobody can sign in** — the app logs a warning saying exactly that and picks the admin up on the next start once they are set |
+| `Bootstrap:AdminEmail` / `AdminPassword` | *(empty)* | The first-run administrator. A password change is forced at first sign-in. On a fresh database with these unset, an admin **`admin@everdue.local`** is generated with a random password **printed once in the startup log** — sign in with it and change it when prompted |
 | `Database:Provider` | `Sqlite` | `Sqlite` or `Postgres` |
 | `ConnectionStrings:Default` | *(empty)* | Empty + SQLite ⇒ `DataDir/everdue.db` with WAL. Required for Postgres |
 | `DataDir` | `./data` | Database, data-protection keys **and attachment files**. This directory is the whole backup |
@@ -39,10 +39,14 @@ Two things behave differently from the framework's defaults, on purpose:
 | `Engine:Enabled` | `true` | The occurrence engine. Off means nothing spawns and no miss is recorded |
 | `Engine:TickMinutes` | `5` | Tick interval. It also runs once at startup |
 | `Engine:MaxOccurrencesPerResponsibilityPerTick` | `5000` | Safety bound on catch-up for one responsibility in one tick |
-| `Tenant:DigestHourLocal` | `7` | Local hour the manager digest is sent |
-| `Tenant:ReminderHourLocal` | `8` | Local hour the "due today" reminders go out — after the digest, because managers read before the day starts and the people doing the work want it once they have |
+| `Tenant:DigestHourLocal` | `7` | Local hour the manager digest is sent. A **first-run seed value**: once the tenant exists it is edited in the app, not here |
 | `Digest:Enabled` / `CheckMinutes` | `true` / `10` | The digest service and how often it checks whether the local hour has arrived |
 | `Reminders:Enabled` / `CheckMinutes` | `true` / `10` | The same, for reminders |
+
+The hour the "due today" reminders go out is **not** a config key: it lives on the tenant and is set
+in the app under **Administration → Settings** (default 8 — after the digest, because managers read
+before the day starts and the people doing the work want it once they have). The digest hour is
+edited in the same place after first run.
 
 ## Notifications and channels
 
@@ -115,15 +119,15 @@ access promptly.
 | `Demo:Seed` | `false` | Seeds six months of believable history **at startup**. It **refuses outright** on a database that already contains data, so it cannot damage a real install |
 | `Demo:Password` | `EverdueDemo2026!` | Public by design; demo mode only |
 | `Demo:Months` | `6` | How much history to build |
-| `Demo:AllowReset` | `true` | May an administrator switch demo mode on or off from **Settings** in the running app? See below |
+| `Demo:AllowReset` | `false` | May an administrator switch demo mode on or off from **Settings** in the running app? Off by default; see below |
 
 `deploy/docker-compose.demo.yml` turns `Demo:Seed` on for you.
 
-### The runtime switch, and why you may want it off
+### The runtime switch, and why it ships off
 
 `Demo:Seed` only fires on an empty database at startup, which is no help to somebody who has already
 started using Everdue and wants to see what the reports look like with data in them. So administrators
-also get a **Demo mode** card on the settings screen.
+can also get a **Demo mode** card on the settings screen — when `Demo:AllowReset` is turned on.
 
 > **Both directions delete everything.** Turning demo mode *on* wipes the workspace and writes six
 > months of invented history over it. Turning it *off* wipes the workspace and leaves it empty, ready
@@ -135,9 +139,11 @@ It is guarded by four things: the caller must be an administrator, must hold a c
 key is refused outright — no script can wipe a tenant), must type the workspace name exactly, and must
 re-enter their own password.
 
-On a production install, set `Demo:AllowReset` to `false`. The endpoint then answers `404`, the card is
-never rendered, and the capability simply is not there — which is a stronger guarantee than a
-confirmation dialog. `Demo:Seed` still works for provisioning a fresh demo install.
+**It ships off.** With `Demo:AllowReset` at its default of `false` the endpoint answers `404`, the card
+is never rendered, and the capability simply is not there — which is a stronger guarantee than a
+confirmation dialog. To evaluate demo mode on a running install, set `Demo:AllowReset=true`
+(`Demo__AllowReset=true` as an environment variable) and restart; `deploy/docker-compose.demo.yml`
+already does. `Demo:Seed` works either way for provisioning a fresh demo install.
 
 While demo mode is on, every signed-in user sees a **Demo data** badge in the header, whatever their
 role. Seeded history is deliberately indistinguishable from real history — that is what makes the demo
@@ -161,8 +167,7 @@ worth looking at — so the badge is the only thing that stops somebody filing r
     "Name": "Acme Distribution",
     "TimeZoneId": "America/Bogota",
     "DefaultLanguage": "es",
-    "DigestHourLocal": 7,
-    "ReminderHourLocal": 8
+    "DigestHourLocal": 7
   },
   "App": { "PublicBaseUrl": "https://everdue.acme.example" },
   // TLS terminates at nginx, so the cookie must NOT be marked Secure here.

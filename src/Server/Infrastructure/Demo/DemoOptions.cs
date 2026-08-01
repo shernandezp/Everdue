@@ -24,12 +24,15 @@ public sealed class DemoOptions
     public int Months { get; set; } = 6;
 
     /// <summary>
-    /// May an administrator turn demo mode on or off from inside the running app? On by default, because the
-    /// feature is worthless to the person evaluating Everdue if it needs a restart and a config file.
+    /// May an administrator turn demo mode on or off from inside the running app? Off by default: the toggle
+    /// wipes the workspace in both directions, and an install that never asked for it should not carry an
+    /// irreversible button. With it off the endpoint answers 404 and the card is never rendered — a stronger
+    /// guarantee than a confirmation dialog, because a button that is absent cannot be clicked by a tired
+    /// administrator at 18:00 on a Friday.
     ///
-    /// <para>Set it to false on a production install. The toggle then does not exist at all — the endpoint
-    /// answers 404 and the card is never rendered — which is a stronger guarantee than a confirmation dialog:
-    /// an irreversible button that is absent cannot be clicked by a tired administrator at 18:00 on a Friday.</para>
+    /// <para>Turn it on to evaluate demo mode on an install that already has users — the demo compose file
+    /// does — because the feature is worthless to the person evaluating Everdue if it needs a restart and a
+    /// config file every time.</para>
     /// </summary>
-    public bool AllowReset { get; set; } = true;
+    public bool AllowReset { get; set; }
 }

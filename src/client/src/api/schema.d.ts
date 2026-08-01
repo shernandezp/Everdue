@@ -877,6 +877,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/responsibilities/{id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The responsibility's audit trail: who changed which rule, and what it said before. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ResponsibilityEventDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/responsibilities/{id}/reassign": {
         parameters: {
             query?: never;
@@ -946,6 +984,8 @@ export interface paths {
                     Overdue?: boolean;
                     IncludeCancelled?: boolean;
                     Search?: string;
+                    Sort?: string;
+                    Descending?: boolean;
                     Page?: number;
                     PageSize?: number;
                 };
@@ -3315,7 +3355,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Display-only reference fields. Never filterable, sortable or reportable — see the guardrails. */
+        /** Display-only reference fields. Never filterable, sortable or reportable — Everdue manages work, not business data. */
         get: {
             parameters: {
                 query?: {
@@ -3468,6 +3508,8 @@ export interface paths {
                     Overdue?: boolean;
                     IncludeCancelled?: boolean;
                     Search?: string;
+                    Sort?: string;
+                    Descending?: boolean;
                     Page?: number;
                     PageSize?: number;
                 };
@@ -5000,6 +5042,19 @@ export interface components {
              */
             checklistItemCount: number;
         };
+        ResponsibilityEventDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            userId: string;
+            userDisplayName: string;
+            /** Format: date-time */
+            timestamp: string;
+            eventType: components["schemas"]["ResponsibilityEventType"];
+            dataJson: null | string;
+        };
+        /** @enum {unknown} */
+        ResponsibilityEventType: "Created" | "Updated" | "Reassigned" | "Paused" | "Resumed" | "Deactivated";
         SaveChannelRequest: {
             configJson: string;
             active: boolean;

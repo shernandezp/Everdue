@@ -7,10 +7,8 @@ import {
   IconChartHistogram,
   IconClipboardList,
   IconFileImport,
-  IconForms,
   IconHeartRateMonitor,
   IconHourglass,
-  IconKey,
   IconLayoutKanban,
   IconList,
   IconMoodEmpty,
@@ -22,7 +20,6 @@ import {
   IconUser,
   IconUserCheck,
   IconUsers,
-  IconWebhook,
   type TablerIcon,
 } from '@tabler/icons-react';
 import { routes } from './routes';
@@ -93,11 +90,10 @@ export const NAV_SECTIONS: NavSection[] = [
       { to: routes.departments, labelKey: 'nav.departments', icon: IconBuildingStore },
       { to: routes.users, labelKey: 'nav.users', icon: IconUsers },
       { to: routes.import, labelKey: 'nav.import', icon: IconFileImport },
+      // The integrator surfaces — custom fields, API keys, webhooks — are tabs of Settings, not
+      // separate destinations. Their old routes redirect there (see App.tsx).
       { to: routes.settings, labelKey: 'nav.settings', icon: IconSettings },
       { to: routes.channels, labelKey: 'nav.channels', icon: IconBell },
-      { to: routes.entityFields, labelKey: 'nav.entityFields', icon: IconForms },
-      { to: routes.apiKeys, labelKey: 'nav.apiKeys', icon: IconKey },
-      { to: routes.webhooks, labelKey: 'nav.webhooks', icon: IconWebhook },
     ],
   },
 ];

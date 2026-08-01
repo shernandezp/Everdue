@@ -7,6 +7,7 @@ import type { ComplianceRow } from '../../api/types';
 import { ExportCsvButton } from '../../components/ExportCsvButton';
 import { PageHeader } from '../../components/PageHeader';
 import { ReportTable } from '../../components/ReportTable';
+import { TruncationNotice } from '../../components/TruncationNotice';
 import { countColumn, drillThroughColumn } from '../../components/reportColumns';
 import { api, type ReportFilters } from '../../lib/api';
 import { EM_DASH } from '../../lib/format';
@@ -113,6 +114,8 @@ export function CompliancePage() {
           drillThroughColumn(t),
         ]}
       />
+
+      <TruncationNotice shown={report.data?.items.length ?? 0} total={report.data?.totalCount ?? 0} />
     </>
   );
 }

@@ -14,7 +14,7 @@ public class OutboxTests
     public static TheoryData<TestProvider> Providers => TestDatabases.All;
 
     /// <summary>
-    /// Acceptance criterion 2 (the in-app half, and the delivery half through a stand-in provider):
+    /// The in-app half, and the delivery half through a stand-in provider:
     /// a linked user on a channel gets a delivery row, and it succeeds on the first pass.
     /// </summary>
     [Theory]
@@ -82,7 +82,7 @@ public class OutboxTests
     }
 
     /// <summary>
-    /// Acceptance criterion 4: a revoked token fails immediately rather than being retried forever,
+    /// A revoked token fails immediately rather than being retried forever,
     /// and the reason is kept for the administrator.
     /// </summary>
     [Theory]
@@ -151,7 +151,7 @@ public class OutboxTests
     }
 
     /// <summary>
-    /// Acceptance criterion 2's other half: nothing is written for a channel the person is not on,
+    /// The other half of the same rule: nothing is written for a channel the person is not on,
     /// so an install with no channels configured produces no pending work and no errors at all.
     /// </summary>
     [Theory]
@@ -178,7 +178,7 @@ public class OutboxTests
     }
 
     /// <summary>
-    /// Acceptance criterion 3: an unconfigured channel is skipped, never failed. "Nothing was owed"
+    /// An unconfigured channel is skipped, never failed. "Nothing was owed"
     /// and "something broke" have to look different or the health screen is worthless.
     /// </summary>
     [Theory]

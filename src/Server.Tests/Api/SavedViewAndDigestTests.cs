@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Everdue.Server.Tests.Api;
 
-/// <summary>Acceptance criterion 16: a view restores exactly what it was saved with, and is shareable.</summary>
+/// <summary>A view restores exactly what it was saved with, and is shareable.</summary>
 public class SavedViewTests
 {
     public static TheoryData<TestProvider> Providers => TestDatabases.All;
@@ -91,7 +91,7 @@ public class SavedViewTests
 }
 
 /// <summary>
-/// Acceptance criterion 17: an upgraded install keeps its daily digest with no admin action, and a
+/// An upgraded install keeps its daily digest with no admin action, and a
 /// weekly subscription only fires on its day.
 /// </summary>
 public class DigestSubscriptionTests
@@ -108,8 +108,8 @@ public class DigestSubscriptionTests
 
     /// <summary>
     /// The upgrade story with no data migration: an administrator with no row is an implicit daily
-    /// subscriber, exactly as v1 behaved. A member with no row is not — that is the line between
-    /// opt-out and opt-in, and it is where v1 drew it.
+    /// subscriber, matching the original default from before subscription rows existed. A member
+    /// with no row is not — that is the line between opt-out and opt-in.
     /// </summary>
     [Theory]
     [MemberData(nameof(Providers))]

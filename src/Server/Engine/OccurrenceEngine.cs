@@ -131,13 +131,20 @@ public sealed class OccurrenceEngine(
             return EngineTickResult.Empty;
         }
 
-        var latestPeriodStart = await db.WorkItems.AsNoTracking()
+        var latestPeriod = await db.WorkItems.AsNoTracking()
             .Where(w => w.ResponsibilityId == responsibility.Id)
-            .MaxAsync(w => (DateTimeOffset?)w.PeriodStart, cancellationToken);
+            .OrderByDescending(w => w.PeriodStart)
+            .Select(w => new { w.PeriodStart, w.PeriodEnd })
+            .FirstOrDefaultAsync(cancellationToken);
 
-        var cursor = latestPeriodStart is { } latest
+        var cursor = latestPeriod?.PeriodStart is { } latest
             ? RecurrenceCalculator.NextScheduledDate(rule, TenantTime.LocalDate(latest, timeZone))
             : RecurrenceCalculator.FirstScheduledDate(rule);
+
+        // How far the ledger already reaches. Read alongside the cursor because the two can disagree
+        // after the tenant's timezone changes: the stored instants keep their old-zone boundaries,
+        // and re-reading them in the new zone can shift the cursor's civil date by one.
+        var coveredThrough = latestPeriod?.PeriodEnd;
 
         var cap = options.Value.MaxOccurrencesPerResponsibilityPerTick;
         var created = 0;
@@ -151,6 +158,21 @@ public sealed class OccurrenceEngine(
             if (period.PeriodStart > now)
             {
                 break;
+            }
+
+            // A candidate whose period is mostly behind the ledger's reach is the same civil day
+            // spawned twice — the westward-timezone-change case the unique index cannot catch,
+            // because the old and new instants differ. A period merely *touching* covered time is
+            // kept: an eastward change legitimately overlaps the boundary day by a few hours, and
+            // dropping it would silently skip a scheduled date instead.
+            if (coveredThrough is { } covered)
+            {
+                var midpoint = period.PeriodStart + (period.PeriodEnd - period.PeriodStart) / 2;
+                if (midpoint < covered)
+                {
+                    cursor = RecurrenceCalculator.NextScheduledDate(rule, cursor);
+                    continue;
+                }
             }
 
             // A period that fell wholly inside a pause window is skipped, never missed — the pause
@@ -238,7 +260,7 @@ public sealed class OccurrenceEngine(
 
     /// <summary>
     /// Anything still open or on hold when its period ends becomes a miss. The prior status is
-    /// recorded on the event because v2 needs to tell "nobody touched it" apart from "it was blocked".
+    /// recorded on the event so a later reader can tell "nobody touched it" apart from "it was blocked".
     /// </summary>
     private async Task<int> FlipExpiredToMissedAsync(DateTimeOffset now, CancellationToken cancellationToken)
     {

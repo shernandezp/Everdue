@@ -65,7 +65,7 @@ public interface INotificationChannel
     /// Can this channel send at all right now?
     ///
     /// Asked of the channel rather than of the settings table because a channel may have more than
-    /// one source of configuration — e-mail also honours v1's <c>Smtp:*</c> block, and only the
+    /// one source of configuration — e-mail also honours the appsettings <c>Smtp:*</c> block, and only the
     /// e-mail channel has any business knowing that. Every screen that says "configured" and every
     /// screen that offers a channel to a user asks this one question, so they cannot disagree.
     /// </summary>

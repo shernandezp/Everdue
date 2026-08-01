@@ -1,8 +1,8 @@
 namespace Everdue.Server.Domain;
 
 /// <summary>
-/// Append-only history, written on every mutation. v1 barely reads it; v2's hold-aging and
-/// v3's audit log are built entirely from these rows, which is why it ships now.
+/// Append-only history, written on every mutation. Little reads it yet, but hold-aging analysis and
+/// any future audit log are built entirely from these rows, which is why it's written now.
 /// </summary>
 public class WorkItemEvent : ITenantOwned
 {

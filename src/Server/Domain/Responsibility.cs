@@ -26,7 +26,7 @@ public class Responsibility : ITenantOwned
     /// <summary>1-31 for MonthlyOnDay; 1-31 (day component) for Yearly. Clamped to the month length.</summary>
     public int? DayOfMonth { get; set; }
 
-    /// <summary>1-12; the month component of the Yearly rule (spec's "MonthAndDay" split into two columns).</summary>
+    /// <summary>1-12; the month component of the Yearly rule, stored as two columns rather than one combined value.</summary>
     public int? MonthOfYear { get; set; }
 
     /// <summary>Local (tenant-timezone) date. The first occurrence is the first scheduled date on or after this.</summary>
@@ -43,7 +43,7 @@ public class Responsibility : ITenantOwned
 
     /// <summary>
     /// When set, an occurrence cannot be completed without at least one attachment: the photo or file
-    /// that proves the work happened. Reuses v1.5's attachments — it adds a rule, not a feature.
+    /// that proves the work happened. Reuses the existing attachments feature — it adds a rule, not a feature.
     /// </summary>
     public bool RequireAttachmentToComplete { get; set; }
 

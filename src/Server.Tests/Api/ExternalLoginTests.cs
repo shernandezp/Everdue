@@ -13,9 +13,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Everdue.Server.Tests.Api;
 
 /// <summary>
-/// Acceptance criterion 11. The OAuth round trip itself belongs to the framework; what is asserted
-/// here is the decision Everdue makes with the identity it comes back with — which is the part that
-/// would let the wrong person in.
+/// The OAuth round trip itself belongs to the framework; what is asserted here is the decision
+/// Everdue makes with the identity it comes back with — which is the part that would let the
+/// wrong person in.
 /// </summary>
 public class ExternalLoginTests
 {

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { BUNDLED_LANGUAGES, DEFAULT_LANGUAGE } from './index';
 
 /**
- * Acceptance criterion 14: adding a language is **data**.
+ * Adding a language is **data**.
  *
  * The claim rests on the locale list being derived by `import.meta.glob` over the folder rather than written out in a
  * `.ts` file. That is exactly the kind of claim that stays true until somebody "simplifies" the glob back into a

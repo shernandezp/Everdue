@@ -10,7 +10,7 @@ namespace Everdue.Server.Application.Insights;
 ///
 /// Every number is handed back with the exact <see cref="ListWorkItemsQuery"/> that produces its rows,
 /// which is what makes "the list behind a number totals that number" true by construction rather than
-/// by discipline — the v1 invariant, extended to the new numbers.
+/// by discipline — the same invariant the existing reports rely on, extended to the new numbers.
 /// </summary>
 internal static class InsightsRows
 {

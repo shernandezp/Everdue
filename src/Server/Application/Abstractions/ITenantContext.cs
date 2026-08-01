@@ -3,7 +3,7 @@ using Everdue.Server.Domain;
 namespace Everdue.Server.Application.Abstractions;
 
 /// <summary>
-/// v1 tenant resolution: one configured tenant for the whole instance. The interface exists so the
+/// Single-tenant resolution for now: one configured tenant for the whole instance. The interface exists so the
 /// hosted version can swap in per-request resolution without touching a single query.
 /// </summary>
 public interface ITenantContext

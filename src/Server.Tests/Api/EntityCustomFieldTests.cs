@@ -7,8 +7,8 @@ using Everdue.Server.Tests.Support;
 namespace Everdue.Server.Tests.Api;
 
 /// <summary>
-/// Custom fields on entities — the closest the product comes to the ERP drift the guardrails exist to prevent, so
-/// the tests are mostly about what they <em>cannot</em> do.
+/// Custom fields on entities — the closest the product comes to the kind of ERP-style sprawl the design
+/// deliberately avoids, so the tests are mostly about what they <em>cannot</em> do.
 /// </summary>
 public class EntityCustomFieldTests
 {

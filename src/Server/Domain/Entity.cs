@@ -2,7 +2,7 @@ namespace Everdue.Server.Domain;
 
 /// <summary>
 /// The thin reference table: name, type, active. Nothing more — the moment this grows credit
-/// limits, contact persons or serial numbers, the ERP drift has begun (guardrails §2).
+/// limits, contact persons or serial numbers, the ERP drift has begun.
 /// </summary>
 public class Entity : ITenantOwned
 {

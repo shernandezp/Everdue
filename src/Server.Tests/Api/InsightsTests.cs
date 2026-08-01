@@ -8,8 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Everdue.Server.Tests.Api;
 
 /// <summary>
-/// The v2 acceptance criteria: compliance, chronic delay, reliability and concentration return known
-/// numbers on a hand-built ledger, on both providers, and every number opens a list that totals it.
+/// Compliance, chronic delay, reliability and concentration return known numbers on a hand-built
+/// ledger, on both providers, and every number opens a list that totals it.
 /// </summary>
 public class InsightsTests
 {
@@ -17,7 +17,7 @@ public class InsightsTests
 
     private const string Insights = "/api/v1/insights";
 
-    /// <summary>Criterion 1: 26 on time, 1 late, 3 missed over 30 concluded weekly periods is 87%.</summary>
+    /// <summary>26 on time, 1 late, 3 missed over 30 concluded weekly periods is 87%.</summary>
     [Theory]
     [MemberData(nameof(Providers))]
     public async Task Compliance_reports_the_rate_and_a_trend_that_sums_to_it(TestProvider provider)
@@ -65,7 +65,7 @@ public class InsightsTests
         row.Trend.ShouldAllBe(point => point.OnTime + point.Late + point.Missed <= 1);
     }
 
-    /// <summary>Criterion 2: the rate does not wait for the engine's next tick.</summary>
+    /// <summary>The rate does not wait for the engine's next tick.</summary>
     [Theory]
     [MemberData(nameof(Providers))]
     public async Task An_expired_occurrence_counts_as_a_miss_before_any_tick_flips_it(TestProvider provider)
@@ -111,7 +111,7 @@ public class InsightsTests
         });
     }
 
-    /// <summary>Criterion 3: a sanctioned pause writes no rows, so it cannot read as failure.</summary>
+    /// <summary>A sanctioned pause writes no rows, so it cannot read as failure.</summary>
     [Theory]
     [MemberData(nameof(Providers))]
     public async Task A_paused_stretch_produces_no_misses_and_no_zero_rate_buckets(TestProvider provider)
@@ -146,7 +146,7 @@ public class InsightsTests
         paused.ShouldAllBe(point => point.Rate == null);
     }
 
-    /// <summary>Criterion 4: a rate over three periods is withheld, and withheld rates sort last.</summary>
+    /// <summary>A rate over three periods is withheld, and withheld rates sort last.</summary>
     [Theory]
     [MemberData(nameof(Providers))]
     public async Task A_thin_denominator_is_shown_as_a_pair_and_sorts_after_every_real_rate(TestProvider provider)
@@ -179,7 +179,7 @@ public class InsightsTests
         }
     }
 
-    /// <summary>Criterion 5: K and N come from configuration, and nothing else changes.</summary>
+    /// <summary>K and N come from configuration, and nothing else changes.</summary>
     [Theory]
     [MemberData(nameof(Providers))]
     public async Task Chronic_detection_flags_k_misses_in_the_last_n_periods(TestProvider provider)
@@ -214,7 +214,7 @@ public class InsightsTests
         }
     }
 
-    /// <summary>Criterion 6: an external wait stays in the rate, and is visible in the same row.</summary>
+    /// <summary>An external wait stays in the rate, and is visible in the same row.</summary>
     [Theory]
     [MemberData(nameof(Providers))]
     public async Task Reliability_keeps_external_waits_in_the_denominator_and_shows_them_beside_it(TestProvider provider)
@@ -272,7 +272,7 @@ public class InsightsTests
         admin.OneOffCompleted.ShouldBe(1);
     }
 
-    /// <summary>Criterion 10: tenant-local months, dense buckets, and an honest cap.</summary>
+    /// <summary>Tenant-local months, dense buckets, and an honest cap.</summary>
     [Theory]
     [MemberData(nameof(Providers))]
     public async Task Concentration_buckets_by_tenant_local_month_and_reports_what_it_dropped(TestProvider provider)
@@ -324,7 +324,7 @@ public class InsightsTests
         acmeRow.Points.Count(point => point.Total == 0).ShouldBe(5);
     }
 
-    /// <summary>Criterion 11: every number opens a list that totals exactly it.</summary>
+    /// <summary>Every number opens a list that totals exactly it.</summary>
     [Theory]
     [MemberData(nameof(Providers))]
     public async Task Every_insight_number_drills_through_to_a_list_of_exactly_that_size(TestProvider provider)
@@ -478,7 +478,7 @@ public class InsightsTests
         report.TotalCount.ShouldBe(0);
     }
 
-    /// <summary>Criterion 13: correct aggregates at three years of scale, with a bounded number of queries.</summary>
+    /// <summary>Correct aggregates at three years of scale, with a bounded number of queries.</summary>
     [Theory]
     [MemberData(nameof(Providers))]
     public async Task The_reports_stay_correct_on_a_three_year_ledger(TestProvider provider)
@@ -524,8 +524,8 @@ public class InsightsTests
     }
 
     /// <summary>
-    /// Criterion 12, second half. Every insight reads through the filtered DbSets, but "it should be
-    /// filtered" is exactly the kind of claim that stops being true one query at a time.
+    /// Every insight reads through the filtered DbSets, but "it should be filtered" is exactly the
+    /// kind of claim that stops being true one query at a time.
     /// </summary>
     [Theory]
     [MemberData(nameof(Providers))]

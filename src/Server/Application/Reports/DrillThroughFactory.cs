@@ -6,9 +6,9 @@ namespace Everdue.Server.Application.Reports;
 
 /// <summary>
 /// Turns the very <see cref="ListWorkItemsQuery"/> a report used to count rows into the query string
-/// the UI navigates to. The number and the list are produced by the same object, so acceptance
-/// criterion 5 ("every dashboard number drills through to a list totalling exactly that number")
-/// holds by construction rather than by discipline.
+/// the UI navigates to. The number and the list are produced by the same object, so the guarantee
+/// that every dashboard number drills through to a list totalling exactly that number holds by
+/// construction rather than by discipline.
 /// </summary>
 public static class DrillThroughFactory
 {

@@ -1,6 +1,7 @@
 import { ActionIcon, Button, Group, Modal, Stack, Switch, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconDeviceFloppy, IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
+import { TruncationNotice } from '../../components/TruncationNotice';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { DataTable } from 'mantine-datatable';
 import { useState } from 'react';
@@ -83,6 +84,11 @@ export function DepartmentsPage() {
             ),
           },
         ]}
+      />
+
+      <TruncationNotice
+        shown={departments.data?.items.length ?? 0}
+        total={departments.data?.totalCount ?? 0}
       />
 
       <DepartmentModal

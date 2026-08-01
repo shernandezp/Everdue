@@ -21,7 +21,7 @@ public interface IChannelSettingsResolver
 
     /// <summary>
     /// May this tenant use credentials it did not provide? Exposed because e-mail has a second
-    /// system-scope source the resolver does not own — v1's <c>Smtp:*</c> block — and that block is
+    /// system-scope source the resolver does not own — the appsettings <c>Smtp:*</c> block — and that block is
     /// the operator's mail server just as much as a system row is. A flag that governed one and not
     /// the other would not be a flag.
     /// </summary>

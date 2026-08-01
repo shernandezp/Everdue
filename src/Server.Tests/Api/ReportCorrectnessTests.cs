@@ -8,8 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Everdue.Server.Tests.Api;
 
 /// <summary>
-/// Acceptance criterion 5: the five reports return known numbers on a fixed dataset, on both
-/// providers, and every dashboard number drills through to a list totalling exactly that number.
+/// The five reports return known numbers on a fixed dataset, on both providers, and every
+/// dashboard number drills through to a list totalling exactly that number.
 /// </summary>
 public class ReportCorrectnessTests
 {

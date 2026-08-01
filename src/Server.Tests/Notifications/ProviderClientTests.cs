@@ -210,8 +210,7 @@ internal sealed class FixedResolver(string? configJson) : IChannelSettingsResolv
 }
 
 /// <summary>
-/// Acceptance criterion 5's other half: which template is chosen, and what happens when the approval
-/// for one has not landed yet.
+/// Which template is chosen, and what happens when the approval for one has not landed yet.
 /// </summary>
 public class WhatsAppChannelTests
 {

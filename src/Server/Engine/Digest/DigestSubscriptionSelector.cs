@@ -9,7 +9,7 @@ namespace Everdue.Server.Engine.Digest;
 /// Who should receive a digest right now, and how they want it.
 ///
 /// A subscription row is optional: an **active administrator with no row is a daily, org-wide
-/// subscriber**, which is exactly what v1 did. That is what makes an upgrade seamless without a data
+/// subscriber**, matching the original default behavior. That is what makes an upgrade seamless without a data
 /// migration, and it means deleting a row cannot resurrect itself into a different meaning — turning
 /// the digest off is a row with Active = false, not the absence of one.
 /// </summary>
@@ -47,7 +47,7 @@ public sealed class DigestSubscriptionSelector(EverdueDbContext db, IUserDirecto
 
             // No row: administrators are implicit daily subscribers, members are not. A member who
             // wants the digest creates a subscription; that is the difference between opt-out and
-            // opt-in, and it is drawn where v1 drew it.
+            // opt-in, drawn along the same line the original default behavior established.
             if (user.Role == UserRole.Admin)
             {
                 due.Add(new DueSubscriber(user, null));

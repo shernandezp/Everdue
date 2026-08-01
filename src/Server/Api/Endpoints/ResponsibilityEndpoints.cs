@@ -52,6 +52,11 @@ public static class ResponsibilityEndpoints
             .RequireAuthorization(ApiPolicies.Admin)
             .Produces<ResponsibilityDto>();
 
+        group.MapGet("/{id:guid}/events", async (Guid id, ISender sender, CancellationToken cancellationToken)
+                => Results.Ok(await sender.Send(new GetResponsibilityEventsQuery(id), cancellationToken)))
+            .WithSummary("The responsibility's audit trail: who changed which rule, and what it said before.")
+            .Produces<IReadOnlyList<ResponsibilityEventDto>>();
+
         group.MapPost("/{id:guid}/reassign", async (Guid id, ReassignResponsibilityRequest body, ISender sender, CancellationToken cancellationToken)
                 => Results.Ok(await sender.Send(
                     new ReassignResponsibilityCommand(id, body.NewOwnerUserId, body.ApplyToWorkableOccurrences),

@@ -16,7 +16,7 @@ public class HoldAgingTests
 
     private const string HoldAging = "/api/v1/insights/hold-aging";
 
-    /// <summary>Criterion 7: sequential holds are separate intervals, each with its own reason.</summary>
+    /// <summary>Sequential holds are separate intervals, each with its own reason.</summary>
     [Theory]
     [MemberData(nameof(Providers))]
     public async Task Sequential_holds_with_different_reasons_never_pool_into_one(TestProvider provider)
@@ -49,7 +49,7 @@ public class HoldAgingTests
         supplier.LongestWaitDays.ShouldBe(2.0);
     }
 
-    /// <summary>Criterion 8: a reschedule copies the status into both ends of its event. It is not a hold.</summary>
+    /// <summary>A reschedule copies the status into both ends of its event. It is not a hold.</summary>
     [Theory]
     [MemberData(nameof(Providers))]
     public async Task Rescheduling_a_held_item_neither_opens_nor_closes_a_hold(TestProvider provider)
@@ -83,7 +83,7 @@ public class HoldAgingTests
         approval.AverageWaitDays.ShouldBe(4.0);
     }
 
-    /// <summary>Criterion 9: an old, still-open hold contributes only its in-window part, and can be opened.</summary>
+    /// <summary>An old, still-open hold contributes only its in-window part, and can be opened.</summary>
     [Theory]
     [MemberData(nameof(Providers))]
     public async Task An_open_hold_from_before_the_window_contributes_only_the_days_inside_it(TestProvider provider)

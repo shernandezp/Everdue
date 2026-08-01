@@ -7,7 +7,7 @@ using Everdue.Server.Tests.Support;
 namespace Everdue.Server.Tests.Api;
 
 /// <summary>
-/// Acceptance criteria 12, 13 and 15: handing over a responsibility, handing over a person's whole
+/// Handing over a responsibility, handing over a person's whole
 /// plate, and bulk actions that report per item instead of half-finishing.
 /// </summary>
 public class ReassignmentAndBulkTests
@@ -73,7 +73,7 @@ public class ReassignmentAndBulkTests
         detail.ShouldNotBeNull();
     }
 
-    /// <summary>Acceptance criterion 13: the departure path, in one call.</summary>
+    /// <summary>The departure path, in one call.</summary>
     [Theory]
     [MemberData(nameof(Providers))]
     public async Task Handing_over_everything_a_departing_user_owns_empties_their_board(TestProvider provider)
@@ -136,7 +136,7 @@ public class ReassignmentAndBulkTests
     }
 
     /// <summary>
-    /// Acceptance criterion 15: an item somebody already completed is a normal outcome of a bulk
+    /// An item somebody already completed is a normal outcome of a bulk
     /// selection. It is reported, and it does not abort the rest.
     /// </summary>
     [Theory]

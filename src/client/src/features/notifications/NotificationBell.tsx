@@ -9,7 +9,7 @@ import { NotificationList } from './NotificationList';
 import { useMarkRead, useNotifications, useUnreadCount } from './hooks';
 
 /**
- * The whole point of v1.5, in one control: the tool reaches people instead of waiting to be opened.
+ * The point of this control: the tool reaches people instead of waiting to be opened.
  * The bell itself only owns the popover and the polling — the list is its own component.
  */
 export function NotificationBell() {

@@ -7,7 +7,7 @@ namespace Everdue.Server.Application.Users;
 
 public sealed record ListUsersQuery(bool IncludeInactive = true) : IQuery<IReadOnlyList<UserDto>>;
 
-/// <summary>There is no self-service registration in v1: an administrator creates every account.</summary>
+/// <summary>There is no self-service registration: an administrator creates every account.</summary>
 public sealed record CreateUserCommand(
     [property: Required, EmailAddress, MaxLength(256)] string Email,
     [property: Required, MinLength(10), MaxLength(128)] string Password,

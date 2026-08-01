@@ -65,8 +65,8 @@ canal. Es el primer sitio donde mirar cuando alguien dice que no le llegó nada.
 
 ## Campos personalizados
 
-**Administración → Campos personalizados.** Hasta diez campos extra por tipo de entidad: texto, número,
-fecha o una lista para elegir.
+**Administración → Configuración → pestaña Campos personalizados.** Hasta diez campos extra por tipo de
+entidad: texto, número, fecha o una lista para elegir.
 
 Son **solo para mostrar**: nada filtra, ordena, reporta ni envía webhooks con ellos. Borrar una
 definición deja los valores ignorados en vez de borrar nada.
@@ -87,8 +87,8 @@ las ocurrencias no se pueden importar, porque las crea Everdue a partir de las r
 
 ## Claves de API
 
-**Administración → Claves de API.** Para un script o una plataforma de automatización que necesite leer
-o escribir trabajo.
+**Administración → Configuración → pestaña Claves de API.** Para un script o una plataforma de automatización
+que necesite leer o escribir trabajo.
 
 - El token se muestra **una sola vez**. Guárdalo en un sitio seguro; Everdue solo conserva una huella.
 - **Solo lectura** o **lectura y escritura**.
@@ -99,7 +99,7 @@ o escribir trabajo.
 
 ## Webhooks
 
-**Administración → Webhooks.** Everdue llama a tus sistemas cuando pasa algo.
+**Administración → Configuración → pestaña Webhooks.** Everdue llama a tus sistemas cuando pasa algo.
 
 Seis eventos: elemento creado, completado, incumplido, puesto en espera, reasignado, y entidad creada.
 

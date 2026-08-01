@@ -1,9 +1,9 @@
 import { Center, Loader } from '@mantine/core';
-import type { ReactElement } from 'react';
+import { lazy, Suspense, type ComponentType, type ReactElement } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 import { AppLayout } from './components/AppLayout';
-import { routePatterns, routes } from './lib/routes';
+import { routePatterns, routes, settingsTabLink } from './lib/routes';
 import { useSession } from './features/auth/session';
 import { LoginPage } from './features/auth/LoginPage';
 import { ChangePasswordPage } from './features/auth/ChangePasswordPage';
@@ -11,27 +11,41 @@ import { ExternalLoginCompletePage } from './features/auth/ExternalLoginComplete
 import { ProfilePage } from './features/auth/ProfilePage';
 import { BoardPage } from './features/board/BoardPage';
 import { WorkListPage } from './features/workitems/WorkListPage';
-import { DashboardPage } from './features/reports/DashboardPage';
-import { EntityHealthPage } from './features/reports/EntityHealthPage';
-import { NeglectPage } from './features/reports/NeglectPage';
-import { BlockedByEntityPage } from './features/reports/BlockedByEntityPage';
-import { EntityTimelinePage } from './features/reports/EntityTimelinePage';
-import { CompliancePage } from './features/insights/CompliancePage';
-import { ConcentrationPage } from './features/insights/ConcentrationPage';
-import { HoldAgingPage } from './features/insights/HoldAgingPage';
-import { ReliabilityPage } from './features/insights/ReliabilityPage';
-import { ResponsibilityCompliancePage } from './features/insights/ResponsibilityCompliancePage';
-import { ResponsibilitiesPage } from './features/responsibilities/ResponsibilitiesPage';
 import { EntitiesPage } from './features/entities/EntitiesPage';
-import { DepartmentsPage } from './features/entities/DepartmentsPage';
-import { UsersPage } from './features/admin/UsersPage';
-import { SettingsPage } from './features/admin/SettingsPage';
-import { ChannelsPage } from './features/admin/channels/ChannelsPage';
-import { ApiKeysPage } from './features/admin/apikeys/ApiKeysPage';
-import { EntityFieldDefsPage } from './features/admin/entityfields/EntityFieldDefsPage';
-import { WebhooksPage } from './features/admin/webhooks/WebhooksPage';
-import { ImportPage } from './features/imports/ImportPage';
-import { HelpPage } from './features/help/HelpPage';
+
+/** Named-export module → lazy route component. */
+function lazyPage<T>(load: () => Promise<T>, pick: (module: T) => ComponentType) {
+  return lazy(() => load().then((module) => ({ default: pick(module) })));
+}
+
+/*
+ * The screens staff open every day ship in the entry bundle; everything else loads on first visit.
+ * The practical effect is that the chart library and the admin surfaces stop weighing down the
+ * board on a phone — the entry chunk is what a deskless user actually downloads.
+ */
+const DashboardPage = lazyPage(() => import('./features/reports/DashboardPage'), (m) => m.DashboardPage);
+const EntityHealthPage = lazyPage(() => import('./features/reports/EntityHealthPage'), (m) => m.EntityHealthPage);
+const NeglectPage = lazyPage(() => import('./features/reports/NeglectPage'), (m) => m.NeglectPage);
+const BlockedByEntityPage = lazyPage(() => import('./features/reports/BlockedByEntityPage'), (m) => m.BlockedByEntityPage);
+const EntityTimelinePage = lazyPage(() => import('./features/reports/EntityTimelinePage'), (m) => m.EntityTimelinePage);
+const CompliancePage = lazyPage(() => import('./features/insights/CompliancePage'), (m) => m.CompliancePage);
+const ConcentrationPage = lazyPage(() => import('./features/insights/ConcentrationPage'), (m) => m.ConcentrationPage);
+const HoldAgingPage = lazyPage(() => import('./features/insights/HoldAgingPage'), (m) => m.HoldAgingPage);
+const ReliabilityPage = lazyPage(() => import('./features/insights/ReliabilityPage'), (m) => m.ReliabilityPage);
+const ResponsibilityCompliancePage = lazyPage(
+  () => import('./features/insights/ResponsibilityCompliancePage'),
+  (m) => m.ResponsibilityCompliancePage,
+);
+const ResponsibilitiesPage = lazyPage(
+  () => import('./features/responsibilities/ResponsibilitiesPage'),
+  (m) => m.ResponsibilitiesPage,
+);
+const DepartmentsPage = lazyPage(() => import('./features/entities/DepartmentsPage'), (m) => m.DepartmentsPage);
+const UsersPage = lazyPage(() => import('./features/admin/UsersPage'), (m) => m.UsersPage);
+const SettingsPage = lazyPage(() => import('./features/admin/SettingsPage'), (m) => m.SettingsPage);
+const ChannelsPage = lazyPage(() => import('./features/admin/channels/ChannelsPage'), (m) => m.ChannelsPage);
+const ImportPage = lazyPage(() => import('./features/imports/ImportPage'), (m) => m.ImportPage);
+const HelpPage = lazyPage(() => import('./features/help/HelpPage'), (m) => m.HelpPage);
 
 function Loading() {
   return (
@@ -66,7 +80,8 @@ export function App() {
   if (isLoading) return <Loading />;
 
   return (
-    <Routes>
+    <Suspense fallback={<Loading />}>
+      <Routes>
       <Route path={routes.login} element={user ? <Navigate to={routes.board} replace /> : <LoginPage />} />
 
       {/* Where an external sign-in lands. See the page for why it is not the board directly. */}
@@ -104,17 +119,20 @@ export function App() {
       <Route path={routes.settings} element={<Protected adminOnly><SettingsPage /></Protected>} />
       <Route path={routes.channels} element={<Protected adminOnly><ChannelsPage /></Protected>} />
 
-      {/* v2.5. The import wizard, the custom-field definitions, and the two public-API screens. */}
+      {/* The import wizard. */}
       <Route path={routes.import} element={<Protected adminOnly><ImportPage /></Protected>} />
-      <Route path={routes.entityFields} element={<Protected adminOnly><EntityFieldDefsPage /></Protected>} />
-      <Route path={routes.apiKeys} element={<Protected adminOnly><ApiKeysPage /></Protected>} />
-      <Route path={routes.webhooks} element={<Protected adminOnly><WebhooksPage /></Protected>} />
+
+      {/* The integrator screens are Settings tabs now; their old paths keep working as redirects. */}
+      <Route path={routes.entityFields} element={<Navigate to={settingsTabLink('custom-fields')} replace />} />
+      <Route path={routes.apiKeys} element={<Navigate to={settingsTabLink('api-keys')} replace />} />
+      <Route path={routes.webhooks} element={<Navigate to={settingsTabLink('webhooks')} replace />} />
 
       {/* The manual. Open to anybody signed in — a member needs it more than an administrator does. */}
       <Route path={routes.help} element={<Protected><HelpPage /></Protected>} />
       <Route path={routePatterns.helpTopic} element={<Protected><HelpPage /></Protected>} />
 
       <Route path={routePatterns.catchAll} element={<Navigate to={routes.board} replace />} />
-    </Routes>
+      </Routes>
+    </Suspense>
   );
 }

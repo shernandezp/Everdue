@@ -120,8 +120,8 @@ export function DashboardPage() {
 
           {/*
             Visibility inside an existing screen, not a new report. The "counting since" line is the
-            honest part: v1 recorded owner changes as ordinary edits, so this number starts at the
-            v1.5 upgrade rather than covering all of history.
+            honest part: owner changes used to be recorded as ordinary edits, so this number starts
+            when that changed rather than covering all of history.
           */}
           <Card withBorder padding="md">
             <Group justify="space-between" align="flex-start">

@@ -64,8 +64,8 @@ internal sealed class OccurrenceLedgerReader(IEverdueDbContext db)
     /// Chronic detection asks for the last N periods of each responsibility, and for a yearly
     /// obligation those span N years — any lookback window would silently exempt exactly the
     /// responsibilities with the longest periods. The projection is four columns wide and the scan is
-    /// bounded by the ledger itself; when a tenant's history makes that too slow, the answer is the
-    /// summary table the spec designs, not a bound that changes the meaning of the rule.
+    /// bounded by the ledger itself; when a tenant's history makes that too slow, the answer is a
+    /// future summary table, not a bound that changes the meaning of the rule.
     /// </summary>
     public Task<List<LedgerOccurrence>> ConcludedAsync(
         InsightsFilter filter,

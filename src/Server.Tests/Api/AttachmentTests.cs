@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Everdue.Server.Tests.Api;
 
 /// <summary>
-/// Acceptance criterion 14: the limits are real, the download is authenticated, and the uploaded
+/// The limits are real, the download is authenticated, and the uploaded
 /// filename never reaches the filesystem.
 /// </summary>
 public class AttachmentTests

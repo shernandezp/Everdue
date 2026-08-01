@@ -556,6 +556,41 @@ namespace Everdue.Server.Infrastructure.Persistence.Migrations.Sqlite
                     b.ToTable("Responsibilities", (string)null);
                 });
 
+            modelBuilder.Entity("Everdue.Server.Domain.ResponsibilityEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DataJson")
+                        .HasMaxLength(4000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("EventType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("ResponsibilityId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Timestamp")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("ResponsibilityId", "Timestamp");
+
+                    b.ToTable("ResponsibilityEvents", (string)null);
+                });
+
             modelBuilder.Entity("Everdue.Server.Domain.SavedView", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1251,6 +1286,23 @@ namespace Everdue.Server.Infrastructure.Persistence.Migrations.Sqlite
                     b.Navigation("Department");
 
                     b.Navigation("Entity");
+                });
+
+            modelBuilder.Entity("Everdue.Server.Domain.ResponsibilityEvent", b =>
+                {
+                    b.HasOne("Everdue.Server.Domain.Responsibility", "Responsibility")
+                        .WithMany()
+                        .HasForeignKey("ResponsibilityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Everdue.Server.Domain.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Responsibility");
                 });
 
             modelBuilder.Entity("Everdue.Server.Domain.SavedView", b =>

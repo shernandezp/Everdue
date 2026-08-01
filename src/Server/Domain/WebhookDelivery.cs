@@ -3,7 +3,7 @@ namespace Everdue.Server.Domain;
 /// <summary>
 /// One attempt to get one event to one subscriber.
 ///
-/// The same shape v1.5's <see cref="NotificationDelivery"/> proved, and it reuses that type's
+/// The same shape <see cref="NotificationDelivery"/> already proved, and it reuses that type's
 /// <see cref="DeliveryStatus"/> and <see cref="NotificationDelivery.BackoffFor"/> rather than growing a
 /// parallel vocabulary. Independent rows are the failure isolation: a dead subscriber cannot delay
 /// another subscriber, another event, or any request path.

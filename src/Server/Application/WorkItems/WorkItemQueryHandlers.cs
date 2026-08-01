@@ -23,7 +23,7 @@ public sealed class ListWorkItemsHandler(
         var query = WorkItemQueries.Filter(db.WorkItems.AsNoTracking(), request, now);
         var total = await query.CountAsync(cancellationToken);
 
-        var ordered = query.OrderBy(w => w.DueDate).ThenBy(w => w.Id);
+        var ordered = WorkItemQueries.Sort(query, request.ResolvedSort, request.Descending);
 
         var rows = await WorkItemQueries
             .Project(ordered.Skip((page - 1) * pageSize).Take(pageSize))

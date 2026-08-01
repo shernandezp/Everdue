@@ -13,7 +13,7 @@ public static class ReportEndpoints
     /// </summary>
     public static IEndpointRouteBuilder MapReportEndpoints(this IEndpointRouteBuilder api)
     {
-        // Reports are the manager surface; in v1 that means administrators only (revisit with usage).
+        // Reports are the manager surface, so for now that means administrators only (revisit with usage).
         var group = api.MapGroup("/reports").WithTags("Reports").RequireAuthorization(ApiPolicies.Admin).AllowApiKey();
 
         group.MapGet("/exceptions", async ([AsParameters] ExceptionsReportQuery query, ISender sender, CancellationToken cancellationToken)

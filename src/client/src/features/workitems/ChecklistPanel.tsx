@@ -3,10 +3,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { ChecklistItem } from '../../api/types';
 import { api } from '../../lib/api';
 import { formatDateTime } from '../../lib/format';
 import { notifyError } from '../../lib/notify';
 import { keys } from '../../lib/queryKeys';
+import { useSession } from '../auth/session';
 
 /**
  * The checklist on one work item.
@@ -18,6 +20,7 @@ import { keys } from '../../lib/queryKeys';
 export function ChecklistPanel({ workItemId, editable }: { workItemId: string; editable: boolean }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { user } = useSession();
   const [text, setText] = useState('');
 
   const checklist = useQuery({
@@ -33,11 +36,37 @@ export function ChecklistPanel({ workItemId, editable }: { workItemId: string; e
     await queryClient.invalidateQueries({ queryKey: keys.workItems.all });
   };
 
+  // Ticking is optimistic: a ten-line inspection is ticked in ten quick taps, and freezing every
+  // box for a round-trip per tap made the most-repeated interaction in the app feel broken. The
+  // server still owns the truth — an error rolls the box back and says why.
   const setChecked = useMutation({
     mutationFn: ({ id, checked }: { id: string; checked: boolean }) =>
       api.checklists.setChecked(workItemId, id, checked),
-    onSuccess: refresh,
-    onError: notifyError,
+    onMutate: async ({ id, checked }) => {
+      await queryClient.cancelQueries({ queryKey: keys.checklists.forItem(workItemId) });
+      const previous = queryClient.getQueryData<ChecklistItem[]>(keys.checklists.forItem(workItemId));
+
+      queryClient.setQueryData<ChecklistItem[]>(keys.checklists.forItem(workItemId), (old) =>
+        old?.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                checkedAt: checked ? new Date().toISOString() : null,
+                checkedByDisplayName: checked ? (user?.displayName ?? null) : null,
+              }
+            : item,
+        ),
+      );
+
+      return { previous };
+    },
+    onError: (error, _variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(keys.checklists.forItem(workItemId), context.previous);
+      }
+      notifyError(error);
+    },
+    onSettled: refresh,
   });
 
   const add = useMutation({
@@ -71,7 +100,7 @@ export function ChecklistPanel({ workItemId, editable }: { workItemId: string; e
         <Group key={item.id} justify="space-between" wrap="nowrap" gap="xs">
           <Checkbox
             checked={Boolean(item.checkedAt)}
-            disabled={!editable || setChecked.isPending}
+            disabled={!editable}
             onChange={(event) => setChecked.mutate({ id: item.id, checked: event.currentTarget.checked })}
             label={
               <Group gap={6} wrap="wrap">

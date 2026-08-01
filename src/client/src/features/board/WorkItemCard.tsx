@@ -1,4 +1,4 @@
-import { ActionIcon, Card, Group, Menu, Stack, Text } from '@mantine/core';
+import { ActionIcon, Card, Group, Loader, Menu, Stack, Text } from '@mantine/core';
 import {
   IconArrowBackUp,
   IconCircleCheck,
@@ -24,9 +24,12 @@ type Props = {
   onComplete: () => void;
   onHold: () => void;
   onReopen: () => void;
+
+  /** This card's own action is in flight. The whole card says so — a silent button gets tapped twice. */
+  busy?: boolean;
 };
 
-export function WorkItemCard({ item, onOpen, onStart, onComplete, onHold, onReopen }: Props) {
+export function WorkItemCard({ item, onOpen, onStart, onComplete, onHold, onReopen, busy }: Props) {
   const { t } = useTranslation();
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: item.id });
 
@@ -34,11 +37,9 @@ export function WorkItemCard({ item, onOpen, onStart, onComplete, onHold, onReop
   const canComplete =
     item.status === 'Open' || item.status === 'InProgress' || item.status === 'OnHold' || item.status === 'Missed';
   const canHold = item.status === 'Open' || item.status === 'InProgress';
-  const canReopen =
-    item.status === 'InProgress' ||
-    item.status === 'OnHold' ||
-    item.status === 'Completed' ||
-    item.status === 'CompletedLate';
+  // CompletedLate is deliberately absent: reopening a late completion would erase a recorded miss,
+  // so the server refuses it and the card does not offer it (see boardColumns.resolveDrop).
+  const canReopen = item.status === 'InProgress' || item.status === 'OnHold' || item.status === 'Completed';
 
   return (
     <Card
@@ -49,8 +50,9 @@ export function WorkItemCard({ item, onOpen, onStart, onComplete, onHold, onReop
       style={
         {
           transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-          opacity: isDragging ? 0.5 : 1,
+          opacity: isDragging || busy ? 0.5 : 1,
           cursor: 'pointer',
+          pointerEvents: busy ? 'none' : undefined,
           // See app.css: eased transform and per-frame dragging do not mix.
           transition: isDragging ? 'none' : undefined,
           // What the card lifts towards on hover: its own status colour, not a generic grey.
@@ -66,11 +68,18 @@ export function WorkItemCard({ item, onOpen, onStart, onComplete, onHold, onReop
           </Text>
 
           <Group gap={0} wrap="nowrap">
+            {busy && <Loader size="xs" mr={4} />}
+
             {/* An explicit menu next to the drag handle: dragging is awkward on a phone, and the
-                phone IS the mobile experience in v1. */}
+                phone is the mobile experience for now. */}
             <Menu withinPortal position="bottom-end">
               <Menu.Target>
-                <ActionIcon variant="subtle" color="gray" onClick={(event) => event.stopPropagation()}>
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  aria-label={t('common.actions')}
+                  onClick={(event) => event.stopPropagation()}
+                >
                   <IconDotsVertical size={16} />
                 </ActionIcon>
               </Menu.Target>
@@ -105,6 +114,7 @@ export function WorkItemCard({ item, onOpen, onStart, onComplete, onHold, onReop
             <ActionIcon
               variant="subtle"
               color="gray"
+              aria-label={t('workItem.drag')}
               {...listeners}
               {...attributes}
               onClick={(event) => event.stopPropagation()}

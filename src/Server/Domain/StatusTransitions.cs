@@ -47,9 +47,11 @@ public static class StatusTransitions
         new(WorkItemStatus.InProgress,    WorkItemStatus.Missed,        TransitionActor.Engine, Scope.OccurrenceOnly),
         new(WorkItemStatus.OnHold,        WorkItemStatus.Missed,        TransitionActor.Engine, Scope.OccurrenceOnly),
 
-        // Undo.
+        // Undo. Completed only: a CompletedLate row always sits on a period that has already closed
+        // (that is the only way to earn the status), and reopening it would drop the item out of the
+        // 30/60/90-day miss counts until the engine's next tick re-flipped it — or forever, if the
+        // engine is disabled. A late completion on a closed period is final; the miss stands either way.
         new(WorkItemStatus.Completed,     WorkItemStatus.Open,          TransitionActor.User,   Scope.Any),
-        new(WorkItemStatus.CompletedLate, WorkItemStatus.Open,          TransitionActor.User,   Scope.Any),
 
         new(WorkItemStatus.Open,          WorkItemStatus.Cancelled,     TransitionActor.User,   Scope.OneOffOnly),
         new(WorkItemStatus.InProgress,    WorkItemStatus.Cancelled,     TransitionActor.User,   Scope.OneOffOnly),

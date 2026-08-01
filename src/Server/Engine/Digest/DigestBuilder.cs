@@ -11,7 +11,7 @@ namespace Everdue.Server.Engine.Digest;
 /// <summary>
 /// Reads the digest's sections. Pure query work, kept apart from the timing and the delivery.
 ///
-/// The two v1.5 sections (on-hold aging, neglect) are **not new queries**: they are the existing
+/// The on-hold aging and neglect sections are **not new queries**: they are the existing
 /// report handlers, dispatched through the mediator. A number in the digest and the same number on
 /// the dashboard cannot drift apart if there is only one query behind both.
 /// </summary>

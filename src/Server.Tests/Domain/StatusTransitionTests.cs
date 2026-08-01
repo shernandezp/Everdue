@@ -3,8 +3,8 @@ using Everdue.Server.Domain;
 namespace Everdue.Server.Tests.Domain;
 
 /// <summary>
-/// The matrix from the spec, asserted directly. The API tests then prove the same matrix is what the
-/// endpoints actually enforce.
+/// The allowed status transitions, asserted directly. The API tests then prove the same matrix is
+/// what the endpoints actually enforce.
 /// </summary>
 public class StatusTransitionTests
 {
@@ -18,7 +18,6 @@ public class StatusTransitionTests
         { WorkItemStatus.OnHold, WorkItemStatus.Missed, TransitionActor.Engine, true },
         { WorkItemStatus.Missed, WorkItemStatus.CompletedLate, TransitionActor.User, true },
         { WorkItemStatus.Completed, WorkItemStatus.Open, TransitionActor.User, true },
-        { WorkItemStatus.CompletedLate, WorkItemStatus.Open, TransitionActor.User, true },
         { WorkItemStatus.Open, WorkItemStatus.Cancelled, TransitionActor.User, false },
         { WorkItemStatus.OnHold, WorkItemStatus.Cancelled, TransitionActor.User, false },
     };
@@ -129,6 +128,20 @@ public class StatusTransitionTests
         StatusTransitions.IsAllowed(WorkItemStatus.Completed, WorkItemStatus.Missed, TransitionActor.Engine, isOccurrence: true).ShouldBeFalse();
         StatusTransitions.IsAllowed(WorkItemStatus.Missed, WorkItemStatus.OnHold, TransitionActor.User, isOccurrence: true).ShouldBeFalse();
         StatusTransitions.IsAllowed(WorkItemStatus.Open, WorkItemStatus.Open, TransitionActor.User, isOccurrence: true).ShouldBeFalse();
+    }
+
+    /// <summary>
+    /// The laundering hole this closes: Missed -> complete (CompletedLate) -> reopen (Open) made the
+    /// item neither Missed nor CompletedLate, so it vanished from the 30/60/90-day miss counts until
+    /// the engine's next tick — or forever, with the engine disabled. A CompletedLate row always sits
+    /// on a closed period, so reopening it is never a meaningful action; the transition does not exist.
+    /// </summary>
+    [Fact]
+    public void A_late_completion_can_never_be_reopened()
+    {
+        StatusTransitions.IsAllowed(WorkItemStatus.CompletedLate, WorkItemStatus.Open, TransitionActor.User, isOccurrence: true).ShouldBeFalse();
+        StatusTransitions.IsAllowed(WorkItemStatus.CompletedLate, WorkItemStatus.Open, TransitionActor.User, isOccurrence: false).ShouldBeFalse();
+        StatusTransitions.UserTransitionsFrom(WorkItemStatus.CompletedLate, isOccurrence: true).ShouldBeEmpty();
     }
 
     [Fact]

@@ -25,7 +25,7 @@ public static class ApplicationServiceCollectionExtensions
         // within a request rather than each building their own.
         services.AddScoped<WorkItemMutator>();
 
-        // v2.5 collaborators. Each is a narrow reader or rule shared by several handlers, registered rather
+        // Import/checklist/custom-field collaborators. Each is a narrow reader or rule shared by several handlers, registered rather
         // than newed up so a handler's constructor lists what it needs.
         services.AddScoped<ChecklistProgressReader>();
         services.AddScoped<ChecklistItemAccess>();

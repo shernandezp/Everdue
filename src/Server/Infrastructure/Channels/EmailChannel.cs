@@ -12,7 +12,7 @@ namespace Everdue.Server.Infrastructure.Channels;
 /// <summary>
 /// SMTP as a channel.
 ///
-/// Configuration comes from a ChannelSettings row when one exists, and otherwise from the v1
+/// Configuration comes from a ChannelSettings row when one exists, and otherwise from the original
 /// <c>Smtp:*</c> appsettings block. That fallback is the whole upgrade story for existing installs:
 /// they keep sending exactly as they did, with nothing to configure and no migration to run.
 /// </summary>
@@ -25,8 +25,9 @@ public sealed class EmailChannel(
 
     /// <summary>
     /// Includes the appsettings fallback, which is the whole reason this question belongs to the
-    /// channel: an install that has been sending mail since v1 has no ChannelSettings row, and a
-    /// screen that asked the settings table alone would tell it e-mail is not configured.
+    /// channel: an install that has been sending mail since before ChannelSettings existed has no
+    /// ChannelSettings row, and a screen that asked the settings table alone would tell it e-mail is
+    /// not configured.
     /// </summary>
     public async Task<bool> IsConfiguredAsync(CancellationToken cancellationToken = default)
         => await ResolveConfigAsync(cancellationToken) is not null;
@@ -90,7 +91,7 @@ public sealed class EmailChannel(
         }
     }
 
-    /// <summary>Row first, appsettings second — the resolution order the rest of the system uses, plus v1's block.</summary>
+    /// <summary>Row first, appsettings second — the resolution order the rest of the system uses, plus the original block.</summary>
     private async Task<SmtpChannelConfig?> ResolveConfigAsync(CancellationToken cancellationToken)
     {
         if (await resolver.ResolveAsync(NotificationChannel.Email, cancellationToken) is { } resolved

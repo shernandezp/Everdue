@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Acceptance criterion 11: no hardcoded UI strings, and both languages complete.
+// No hardcoded UI strings, and both languages complete.
 //
 // Two checks:
 //   1. Key parity — every key present in one locale is present in the other.

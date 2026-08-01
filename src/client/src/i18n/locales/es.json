@@ -62,7 +62,8 @@
     "showing": "Mostrando",
     "everyone": "Todo el equipo",
     "dropRejected": "Ese movimiento no está permitido",
-    "newTask": "Nueva tarea"
+    "newTask": "Nueva tarea",
+    "truncated": "Mostrando {{shown}} de {{total}} elementos — elige una persona para ver el resto."
   },
   "bulk": {
     "selected": "{{count}} seleccionados",
@@ -137,6 +138,7 @@
     "retry": "Reintentar",
     "required": "Este campo es obligatorio",
     "noResults": "Nada que mostrar",
+    "showingOf": "Mostrando los primeros {{shown}} de {{total}}. Ajusta la búsqueda o los filtros para ver el resto.",
     "saved": "Guardado",
     "name": "Nombre",
     "type": "Tipo",
@@ -377,7 +379,18 @@
     "dueFrom": "Vence desde",
     "dueTo": "Vence hasta",
     "results": "{{count}} elemento",
-    "results_other": "{{count}} elementos"
+    "results_other": "{{count}} elementos",
+    "chip": {
+      "dueFrom": "Vence desde {{value}}",
+      "dueTo": "Vence hasta {{value}}",
+      "completedFrom": "Completadas desde {{value}}",
+      "completedTo": "Completadas hasta {{value}}",
+      "responsibility": "Responsabilidad: {{title}}",
+      "occurrencesOnly": "Solo trabajo recurrente",
+      "oneOffOnly": "Solo tareas puntuales",
+      "entityType": "Tipo: {{value}}",
+      "boardView": "Solo trabajo actual"
+    }
   },
   "nav": {
     "myWork": "Mi trabajo",
@@ -403,9 +416,6 @@
     "concentration": "Trabajo completado",
     "holdAging": "Tiempo en espera",
     "import": "Importar",
-    "entityFields": "Campos personalizados",
-    "apiKeys": "Claves de API",
-    "webhooks": "Webhooks",
     "help": "Ayuda"
   },
   "notifications": {
@@ -516,6 +526,20 @@
     "reassignedSince": "Contando desde {{date}}",
     "reassignedNone": "Todavía no ha cambiado de manos nada."
   },
+  "respEvent": {
+    "Created": "Creada",
+    "Updated": "Editada",
+    "Reassigned": "Traspasada",
+    "Paused": "Pausada",
+    "Resumed": "Reanudada",
+    "Deactivated": "Desactivada"
+  },
+  "respHistory": {
+    "title": "Historial — {{title}}",
+    "empty": "Aún no hay cambios registrados.",
+    "pausedUntil": "En pausa hasta {{date}}",
+    "open": "Historial"
+  },
   "responsibility": {
     "title": "Responsabilidades",
     "new": "Nueva responsabilidad",
@@ -549,6 +573,7 @@
   },
   "settings": {
     "title": "Configuración de la organización",
+    "tabGeneral": "General",
     "name": "Nombre de la organización",
     "timeZone": "Zona horaria (IANA)",
     "timeZoneHint": "Todos los períodos y vencimientos se calculan en esta zona.",
@@ -666,6 +691,7 @@
     "cancelOnlyOneOff": "Solo se pueden cancelar tareas puntuales. Pausa o desactiva la responsabilidad.",
     "deleteComment": "Eliminar comentario",
     "mention": "Mencionar",
-    "mentionPlaceholder": "¿Quién debería verlo?"
+    "mentionPlaceholder": "¿Quién debería verlo?",
+    "drag": "Arrastrar para mover"
   }
 }

@@ -24,6 +24,8 @@ export const keys = {
   entities: {
     all: ['entities'] as const,
     picker: ['entities', 'picker'] as const,
+    pickerSearch: (search: string) => ['entities', 'picker', search] as const,
+    one: (id: string | null) => ['entities', 'one', id] as const,
     list: (filters: { search?: string; showInactive?: boolean }) => ['entities', filters] as const,
   },
 
@@ -35,6 +37,8 @@ export const keys = {
 
   responsibilities: {
     all: ['responsibilities'] as const,
+    one: (id: string | null) => ['responsibilities', 'one', id] as const,
+    events: (id: string | null) => ['responsibilities', 'events', id] as const,
   },
 
   workItems: {

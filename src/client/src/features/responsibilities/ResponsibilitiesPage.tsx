@@ -2,6 +2,7 @@ import { ActionIcon, Badge, Button, Group, Modal, Stack, Text } from '@mantine/c
 import { DatePickerInput } from '@mantine/dates';
 import {
   IconArrowsExchange,
+  IconHistory,
   IconListCheck,
   IconPencil,
   IconPlayerPause,
@@ -15,10 +16,12 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ResponsibilityDto } from '../../api/types';
 import { PageHeader } from '../../components/PageHeader';
+import { TruncationNotice } from '../../components/TruncationNotice';
 import { api } from '../../lib/api';
 import { formatDate, toDateInputValue } from '../../lib/format';
 import { notifyError, notifySaved } from '../../lib/notify';
 import { ReassignResponsibilityModal } from './ReassignResponsibilityModal';
+import { ResponsibilityHistoryModal } from './ResponsibilityHistoryModal';
 import { ResponsibilityModal } from './ResponsibilityModal';
 import { keys } from '../../lib/queryKeys';
 
@@ -33,6 +36,7 @@ export function ResponsibilitiesPage() {
   const [creating, setCreating] = useState(false);
   const [pausing, setPausing] = useState<ResponsibilityDto | null>(null);
   const [reassigning, setReassigning] = useState<ResponsibilityDto | null>(null);
+  const [historyFor, setHistoryFor] = useState<ResponsibilityDto | null>(null);
 
   const list = useQuery({
     queryKey: keys.responsibilities.all,
@@ -142,6 +146,10 @@ export function ResponsibilitiesPage() {
                   <IconArrowsExchange size={16} />
                 </ActionIcon>
 
+                <ActionIcon variant="subtle" aria-label={t('respHistory.open')} onClick={() => setHistoryFor(row)}>
+                  <IconHistory size={16} />
+                </ActionIcon>
+
                 {row.pausedUntil && new Date(row.pausedUntil) > new Date() ? (
                   <ActionIcon variant="subtle" aria-label={t('responsibility.resume')} onClick={() => void resume(row.id)}>
                     <IconPlayerPlay size={16} />
@@ -172,6 +180,8 @@ export function ResponsibilitiesPage() {
         ]}
       />
 
+      <TruncationNotice shown={list.data?.items.length ?? 0} total={list.data?.totalCount ?? 0} />
+
       <ResponsibilityModal
         responsibility={editing}
         opened={creating || editing !== null}
@@ -189,6 +199,8 @@ export function ResponsibilitiesPage() {
         opened={reassigning !== null}
         onClose={() => setReassigning(null)}
       />
+
+      <ResponsibilityHistoryModal responsibility={historyFor} onClose={() => setHistoryFor(null)} />
     </>
   );
 }

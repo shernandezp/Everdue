@@ -17,6 +17,8 @@ export type UserDto = Schemas['UserDto'];
 export type EntityDto = Schemas['EntityDto'];
 export type DepartmentDto = Schemas['DepartmentDto'];
 export type ResponsibilityDto = Schemas['ResponsibilityDto'];
+export type ResponsibilityEventDto = Schemas['ResponsibilityEventDto'];
+export type ResponsibilityEventType = Schemas['ResponsibilityEventType'];
 export type WorkItem = Schemas['WorkItemDto'];
 export type WorkItemDetail = Schemas['WorkItemDetailDto'];
 export type WorkItemEvent = Schemas['WorkItemEventDto'];
@@ -63,7 +65,7 @@ export type BulkResult = Schemas['BulkResultDto'];
 export type ReassignResult = Schemas['ReassignResultDto'];
 export type AuthProviders = Schemas['AuthProvidersDto'];
 
-// v2.5.
+// Checklist and custom-field types.
 export type ChecklistItem = Schemas['ChecklistItemDto'];
 export type ChecklistTemplateItem = Schemas['ChecklistTemplateItemDto'];
 export type CompletionRequirements = Schemas['CompletionRequirementsDto'];

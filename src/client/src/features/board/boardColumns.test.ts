@@ -57,10 +57,13 @@ describe('resolveDrop', () => {
     expect(resolveDrop('Open', 'onHold')).toEqual({ kind: 'hold' });
   });
 
-  it('reopens from on-hold and from either completed state', () => {
+  it('reopens from on-hold and from an on-time completion only', () => {
     expect(resolveDrop('OnHold', 'open')).toEqual({ kind: 'reopen' });
     expect(resolveDrop('Completed', 'open')).toEqual({ kind: 'reopen' });
-    expect(resolveDrop('CompletedLate', 'open')).toEqual({ kind: 'reopen' });
+
+    // A late completion always sits on a closed period; reopening it would drop the item out of
+    // the miss counts. The server refuses it, so the board does not offer it.
+    expect(resolveDrop('CompletedLate', 'open')).toEqual({ kind: 'rejected' });
   });
 
   it('never lets a user record a miss — that is the engine’s job alone', () => {

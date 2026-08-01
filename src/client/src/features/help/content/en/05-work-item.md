@@ -17,12 +17,12 @@ Only the actions that are legal right now are shown, so you can never reach a de
 | **Complete** | Finishes the work. After the period has ended it says *Complete (late)* |
 | **Start working** | Marks it as in progress. Optional — you can complete straight from *To do* |
 | **Put on hold** | Parks it. A reason is required |
-| **Reopen** | Releases a hold, or undoes a completion (owner or administrator) |
+| **Reopen** | Releases a hold, or undoes an on-time completion (owner or administrator). A *completed late* item cannot be reopened — its period is closed and the miss stands |
 | **Reschedule** | Moves the due date |
 | **Edit** | Changes the title, description, owner, entity or department |
 | **Cancel task** | One-off tasks only |
 
-If **Complete** is greyed out, hover it: the tooltip says exactly what is missing — unticked required
+If **Complete** is greyed out, the reason is written right below the buttons — unticked required
 steps, or a photo the responsibility demands.
 
 ## Checklist

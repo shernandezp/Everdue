@@ -14,6 +14,18 @@ public enum WorkItemView
     Board = 1,
 }
 
+/// <summary>
+/// Sortable columns of the work list. Owner is absent on purpose: display names live in the user
+/// directory, not on the row, so the database cannot order by them.
+/// </summary>
+public enum WorkItemSort
+{
+    DueDate = 0,
+    Title = 1,
+    Status = 2,
+    Entity = 3,
+}
+
 
 /// <summary>
 /// The one filter vocabulary. Report drill-throughs are expressed in exactly these parameters, so a
@@ -47,10 +59,14 @@ public sealed record ListWorkItemsQuery(
     bool? Overdue = null,
     bool IncludeCancelled = false,
     string? Search = null,
+    string? Sort = null,
+    bool Descending = false,
     int? Page = null,
     int? PageSize = null) : IQuery<PagedResult<WorkItemDto>>
 {
     public WorkItemView ResolvedView => EnumQuery.ParseOr(View, nameof(View), WorkItemView.List);
+
+    public WorkItemSort ResolvedSort => EnumQuery.ParseOr(Sort, nameof(Sort), WorkItemSort.DueDate);
 
     public EntityType? ResolvedEntityType => EnumQuery.Parse<EntityType>(EntityType, nameof(EntityType));
 

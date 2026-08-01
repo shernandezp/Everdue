@@ -42,6 +42,31 @@ public class QueryFilterTests
 
     [Theory]
     [MemberData(nameof(Providers))]
+    public async Task The_work_list_sorts_server_side(TestProvider provider)
+    {
+        await using var app = await EverdueApp.StartAsync(provider);
+        var client = await app.SignInAsAdminAsync();
+        var ownerId = await app.UserIdAsync(EverdueApp.AdminEmail);
+
+        foreach (var title in new[] { "Bravo", "Alpha", "Charlie" })
+        {
+            await client.PostJsonAsync<WorkItemDto>("/api/v1/workitems", new
+            {
+                title,
+                ownerUserId = ownerId,
+                dueDate = app.Clock.UtcNow.AddDays(1),
+            });
+        }
+
+        var ascending = await client.GetJsonAsync<PagedResult<WorkItemDto>>("/api/v1/workitems?sort=title");
+        ascending.Items.Select(i => i.Title).ShouldBe(["Alpha", "Bravo", "Charlie"]);
+
+        var descending = await client.GetJsonAsync<PagedResult<WorkItemDto>>("/api/v1/workitems?sort=TITLE&descending=true");
+        descending.Items.Select(i => i.Title).ShouldBe(["Charlie", "Bravo", "Alpha"]);
+    }
+
+    [Theory]
+    [MemberData(nameof(Providers))]
     public async Task A_genuinely_invalid_filter_says_what_the_valid_values_are(TestProvider provider)
     {
         await using var app = await EverdueApp.StartAsync(provider);

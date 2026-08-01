@@ -53,7 +53,7 @@ public sealed class EntityConfiguration : IEntityTypeConfiguration<Entity>
         builder.Property(e => e.Type).HasConversion<int>();
 
         // Display-only reference values. Bounded by the ten-fields-per-type cap and never queried, so the
-        // column is a string and there is no EAV table (guardrails §2).
+        // column is a string and there is no EAV table.
         builder.Property(e => e.CustomFieldsJson).HasMaxLength(4000);
 
         builder.HasIndex(e => new { e.TenantId, e.Type, e.Name }).IsUnique();
@@ -134,6 +134,22 @@ public sealed class WorkItemEventConfiguration : IEntityTypeConfiguration<WorkIt
 
         builder.HasOne<Tenant>().WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(e => e.WorkItem).WithMany().HasForeignKey(e => e.WorkItemId).OnDelete(DeleteBehavior.Cascade);
+    }
+}
+
+public sealed class ResponsibilityEventConfiguration : IEntityTypeConfiguration<ResponsibilityEvent>
+{
+    public void Configure(EntityTypeBuilder<ResponsibilityEvent> builder)
+    {
+        builder.ToTable("ResponsibilityEvents");
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.EventType).HasConversion<int>();
+        builder.Property(e => e.DataJson).HasMaxLength(4000);
+
+        builder.HasIndex(e => new { e.ResponsibilityId, e.Timestamp });
+
+        builder.HasOne<Tenant>().WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(e => e.Responsibility).WithMany().HasForeignKey(e => e.ResponsibilityId).OnDelete(DeleteBehavior.Cascade);
     }
 }
 

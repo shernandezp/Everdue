@@ -60,6 +60,10 @@ $env:ASPNETCORE_URLS          = 'http://localhost:5099'
 One executable plus `appsettings.json` and `wwwroot`; the database and encryption keys appear in
 `data/` next to it. Copy that folder anywhere and it still runs.
 
+The `Bootstrap__*` variables are optional: without them the first start generates
+`admin@everdue.local` with a random password printed once in the log. Without `ASPNETCORE_URLS` it
+listens on <http://localhost:5000>.
+
 ## 4. Demo mode: six months of history, one command
 
 ```bash

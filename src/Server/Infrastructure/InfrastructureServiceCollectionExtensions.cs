@@ -100,7 +100,7 @@ public static class InfrastructureServiceCollectionExtensions
     }
 
     /// <summary>
-    /// One registration per channel. Adding SMS or Slack in v3 is a line here and a class — no caller
+    /// One registration per channel. Adding SMS or Slack later is a line here and a class — no caller
     /// knows which channels exist, which is the point of the registry.
     /// </summary>
     private static IServiceCollection AddEverdueChannels(this IServiceCollection services)
@@ -149,8 +149,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddOptions<AppOptions>().Bind(configuration.GetSection(AppOptions.Section)).ValidateOnStart();
         services.AddOptions<GoogleAuthOptions>().Bind(configuration.GetSection(GoogleAuthOptions.Section)).ValidateOnStart();
 
-        // v2.5. Each of these is enforced by a handler, which is why the option classes live in Application;
-        // binding them to configuration is still Infrastructure's job.
+        // Checklist, entity-field, export, import and webhook collaborators. Each of these is enforced by a
+        // handler, which is why the option classes live in Application; binding them to configuration is
+        // still Infrastructure's job.
         services.AddOptions<ChecklistOptions>().Bind(configuration.GetSection(ChecklistOptions.Section)).ValidateDataAnnotations().ValidateOnStart();
         services.AddOptions<EntityFieldOptions>().Bind(configuration.GetSection(EntityFieldOptions.Section)).ValidateDataAnnotations().ValidateOnStart();
         services.AddOptions<ExportOptions>().Bind(configuration.GetSection(ExportOptions.Section)).ValidateDataAnnotations().ValidateOnStart();

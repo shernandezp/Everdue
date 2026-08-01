@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Everdue.Server.Tests.Api;
 
 /// <summary>
-/// Proof of completion: the rule over v1.5's attachments that makes the inspection use case real rather than
+/// Proof of completion: the rule over attachments that makes the inspection use case real rather than
 /// advisory.
 /// </summary>
 public class CompletionProofTests

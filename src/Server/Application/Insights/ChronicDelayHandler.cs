@@ -95,7 +95,7 @@ public sealed class ChronicDelayHandler(
             tally.Add(occurrence.Status, periodConcluded: true);
         }
 
-        // A late completion is a miss for compliance (the v1 rule), so it is a delay here too — this
+        // A late completion is a miss for compliance, so it is a delay here too — this
         // report is "chronically delayed", not "chronically ignored".
         var missed = tally.Missed + tally.Late;
 

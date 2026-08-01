@@ -1,4 +1,5 @@
 import { ActionIcon, Anchor, Button, Group, Modal, Select, Stack, Switch, Text, TextInput } from '@mantine/core';
+import { useDebouncedValue } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
 import { IconDeviceFloppy, IconFileImport, IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -8,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ENTITY_TYPES, type EntityCustomFieldValue, type EntityDto } from '../../api/types';
 import { PageHeader } from '../../components/PageHeader';
+import { TruncationNotice } from '../../components/TruncationNotice';
 import { api } from '../../lib/api';
 import { notifyError, notifySaved } from '../../lib/notify';
 import { importLink, routes } from '../../lib/routes';
@@ -22,12 +24,14 @@ export function EntitiesPage() {
 
   const [showInactive, setShowInactive] = useState(false);
   const [search, setSearch] = useState('');
+  // Debounced so typing costs one request, not one per keystroke.
+  const [debouncedSearch] = useDebouncedValue(search, 250);
   const [editing, setEditing] = useState<EntityDto | null>(null);
   const [creating, setCreating] = useState(false);
 
   const entities = useQuery({
-    queryKey: keys.entities.list({ search, showInactive }),
-    queryFn: () => api.entities.list({ search: search || undefined, includeInactive: showInactive }),
+    queryKey: keys.entities.list({ search: debouncedSearch, showInactive }),
+    queryFn: () => api.entities.list({ search: debouncedSearch || undefined, includeInactive: showInactive }),
   });
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: keys.entities.all });
@@ -142,6 +146,11 @@ export function EntitiesPage() {
               ),
           },
         ]}
+      />
+
+      <TruncationNotice
+        shown={entities.data?.items.length ?? 0}
+        total={entities.data?.totalCount ?? 0}
       />
 
       <EntityModal

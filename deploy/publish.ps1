@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     Untrimmed on purpose: trimming breaks EF Core, and ~90 MB is the accepted price of the
-    install promise — copy one file plus appsettings.json, run it.
+    install promise — copy one folder (executable, appsettings.json, wwwroot), run it.
 
 .EXAMPLE
     ./deploy/publish.ps1 -Runtime win-x64
@@ -44,5 +44,6 @@ Write-Host 'Done. To run it:' -ForegroundColor Green
 Write-Host "  cd $target"
 Write-Host '  ./Everdue.Server'
 Write-Host ''
-Write-Host 'First run needs Bootstrap:AdminEmail and Bootstrap:AdminPassword in appsettings.json'
-Write-Host 'or as environment variables (Bootstrap__AdminEmail / Bootstrap__AdminPassword).'
+Write-Host 'It listens on http://localhost:5000 unless ASPNETCORE_URLS says otherwise.'
+Write-Host 'Set Bootstrap:AdminEmail / Bootstrap:AdminPassword to choose the first account, or'
+Write-Host 'take the generated admin (admin@everdue.local) from the first-run log banner.'

@@ -18,7 +18,7 @@ public static class EntityFieldEndpoints
 
         group.MapGet("/", async ([AsParameters] ListEntityFieldDefsQuery query, ISender sender, CancellationToken cancellationToken)
                 => Results.Ok(await sender.Send(query, cancellationToken)))
-            .WithSummary("Display-only reference fields. Never filterable, sortable or reportable — see the guardrails.")
+            .WithSummary("Display-only reference fields. Never filterable, sortable or reportable — Everdue manages work, not business data.")
             .Produces<IReadOnlyList<EntityFieldDefDto>>();
 
         group.MapPost("/", async (CreateEntityFieldDefCommand command, ISender sender, CancellationToken cancellationToken) =>

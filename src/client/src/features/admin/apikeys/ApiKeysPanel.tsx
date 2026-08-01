@@ -18,20 +18,19 @@ import { DataTable } from 'mantine-datatable';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { API_KEY_SCOPES, type ApiKey, type ApiKeyScope } from '../../../api/types';
-import { PageHeader } from '../../../components/PageHeader';
 import { api } from '../../../lib/api';
 import { formatDateTime } from '../../../lib/format';
 import { notifyError, notifySaved } from '../../../lib/notify';
 import { keys } from '../../../lib/queryKeys';
 
 /**
- * Keys for the public API.
+ * Keys for the public API. A tab of the settings page — the header above it belongs to Settings.
  *
- * The page carries two facts that would otherwise be discovered the hard way: the token is shown exactly once,
+ * The screen carries two facts that would otherwise be discovered the hard way: the token is shown exactly once,
  * and a key cannot reach user, settings, channel, import or key-management endpoints whatever its actor's role
  * is. The second is what makes a key in a script's environment variable a contained thing.
  */
-export function ApiKeysPage() {
+export function ApiKeysPanel() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [creating, setCreating] = useState(false);
@@ -54,15 +53,14 @@ export function ApiKeysPage() {
 
   return (
     <Stack>
-      <PageHeader
-        title={t('apiKeys.title')}
-        description={t('apiKeys.description')}
-        actions={
-          <Button size="xs" leftSection={<IconPlus size={14} />} onClick={() => setCreating(true)}>
-            {t('apiKeys.create')}
-          </Button>
-        }
-      />
+      <Group justify="space-between" align="flex-start" wrap="wrap" gap="sm">
+        <Text size="sm" c="dimmed" maw={640}>
+          {t('apiKeys.description')}
+        </Text>
+        <Button size="xs" leftSection={<IconPlus size={14} />} onClick={() => setCreating(true)}>
+          {t('apiKeys.create')}
+        </Button>
+      </Group>
 
       <Alert variant="light" color="blue" icon={<IconInfoCircle size={16} />}>
         <Text size="sm">{t('apiKeys.scopeNote')}</Text>

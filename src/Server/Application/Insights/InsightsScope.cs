@@ -4,7 +4,7 @@ namespace Everdue.Server.Application.Insights;
 
 /// <summary>
 /// The scope filters as one SQL predicate, applied identically by every insight read. Stated once so a
-/// filter cannot narrow one number on a screen and be forgotten on the next — the same reason the v1
+/// filter cannot narrow one number on a screen and be forgotten on the next — the same reason the
 /// work-item filter is a single expression.
 /// </summary>
 internal static class InsightsScope

@@ -5,7 +5,7 @@ namespace Everdue.Server.Application.Abstractions;
 
 /// <summary>
 /// Each channel owns the shape of its own configuration; the store only ever sees an opaque string.
-/// That is why adding a channel in v3 (SMS, Slack) touches no table and no resolver.
+/// That is why adding a future channel (SMS, Slack) touches no table and no resolver.
 /// </summary>
 public static class ChannelConfigJson
 {

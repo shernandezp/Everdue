@@ -1,4 +1,5 @@
 import { Group, TextInput } from '@mantine/core';
+import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -6,6 +7,7 @@ import type { EntityHealthRow } from '../../api/types';
 import { ExportCsvButton } from '../../components/ExportCsvButton';
 import { PageHeader } from '../../components/PageHeader';
 import { ReportTable } from '../../components/ReportTable';
+import { TruncationNotice } from '../../components/TruncationNotice';
 import {
   countColumn,
   drillThroughColumn,
@@ -35,14 +37,16 @@ export function EntityHealthPage() {
   const { t } = useTranslation();
   const [filters, setFilters] = useState<ReportFilters>({});
   const [search, setSearch] = useState('');
+  // Debounced so typing costs one request, not one per keystroke.
+  const [debouncedSearch] = useDebouncedValue(search, 250);
   const { sort, setSort, params } = useServerSort<EntityHealthRow>(SORT_NAMES, {
     column: 'entityName',
     direction: 'asc',
   });
 
   const report = useQuery({
-    queryKey: keys.reports.entityHealth(filters, search, sort),
-    queryFn: () => api.reports.entityHealth({ ...filters, search: search || undefined, ...params }),
+    queryKey: keys.reports.entityHealth(filters, debouncedSearch, sort),
+    queryFn: () => api.reports.entityHealth({ ...filters, search: debouncedSearch || undefined, ...params }),
   });
 
   return (
@@ -81,6 +85,11 @@ export function EntityHealthPage() {
           nullableCountColumn('daysSinceLastActivity', t('reports.daysSince'), true),
           drillThroughColumn(t),
         ]}
+      />
+
+      <TruncationNotice
+        shown={report.data?.items.length ?? 0}
+        total={report.data?.totalCount ?? 0}
       />
     </>
   );

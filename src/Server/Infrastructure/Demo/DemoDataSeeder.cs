@@ -13,7 +13,7 @@ namespace Everdue.Server.Infrastructure.Demo;
 /// <summary>
 /// One command, and every screen has something on it.
 ///
-/// This is the highest-leverage adoption feature in v2.5: an empty install shows nothing that makes Everdue
+/// This is the highest-leverage adoption feature there is: an empty install shows nothing that makes Everdue
 /// different — the ledger, the compliance strip and the health table are all invisible without history — and a
 /// stranger's first ten minutes decide whether there is an eleventh.
 ///
@@ -230,7 +230,7 @@ public sealed class DemoDataSeeder(
 
     /// <summary>
     /// Two definitions, so the feature is visible without pretending an entity is a customer record: one
-    /// reference on a customer, one on a machine. Exactly what the guardrails allow and no more.
+    /// reference on a customer, one on a machine. Nothing more than that is needed to make the point.
     /// </summary>
     private static List<EntityFieldDef> CreateFieldDefinitions(List<Entity> entities)
     {

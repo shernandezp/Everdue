@@ -5,8 +5,8 @@ import type { EntityCustomFieldValue } from '../../api/types';
 /**
  * The custom fields defined for an entity's type.
  *
- * <strong>Reference information, not business data.</strong> Nothing filters, sorts or reports on these — the
- * guardrails say an entity that grows credit limits and contact persons has stopped being a thin reference — and
+ * <strong>Reference information, not business data.</strong> Nothing filters, sorts or reports on these — an
+ * entity that grows credit limits and contact persons has stopped being a thin reference — and
  * the note under the heading says so where somebody is about to fill them in.
  */
 export function EntityCustomFieldsSection({

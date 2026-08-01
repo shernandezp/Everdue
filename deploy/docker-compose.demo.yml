@@ -43,6 +43,9 @@ services:
       Demo__Password: EverdueDemo2026!
       Demo__Months: '6'
 
+      # The in-app on/off toggle ships disabled; a demo is the one install that wants it.
+      Demo__AllowReset: 'true'
+
       # Nothing leaves the machine in demo mode: no SMTP, no chat channel, no webhook receiver. The
       # notification bell still fills up, because in-app notifications need no channel at all.
       Notifications__Enabled: 'true'

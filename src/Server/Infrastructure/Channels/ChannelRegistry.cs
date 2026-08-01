@@ -4,7 +4,7 @@ using Everdue.Server.Domain;
 namespace Everdue.Server.Infrastructure.Channels;
 
 /// <summary>
-/// Resolves a channel implementation by enum. Adding SMS or Slack in v3 is a registration and
+/// Resolves a channel implementation by enum. Adding SMS or Slack later is a registration and
 /// nothing else — no caller knows which channels exist.
 /// </summary>
 public sealed class ChannelRegistry(IEnumerable<INotificationChannel> channels) : IChannelRegistry

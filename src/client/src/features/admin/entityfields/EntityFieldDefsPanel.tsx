@@ -5,19 +5,18 @@ import { DataTable } from 'mantine-datatable';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ENTITY_FIELD_TYPES, ENTITY_TYPES, type EntityFieldDef, type EntityFieldType } from '../../../api/types';
-import { PageHeader } from '../../../components/PageHeader';
 import { api } from '../../../lib/api';
 import { notifyError, notifySaved } from '../../../lib/notify';
 import { keys } from '../../../lib/queryKeys';
 
 /**
- * Custom field definitions.
+ * Custom field definitions. A tab of the settings page — the header above it belongs to Settings.
  *
- * The page states the boundary rather than assuming somebody read the guardrails: these are display-only
+ * The screen states the boundary rather than assuming somebody already knows the rule: these are display-only
  * references, capped per entity type, and nothing in the product filters, sorts or reports on them. The moment a
  * custom field drives behaviour, entities have stopped being thin.
  */
-export function EntityFieldDefsPage() {
+export function EntityFieldDefsPanel() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [creating, setCreating] = useState(false);
@@ -40,15 +39,14 @@ export function EntityFieldDefsPage() {
 
   return (
     <Stack>
-      <PageHeader
-        title={t('entityFields.title')}
-        description={t('entityFields.description')}
-        actions={
-          <Button size="xs" leftSection={<IconPlus size={14} />} onClick={() => setCreating(true)}>
-            {t('entityFields.add')}
-          </Button>
-        }
-      />
+      <Group justify="space-between" align="flex-start" wrap="wrap" gap="sm">
+        <Text size="sm" c="dimmed" maw={640}>
+          {t('entityFields.description')}
+        </Text>
+        <Button size="xs" leftSection={<IconPlus size={14} />} onClick={() => setCreating(true)}>
+          {t('entityFields.add')}
+        </Button>
+      </Group>
 
       <Alert variant="light" color="blue" icon={<IconInfoCircle size={16} />}>
         <Text size="sm">{t('entityFields.guardrail')}</Text>

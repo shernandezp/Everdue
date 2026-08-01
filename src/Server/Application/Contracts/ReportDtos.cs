@@ -32,8 +32,8 @@ public sealed record ExceptionsReportDto(
 /// <summary>
 /// How much work changed hands in the period. Visibility inside an existing screen, not a new report.
 ///
-/// <paramref name="CountingSince"/> is the honest part: v1 recorded owner changes as ordinary edits,
-/// so counting starts when v1.5 was installed and the screen says so rather than implying the number
+/// <paramref name="CountingSince"/> is the honest part: owner changes used to be recorded as ordinary edits,
+/// so counting starts when reassignment tracking was added and the screen says so rather than implying the number
 /// covers all of history.
 /// </summary>
 public sealed record ReassignmentSummaryDto(int Count, DateTimeOffset From, DateTimeOffset To, DateTimeOffset? CountingSince);

@@ -172,6 +172,28 @@ public static class WorkItemQueries
         return query;
     }
 
+    /// <summary>Stable order: whatever the caller sorts by, ties break on Id so paging never repeats a row.</summary>
+    public static IOrderedQueryable<WorkItem> Sort(IQueryable<WorkItem> query, WorkItemSort sort, bool descending)
+    {
+        var ordered = sort switch
+        {
+            WorkItemSort.Title => descending
+                ? query.OrderByDescending(w => w.Title)
+                : query.OrderBy(w => w.Title),
+            WorkItemSort.Status => descending
+                ? query.OrderByDescending(w => w.Status)
+                : query.OrderBy(w => w.Status),
+            WorkItemSort.Entity => descending
+                ? query.OrderByDescending(w => w.EntityId == null ? null : w.Entity!.Name)
+                : query.OrderBy(w => w.EntityId == null ? null : w.Entity!.Name),
+            _ => descending
+                ? query.OrderByDescending(w => w.DueDate)
+                : query.OrderBy(w => w.DueDate),
+        };
+
+        return ordered.ThenBy(w => w.Id);
+    }
+
     public static WorkItemDto ToDto(
         WorkItemRow row,
         IReadOnlyDictionary<Guid, UserSummary> users,

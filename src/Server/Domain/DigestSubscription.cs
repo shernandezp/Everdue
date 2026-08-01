@@ -5,7 +5,7 @@ namespace Everdue.Server.Domain;
 ///
 /// A row is created lazily — when a user first customises their digest, or when one is first sent to
 /// them. An active administrator with no row is treated as a daily, org-wide subscriber, which is
-/// exactly what v1 did, so an upgraded install keeps sending the same digest with no admin action
+/// exactly the original default behavior, so an upgraded install keeps sending the same digest with no admin action
 /// and no data migration. Unsubscribing is a row with <see cref="Active"/> false.
 /// </summary>
 public class DigestSubscription : ITenantOwned

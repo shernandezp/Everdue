@@ -9,9 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Everdue.Server.Tests.Api;
 
 /// <summary>
-/// The two settings v1.5 introduced that somebody has to be able to change, and the one contact
-/// detail an administrator maintains on another person's behalf. A feature nobody can configure is
-/// not a feature.
+/// The tenant settings that somebody has to be able to change, and the one contact detail an
+/// administrator maintains on another person's behalf. A feature nobody can configure is not a
+/// feature.
 /// </summary>
 public class AdminSurfaceTests
 {

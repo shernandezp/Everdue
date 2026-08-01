@@ -7,8 +7,8 @@ using Microsoft.EntityFrameworkCore;
 namespace Everdue.Server.Application.Insights;
 
 /// <summary>
-/// Rebuilds every stretch of hold time from the append-only event log — which is why that log shipped
-/// in v1, and why this works retroactively over history nobody recorded for reporting.
+/// Rebuilds every stretch of hold time from the append-only event log — which is why that log is
+/// written from day one, and why this works retroactively over history nobody recorded for reporting.
 /// </summary>
 internal sealed class HoldIntervalReader(IEverdueDbContext db)
 {

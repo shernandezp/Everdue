@@ -8,7 +8,7 @@ namespace Everdue.Server.Application.Insights;
 
 /// <summary>
 /// Which work an insight is about. Enum-valued parameters are strings on the wire and parsed
-/// case-insensitively (<see cref="EnumQuery"/>), exactly as the v1 reports do.
+/// case-insensitively (<see cref="EnumQuery"/>), exactly as the existing reports do.
 /// </summary>
 public interface IInsightsScope
 {

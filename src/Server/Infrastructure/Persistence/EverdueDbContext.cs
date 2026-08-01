@@ -31,6 +31,8 @@ public abstract class EverdueDbContext(DbContextOptions options, ITenantContext 
 
     public DbSet<Responsibility> Responsibilities => Set<Responsibility>();
 
+    public DbSet<ResponsibilityEvent> ResponsibilityEvents => Set<ResponsibilityEvent>();
+
     public DbSet<WorkItem> WorkItems => Set<WorkItem>();
 
     public DbSet<WorkItemEvent> WorkItemEvents => Set<WorkItemEvent>();

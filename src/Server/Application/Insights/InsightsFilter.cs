@@ -7,7 +7,7 @@ namespace Everdue.Server.Application.Insights;
 /// <summary>
 /// The scope filters every insight endpoint accepts. Deliberately its own type rather than a reuse of
 /// <c>ReportFilter</c>: the insight surface additionally scopes by a single entity, and widening the
-/// v1 type would change four shipped report handlers to serve six new ones.
+/// existing type would change four shipped report handlers to serve six new ones.
 /// </summary>
 public sealed record InsightsFilter(
     Guid? OwnerId = null,

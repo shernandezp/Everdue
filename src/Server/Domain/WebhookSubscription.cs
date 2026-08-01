@@ -4,8 +4,8 @@ namespace Everdue.Server.Domain;
 /// Where a tenant wants to be told about work, and which events it cares about.
 ///
 /// Outbound only, deliberately: Everdue makes HTTP calls out, which a home or office router permits,
-/// and never needs an inbound endpoint. That is the same decision Telegram's long polling made in
-/// v1.5, for the same audience.
+/// and never needs an inbound endpoint. That is the same decision Telegram's long polling made,
+/// for the same audience.
 /// </summary>
 public class WebhookSubscription : ITenantOwned
 {

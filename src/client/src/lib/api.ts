@@ -43,6 +43,7 @@ import type {
   ReliabilityRow,
   ResponsibilityCompliance,
   ResponsibilityDto,
+  ResponsibilityEventDto,
   SavedView,
   TelegramLink,
   TenantSettings,
@@ -99,6 +100,8 @@ export type WorkItemFilters = {
   overdue?: boolean;
   includeCancelled?: boolean;
   search?: string;
+  sort?: string;
+  descending?: boolean;
   page?: number;
   pageSize?: number;
 };
@@ -143,6 +146,7 @@ export const api = {
   entities: {
     list: (params: { search?: string; type?: string; includeInactive?: boolean; pageSize?: number } = {}) =>
       http.get<Paged<EntityDto>>(`/entities${query({ ...params, pageSize: params.pageSize ?? 100 })}`),
+    get: (id: string) => http.get<EntityDto>(`/entities/${id}`),
     /**
      * `customFields` is keyed by definition id. Omitting it leaves stored values alone; sending a key with an
      * empty value clears that one field.
@@ -167,6 +171,8 @@ export const api = {
   responsibilities: {
     list: (params: { search?: string; includeInactive?: boolean; pageSize?: number } = {}) =>
       http.get<Paged<ResponsibilityDto>>(`/responsibilities${query({ ...params, pageSize: params.pageSize ?? 100 })}`),
+    get: (id: string) => http.get<ResponsibilityDto>(`/responsibilities/${id}`),
+    events: (id: string) => http.get<ResponsibilityEventDto[]>(`/responsibilities/${id}/events`),
     create: (body: Record<string, unknown>) => http.post<ResponsibilityDto>('/responsibilities', body),
     update: (id: string, body: Record<string, unknown>) => http.put<ResponsibilityDto>(`/responsibilities/${id}`, body),
     deactivate: (id: string) => http.del<ResponsibilityDto>(`/responsibilities/${id}`),

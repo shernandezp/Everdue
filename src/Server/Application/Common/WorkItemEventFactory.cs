@@ -34,8 +34,8 @@ public sealed class FieldChangeSet
 }
 
 /// <summary>
-/// Every mutation writes one of these. v1 only reads them back in the item drawer; v2's hold-aging
-/// and v3's audit log are built entirely from this table, so the payloads are written properly now.
+/// Every mutation writes one of these. Only the item drawer reads them back today, but hold-aging analysis
+/// and any future audit log will be built entirely from this table, so the payloads are written properly now.
 /// </summary>
 public static class WorkItemEventFactory
 {

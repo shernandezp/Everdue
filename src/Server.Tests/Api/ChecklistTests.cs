@@ -260,7 +260,7 @@ public class ChecklistTests
     }
 
     /// <summary>
-    /// Acceptance criterion 4, the half that is easy to forget: progress shows on the entity timeline too, because an
+    /// The half that is easy to forget: progress shows on the entity timeline too, because an
     /// entity's inspection history is exactly where somebody asks how much of each check was actually done.
     /// </summary>
     [Theory]

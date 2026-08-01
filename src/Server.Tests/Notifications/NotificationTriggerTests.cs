@@ -18,7 +18,7 @@ public class NotificationTriggerTests
     public static TheoryData<TestProvider> Providers => TestDatabases.All;
 
     /// <summary>
-    /// Acceptance criterion 1: assigning work to somebody tells them, and telling yourself about your
+    /// Assigning work to somebody tells them, and telling yourself about your
     /// own task is noise nobody asked for.
     /// </summary>
     [Theory]
@@ -180,7 +180,7 @@ public class NotificationTriggerTests
     }
 
     /// <summary>
-    /// Acceptance criterion 6: two reminder runs on the same local day — and a restart between them —
+    /// Two reminder runs on the same local day — and a restart between them —
     /// produce one notification per due item. The dedupe key is the whole mechanism; there is no
     /// "last run" marker anywhere, exactly as the occurrence engine has none.
     /// </summary>
@@ -213,7 +213,7 @@ public class NotificationTriggerTests
     }
 
     /// <summary>
-    /// Acceptance criterion 7: coming back from a fortnight of downtime records every miss and
+    /// Coming back from a fortnight of downtime records every miss and
     /// announces only the recent ones. The ledger is untouched; the interruption is what is capped.
     /// </summary>
     [Fact]

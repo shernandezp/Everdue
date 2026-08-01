@@ -18,7 +18,7 @@ public sealed class ListChannelSettingsHandler(
         CancellationToken cancellationToken = default)
     {
         // "Configured" is asked of the channel, not of this table: e-mail can also be configured by
-        // v1's appsettings block, and a screen that only read rows would tell an install that has
+        // the appsettings block, and a screen that only read rows would tell an install that has
         // been sending mail for months that e-mail is not set up.
         var configured = await channels.ConfiguredAsync(cancellationToken);
 
