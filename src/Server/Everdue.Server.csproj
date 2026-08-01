@@ -25,11 +25,16 @@
     <SelfContained Condition="'$(SelfContainedPublish)' == 'true'">true</SelfContained>
     <IncludeNativeLibrariesForSelfExtract Condition="'$(SelfContainedPublish)' == 'true'">true</IncludeNativeLibrariesForSelfExtract>
     <!--
-      The OpenAPI document is generated at build and committed to docs/openapi/v1.json. Two things follow:
+      The OpenAPI document is generated on demand and committed to docs/openapi/v1.json. Two things follow:
       a reader can see the whole API surface without running anything, and the client generates its TypeScript
       types from the committed file instead of from a live server — so CI needs no boot-and-fetch step.
-      Off by default because it builds the host; CI and the publish script turn it on.
+
+      The explicit 'false' matters: generating the document *runs the freshly built app*, and the package
+      defaults to on when the property is merely unset. Left to that default, a cross-compiled publish
+      (win-x64 built on a Linux runner) dies trying to execute a binary the host cannot run, and every
+      ordinary build pays an app boot it never asked for. Opt in with -p:GenerateOpenApi=true.
     -->
+    <OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
     <OpenApiGenerateDocuments Condition="'$(GenerateOpenApi)' == 'true'">true</OpenApiGenerateDocuments>
     <OpenApiGenerateDocumentsOnBuild Condition="'$(GenerateOpenApi)' == 'true'">true</OpenApiGenerateDocumentsOnBuild>
     <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)/../../docs/openapi</OpenApiDocumentsDirectory>
