@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Spanish digest. See DigestStrings.resx for the key conventions. -->
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a2c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a2c561934e089</value>
+  </resheader>
+  <data name="subject" xml:space="preserve">
+    <value>Everdue — resumen del {0}</value>
+  </data>
+  <data name="subject.weekly" xml:space="preserve">
+    <value>Everdue — resumen semanal del {0}</value>
+  </data>
+  <data name="greeting" xml:space="preserve">
+    <value>Resumen diario de {0}</value>
+  </data>
+  <data name="greeting.weekly" xml:space="preserve">
+    <value>Resumen semanal de {0}</value>
+  </data>
+  <data name="department" xml:space="preserve">
+    <value>Departamento: {0}</value>
+  </data>
+  <data name="wentMissed" xml:space="preserve">
+    <value>Incumplidas desde ayer</value>
+  </data>
+  <data name="wentMissed.weekly" xml:space="preserve">
+    <value>Incumplidas esta semana</value>
+  </data>
+  <data name="dueToday" xml:space="preserve">
+    <value>Vencen hoy</value>
+  </data>
+  <data name="onHold" xml:space="preserve">
+    <value>En espera</value>
+  </data>
+  <data name="aging" xml:space="preserve">
+    <value>Bloqueos más antiguos</value>
+  </data>
+  <data name="neglect" xml:space="preserve">
+    <value>Entidades sin actividad</value>
+  </data>
+  <data name="days" xml:space="preserve">
+    <value>Días</value>
+  </data>
+  <data name="never" xml:space="preserve">
+    <value>Nunca</value>
+  </data>
+  <data name="open" xml:space="preserve">
+    <value>Abiertas</value>
+  </data>
+  <data name="nothing" xml:space="preserve">
+    <value>Nada que reportar.</value>
+  </data>
+  <data name="owner" xml:space="preserve">
+    <value>Responsable</value>
+  </data>
+  <data name="entity" xml:space="preserve">
+    <value>Entidad</value>
+  </data>
+  <data name="due" xml:space="preserve">
+    <value>Vence</value>
+  </data>
+  <data name="task" xml:space="preserve">
+    <value>Tarea</value>
+  </data>
+  <data name="count" xml:space="preserve">
+    <value>Cantidad</value>
+  </data>
+  <data name="reason" xml:space="preserve">
+    <value>Motivo</value>
+  </data>
+  <data name="footer" xml:space="preserve">
+    <value>Enviado por Everdue. Ajusta la frecuencia del resumen en tu perfil.</value>
+  </data>
+  <data name="empty" xml:space="preserve">
+    <value>—</value>
+  </data>
+  <data name="reason.WaitingCustomer" xml:space="preserve">
+    <value>Esperando cliente</value>
+  </data>
+  <data name="reason.WaitingSupplier" xml:space="preserve">
+    <value>Esperando proveedor</value>
+  </data>
+  <data name="reason.WaitingApproval" xml:space="preserve">
+    <value>Esperando aprobación</value>
+  </data>
+  <data name="reason.MissingInformation" xml:space="preserve">
+    <value>Falta información</value>
+  </data>
+  <data name="reason.Other" xml:space="preserve">
+    <value>Otro</value>
+  </data>
+</root>

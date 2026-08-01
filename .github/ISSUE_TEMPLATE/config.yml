@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/shernandezp/everdue/security/advisories/new
+    about: Report privately. Please do not open a public issue.
+  - name: Question about installing or configuring
+    url: https://github.com/shernandezp/everdue/discussions
+    about: Ask in Discussions — the README and docs/ cover most of it.

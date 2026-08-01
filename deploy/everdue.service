@@ -1,0 +1,41 @@
+# Linux daemon install:
+#   sudo mkdir -p /opt/everdue /var/lib/everdue
+#   sudo cp -r publish/linux-x64/* /opt/everdue/          # the single-file build + appsettings.json
+#   sudo useradd --system --home /var/lib/everdue everdue && sudo chown -R everdue /var/lib/everdue
+#   sudo cp deploy/everdue.service /etc/systemd/system/ && sudo systemctl enable --now everdue
+#
+# The process uses Host.UseSystemd(), so systemd gets proper readiness and log integration.
+
+[Unit]
+Description=Everdue — operational accountability
+Documentation=https://github.com/shernandezp/everdue
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+ExecStart=/opt/everdue/Everdue.Server
+WorkingDirectory=/opt/everdue
+User=everdue
+Group=everdue
+Restart=always
+RestartSec=5
+KillSignal=SIGINT
+SyslogIdentifier=everdue
+
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://127.0.0.1:5080
+Environment=DataDir=/var/lib/everdue
+# Set these on first run, then remove them; the seeded admin must change the password at first login.
+# Environment=Bootstrap__AdminEmail=admin@example.com
+# Environment=Bootstrap__AdminPassword=ChangeThisOnFirstLogin1!
+
+# The whole state is one directory. Everything else can be read-only.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/everdue
+
+[Install]
+WantedBy=multi-user.target

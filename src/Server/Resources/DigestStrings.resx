@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Neutral (English) resource set for the digest e-mail.
+
+    Keys ending ".weekly" are variants: DigestTemplates asks for the weekly form and falls back to the
+    daily one, so only the wording that actually differs needs a weekly entry.
+    "reason.<member>" keys are HoldReason display names.
+  -->
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a2c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a2c561934e089</value>
+  </resheader>
+  <data name="subject" xml:space="preserve">
+    <value>Everdue — digest for {0}</value>
+  </data>
+  <data name="subject.weekly" xml:space="preserve">
+    <value>Everdue — weekly digest for {0}</value>
+  </data>
+  <data name="greeting" xml:space="preserve">
+    <value>Daily digest for {0}</value>
+  </data>
+  <data name="greeting.weekly" xml:space="preserve">
+    <value>Weekly digest for {0}</value>
+  </data>
+  <data name="department" xml:space="preserve">
+    <value>Department: {0}</value>
+  </data>
+  <data name="wentMissed" xml:space="preserve">
+    <value>Went missed since yesterday</value>
+  </data>
+  <data name="wentMissed.weekly" xml:space="preserve">
+    <value>Went missed this week</value>
+  </data>
+  <data name="dueToday" xml:space="preserve">
+    <value>Due today</value>
+  </data>
+  <data name="onHold" xml:space="preserve">
+    <value>On hold</value>
+  </data>
+  <data name="aging" xml:space="preserve">
+    <value>Longest-running blocks</value>
+  </data>
+  <data name="neglect" xml:space="preserve">
+    <value>Entities with no activity</value>
+  </data>
+  <data name="days" xml:space="preserve">
+    <value>Days</value>
+  </data>
+  <data name="never" xml:space="preserve">
+    <value>Never</value>
+  </data>
+  <data name="open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="nothing" xml:space="preserve">
+    <value>Nothing to report.</value>
+  </data>
+  <data name="owner" xml:space="preserve">
+    <value>Owner</value>
+  </data>
+  <data name="entity" xml:space="preserve">
+    <value>Entity</value>
+  </data>
+  <data name="due" xml:space="preserve">
+    <value>Due</value>
+  </data>
+  <data name="task" xml:space="preserve">
+    <value>Task</value>
+  </data>
+  <data name="count" xml:space="preserve">
+    <value>Count</value>
+  </data>
+  <data name="reason" xml:space="preserve">
+    <value>Reason</value>
+  </data>
+  <data name="footer" xml:space="preserve">
+    <value>Sent by Everdue. Change your digest frequency in your profile.</value>
+  </data>
+  <data name="empty" xml:space="preserve">
+    <value>—</value>
+  </data>
+  <data name="reason.WaitingCustomer" xml:space="preserve">
+    <value>Waiting on customer</value>
+  </data>
+  <data name="reason.WaitingSupplier" xml:space="preserve">
+    <value>Waiting on supplier</value>
+  </data>
+  <data name="reason.WaitingApproval" xml:space="preserve">
+    <value>Waiting for approval</value>
+  </data>
+  <data name="reason.MissingInformation" xml:space="preserve">
+    <value>Missing information</value>
+  </data>
+  <data name="reason.Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+</root>

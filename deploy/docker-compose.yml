@@ -1,0 +1,41 @@
+# Fresh machine → running Everdue in three commands:
+#   git clone … && cd everdue
+#   cp deploy/.env.example deploy/.env      (then edit the two Bootstrap values)
+#   docker compose -f deploy/docker-compose.yml up -d --build
+#
+# SQLite by default: one process, one volume, no database server to run or patch.
+
+services:
+  everdue:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: everdue:latest
+    container_name: everdue
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
+    environment:
+      Database__Provider: Sqlite
+      DataDir: /data
+
+      Tenant__Name: ${EVERDUE_TENANT_NAME:-Everdue}
+      Tenant__TimeZoneId: ${EVERDUE_TIMEZONE:-UTC}
+      Tenant__DigestHourLocal: ${EVERDUE_DIGEST_HOUR:-7}
+      Tenant__DefaultLanguage: ${EVERDUE_LANGUAGE:-es}
+
+      # First run only: the seeded admin is forced to change this password at first login.
+      Bootstrap__AdminEmail: ${EVERDUE_ADMIN_EMAIL:?set EVERDUE_ADMIN_EMAIL in deploy/.env}
+      Bootstrap__AdminPassword: ${EVERDUE_ADMIN_PASSWORD:?set EVERDUE_ADMIN_PASSWORD in deploy/.env}
+
+      # Optional. Without it the daily digest degrades to a logged warning and nothing else changes.
+      Smtp__Host: ${EVERDUE_SMTP_HOST:-}
+      Smtp__Port: ${EVERDUE_SMTP_PORT:-587}
+      Smtp__User: ${EVERDUE_SMTP_USER:-}
+      Smtp__Password: ${EVERDUE_SMTP_PASSWORD:-}
+      Smtp__From: ${EVERDUE_SMTP_FROM:-}
+    volumes:
+      - everdue-data:/data
+
+volumes:
+  everdue-data:

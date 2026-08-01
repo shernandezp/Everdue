@@ -1,0 +1,228 @@
+/*
+ * House interaction styles.
+ *
+ * Everything here is presentation: motion on the things that respond to a pointer, an accent bar on
+ * the active navigation link, and a little colour behind the shell's chrome. No layout, no sizing
+ * that a component could not do itself, and nothing that changes what a control does.
+ *
+ * The `.mantine-*` selectors are Mantine's static class names, which it puts on the DOM alongside its
+ * own hashed ones. This file is imported after Mantine's stylesheet in main.tsx, so on equal
+ * specificity these rules win — which is the whole reason the import order there is not alphabetical.
+ */
+
+:root {
+  --everdue-lift: translateY(-1px);
+  --everdue-motion: 160ms ease;
+}
+
+/* Somebody who has asked their system for less motion gets colour and shadow, and no movement. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .mantine-Button-root:hover,
+  .mantine-ActionIcon-root:hover,
+  .everdue-interactive:hover,
+  .everdue-chip:hover,
+  .everdue-row:hover,
+  .mantine-NavLink-root:hover {
+    transform: none !important;
+  }
+}
+
+/* ── Buttons and icon buttons ──────────────────────────────────────────────────────────────────── */
+
+.mantine-Button-root {
+  font-weight: 600;
+  transition:
+    transform var(--everdue-motion),
+    box-shadow var(--everdue-motion),
+    background-color var(--everdue-motion),
+    border-color var(--everdue-motion);
+}
+
+.mantine-Button-root:hover:not(:disabled):not([data-disabled]):not([data-loading]) {
+  transform: var(--everdue-lift);
+  box-shadow: var(--mantine-shadow-sm);
+}
+
+.mantine-Button-root:active:not(:disabled):not([data-disabled]) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.mantine-ActionIcon-root {
+  transition:
+    transform var(--everdue-motion),
+    background-color var(--everdue-motion),
+    color var(--everdue-motion);
+}
+
+.mantine-ActionIcon-root:hover:not(:disabled):not([data-disabled]):not([data-loading]) {
+  transform: scale(1.1);
+}
+
+.mantine-ActionIcon-root:active:not(:disabled):not([data-disabled]) {
+  transform: scale(0.96);
+}
+
+/* ── Navigation ────────────────────────────────────────────────────────────────────────────────── */
+
+.mantine-NavLink-root {
+  position: relative;
+  border-radius: var(--mantine-radius-md);
+  transition:
+    background-color var(--everdue-motion),
+    color var(--everdue-motion),
+    transform var(--everdue-motion);
+}
+
+.mantine-NavLink-root:hover {
+  transform: translateX(2px);
+}
+
+/*
+ * The accent bar. Its colour comes from the section the link sits in (--nav-accent, set by the
+ * navbar), so the stripe beside "Compliance" is the same violet as that screen's page header.
+ */
+.mantine-NavLink-root::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--nav-accent, var(--mantine-primary-color-filled));
+  opacity: 0;
+  transform: scaleY(0.3);
+  transition:
+    opacity var(--everdue-motion),
+    transform var(--everdue-motion);
+}
+
+.mantine-NavLink-root[data-active]::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.mantine-Accordion-control {
+  border-radius: var(--mantine-radius-md);
+  transition: background-color var(--everdue-motion);
+}
+
+.mantine-Accordion-control:hover {
+  background-color: var(--mantine-color-default-hover);
+}
+
+/* ── Shell chrome ──────────────────────────────────────────────────────────────────────────────── */
+
+/* A wash of the mark's own gradient, at the opacity of a hint. */
+.mantine-AppShell-header {
+  background-image: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--mantine-color-everdue-6) 10%, transparent),
+    color-mix(in srgb, var(--mantine-color-teal-6) 7%, transparent) 60%,
+    transparent
+  );
+  backdrop-filter: saturate(1.15) blur(6px);
+}
+
+.mantine-AppShell-navbar {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--mantine-color-everdue-6) 6%, transparent),
+    transparent 260px
+  );
+}
+
+/* ── Surfaces ──────────────────────────────────────────────────────────────────────────────────── */
+
+.mantine-Card-root,
+.mantine-Paper-root {
+  transition:
+    box-shadow var(--everdue-motion),
+    border-color var(--everdue-motion);
+}
+
+/*
+ * Opt-in, for the cards that are themselves a control: a board card, a summary tile that drills in.
+ * Note that transform is only transitioned here, and that a card being dragged switches the
+ * transition off inline — dnd-kit moves it by writing transform every frame, and easing that would
+ * make the card trail the pointer.
+ */
+.everdue-interactive {
+  transition:
+    box-shadow var(--everdue-motion),
+    border-color var(--everdue-motion),
+    transform var(--everdue-motion);
+}
+
+.everdue-interactive:hover {
+  transform: var(--everdue-lift);
+  box-shadow: var(--mantine-shadow-md);
+  border-color: color-mix(in srgb, var(--everdue-accent, var(--mantine-primary-color-filled)) 45%, transparent);
+}
+
+.everdue-interactive:active {
+  transform: translateY(0);
+}
+
+/* A clickable line inside a card — a hold reason, a saved view — which needs to look clickable. */
+.everdue-row {
+  display: block;
+  width: 100%;
+  border-radius: var(--mantine-radius-md);
+  padding: 6px 8px;
+  transition:
+    background-color var(--everdue-motion),
+    transform var(--everdue-motion);
+}
+
+.everdue-row:hover {
+  background-color: var(--mantine-color-default-hover);
+  transform: translateX(2px);
+}
+
+/* A chip that opens something — a period in the compliance strip. */
+.everdue-chip {
+  transition: transform var(--everdue-motion);
+}
+
+.everdue-chip:hover {
+  transform: translateY(-1px) scale(1.04);
+}
+
+/* The coloured rule that tells a board column apart at a glance. */
+.everdue-column {
+  border-top: 3px solid var(--everdue-accent, var(--mantine-color-default-border));
+}
+
+/* ── Tables ────────────────────────────────────────────────────────────────────────────────────── */
+
+/* Row hover comes from mantine-datatable's own `highlightOnHover`; this only softens the change. */
+.mantine-datatable-row,
+.mantine-Table-tr {
+  transition: background-color var(--everdue-motion);
+}
+
+
+/* ── The danger zone ───────────────────────────────────────────────────────────────────────────── */
+
+/*
+ * The one card in the app whose button destroys data. It is bordered in red rather than merely
+ * containing a red button, so it reads as a different kind of thing while somebody is scrolling past
+ * it — the colour is the warning, before any text is read.
+ *
+ * Here rather than as an inline `style` on the card: colours belong to the theme or to this layer,
+ * never to a call site (conventions.md). It is also the only form jsdom can compute in a test — an
+ * inline `var()` length is what makes `getByRole({ name })` throw (findings.md).
+ */
+.everdue-danger {
+  border-color: var(--mantine-color-red-outline);
+}

@@ -1,0 +1,131 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>Everdue.Server</RootNamespace>
+    <AssemblyName>Everdue.Server</AssemblyName>
+    <UserSecretsId>everdue-server-3f1a</UserSecretsId>
+    <!--
+      Single-file, self-contained, UNTRIMMED publish. Trimming breaks EF Core, so it stays off and
+      ~90 MB is the accepted price of "copy one file and run it".
+      Self-containment is opt-in (`-p:SelfContainedPublish=true`, which deploy/publish.ps1 and CI
+      pass) because a self-contained executable cannot be referenced by the test project.
+    -->
+    <PublishTrimmed>false</PublishTrimmed>
+    <!--
+      Keeps NuGet packages from dragging ~20 localizations of their own into the artifact, while
+      preserving the languages Everdue itself renders in. Resources/*.resx supply those: the neutral
+      set is English (compiled into the main assembly), and every other language is a satellite whose
+      culture MUST appear in this list or it is silently dropped from the build output — the digest
+      would then arrive in English for a Spanish tenant. Adding a language means adding its resx and
+      its code here.
+    -->
+    <SatelliteResourceLanguages>en;es</SatelliteResourceLanguages>
+    <PublishSingleFile Condition="'$(SelfContainedPublish)' == 'true'">true</PublishSingleFile>
+    <SelfContained Condition="'$(SelfContainedPublish)' == 'true'">true</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract Condition="'$(SelfContainedPublish)' == 'true'">true</IncludeNativeLibrariesForSelfExtract>
+    <!--
+      The OpenAPI document is generated at build and committed to docs/openapi/v1.json. Two things follow:
+      a reader can see the whole API surface without running anything, and the client generates its TypeScript
+      types from the committed file instead of from a live server — so CI needs no boot-and-fetch step.
+      Off by default because it builds the host; CI and the publish script turn it on.
+    -->
+    <OpenApiGenerateDocuments Condition="'$(GenerateOpenApi)' == 'true'">true</OpenApiGenerateDocuments>
+    <OpenApiGenerateDocumentsOnBuild Condition="'$(GenerateOpenApi)' == 'true'">true</OpenApiGenerateDocumentsOnBuild>
+    <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)/../../docs/openapi</OpenApiDocumentsDirectory>
+
+    <!-- The SPA lives in ../client and is emitted into wwwroot by the BuildClient target below. -->
+    <SpaRoot>$(MSBuildProjectDirectory)/../client/</SpaRoot>
+    <SpaDist>$(SpaRoot)dist/</SpaDist>
+    <BuildClient Condition="'$(BuildClient)' == ''">false</BuildClient>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Common.Mediator" />
+    <PackageReference Include="MailKit" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server">
+      <IncludeAssets>build; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Scalar.AspNetCore" />
+    <PackageReference Include="Sylvan.Data.Csv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Everdue.Server.Tests" />
+  </ItemGroup>
+
+  <!--
+    The development settings carry a well-known bootstrap password that lives in the repository.
+    Shipping them in a release artifact means anyone who starts it in the Development environment
+    gets a seeded admin whose password is public. They stay a local-only file.
+  -->
+  <ItemGroup>
+    <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" />
+  </ItemGroup>
+
+  <!--
+    The generator names the file after the assembly. The committed contract is named after the API version it
+    describes, because that is what a reader is looking for and what /api/v2 would sit beside.
+  -->
+  <Target Name="RenameOpenApiDocument" AfterTargets="Build" Condition="'$(GenerateOpenApi)' == 'true'">
+    <Move SourceFiles="$(OpenApiDocumentsDirectory)/$(AssemblyName).json"
+          DestinationFiles="$(OpenApiDocumentsDirectory)/v1.json"
+          Condition="Exists('$(OpenApiDocumentsDirectory)/$(AssemblyName).json')" />
+  </Target>
+
+  <!--
+    Client build. Off by default so `dotnet build` never needs node installed.
+    Turned on for `dotnet publish` (see below) and by CI via -p:BuildClient=true.
+  -->
+  <Target Name="EnableClientBuildOnPublish" BeforeTargets="PrepareForPublish">
+    <PropertyGroup>
+      <BuildClient Condition="'$(SkipClientBuild)' != 'true'">true</BuildClient>
+    </PropertyGroup>
+  </Target>
+
+  <!--
+    One process serves the API and the client on one port, so the built SPA has to end up in the
+    web root of whatever is being produced. `dotnet build` and `dotnet publish` stage files
+    differently, and getting only one of them right yields an install where the API answers and the
+    site 404s — so both are handled explicitly below.
+  -->
+  <Target Name="BuildClientApp" BeforeTargets="BeforeBuild" Condition="'$(BuildClient)' == 'true'">
+    <Exec Command="npm ci" WorkingDirectory="$(SpaRoot)" Condition="!Exists('$(SpaRoot)node_modules')" />
+    <Exec Command="npm run build" WorkingDirectory="$(SpaRoot)" />
+  </Target>
+
+  <!-- Build output: the SDK only stages wwwroot on publish, so copy it there directly. -->
+  <Target Name="CopyClientToOutput" AfterTargets="Build" Condition="Exists('$(SpaDist)')">
+    <ItemGroup>
+      <ClientArtifacts Include="$(SpaDist)**" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ClientArtifacts)" DestinationFolder="$(OutDir)wwwroot/%(RecursiveDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+  <!--
+    Publish: the file list is computed from items evaluated before the client was built, so newly
+    produced files have to be added to it by hand. (The Docker build copies dist into wwwroot before
+    calling publish, in which case this finds nothing and the SDK's normal staging applies.)
+  -->
+  <Target Name="CopyClientToPublish" AfterTargets="ComputeFilesToPublish" Condition="Exists('$(SpaDist)')">
+    <ItemGroup>
+      <ClientArtifacts Include="$(SpaDist)**" />
+      <ResolvedFileToPublish Include="@(ClientArtifacts)"
+                             RelativePath="wwwroot/%(RecursiveDir)%(Filename)%(Extension)"
+                             CopyToPublishDirectory="PreserveNewest"
+                             ExcludeFromSingleFile="true" />
+    </ItemGroup>
+  </Target>
+
+</Project>

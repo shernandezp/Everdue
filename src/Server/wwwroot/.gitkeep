@@ -1,0 +1,2 @@
+# The built SPA lands here (deploy/publish.ps1, `dotnet publish`, or -p:BuildClient=true).
+# Kept in source control so the web root exists even before the client has been built.

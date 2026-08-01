@@ -1,0 +1,199 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  client:
+    name: Client
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/client
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: src/client/package-lock.json
+
+      - run: npm ci
+
+      # Acceptance criterion 11: no hardcoded UI strings, both locales complete.
+      - name: i18n completeness
+        run: npm run check:i18n
+
+      - name: Component tests
+        run: npm test
+
+      - name: Type-check and build
+        run: npm run build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: client-dist
+          path: src/client/dist
+          retention-days: 7
+
+  contract:
+    name: API contract is current
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: src/client/package-lock.json
+
+      - run: npm ci
+        working-directory: src/client
+
+      # The contract is generated at build time and committed, so this job no longer has to boot the API to
+      # check it — and a reader can see the whole API surface in the repository without running anything.
+      - name: Regenerate the OpenAPI document
+        run: dotnet build src/Server/Everdue.Server.csproj -p:GenerateOpenApi=true
+
+      - name: The committed contract matches the code
+        run: |
+          if ! git diff --exit-code -- docs/openapi/v1.json; then
+            echo "::error::docs/openapi/v1.json is out of date. Run 'dotnet build src/Server/Everdue.Server.csproj -p:GenerateOpenApi=true' and commit the result."
+            exit 1
+          fi
+
+      # The client's API types are generated from that document, never hand-written.
+      - name: The client's types match the contract
+        working-directory: src/client
+        run: |
+          npm run gen:api
+          if ! git diff --exit-code -- src/api/schema.d.ts; then
+            echo "::error::src/client/src/api/schema.d.ts is out of date. Run 'npm run gen:api' and commit the result."
+            exit 1
+          fi
+
+  server:
+    name: Server (${{ matrix.provider }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The dual-provider discipline is only real if CI proves it every time.
+        provider: [sqlite, postgres]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore Everdue.slnx
+
+      - name: Build
+        run: dotnet build Everdue.slnx --configuration Release --no-restore
+
+      # The provider matrix lives in the test theory data, so both legs run the same suite. The
+      # sqlite leg forces the PostgreSQL half to skip, which also proves the product is usable on a
+      # machine with no Docker at all — the self-hoster's situation.
+      - name: Test
+        env:
+          EVERDUE_TESTS_SKIP_POSTGRES: ${{ matrix.provider == 'sqlite' && '1' || '0' }}
+        run: >-
+          dotnet test src/Server.Tests/Everdue.Server.Tests.csproj
+          --configuration Release
+          --no-build
+          --logger "trx;LogFileName=${{ matrix.provider }}.trx"
+          --results-directory artifacts/test-results
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.provider }}
+          path: artifacts/test-results
+          retention-days: 7
+
+  publish:
+    name: Publish ${{ matrix.runtime }}
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [client, server, contract]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        runtime: [win-x64, linux-x64]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: src/client/package-lock.json
+
+      - name: Publish single-file, self-contained
+        run: >-
+          dotnet publish src/Server/Everdue.Server.csproj
+          --configuration Release
+          --runtime ${{ matrix.runtime }}
+          --output artifacts/${{ matrix.runtime }}
+          -p:SelfContainedPublish=true
+          -p:BuildClient=true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: everdue-${{ matrix.runtime }}
+          path: artifacts/${{ matrix.runtime }}
+          retention-days: 30
+
+  docker:
+    name: Docker image
+    needs: [client, server]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the image
+        run: docker build -f deploy/Dockerfile -t everdue:ci .
+
+      - name: Start it and check /health
+        run: |
+          docker run -d --name everdue-ci -p 8080:8080 \
+            -e Bootstrap__AdminEmail=admin@example.com \
+            -e Bootstrap__AdminPassword='CiSmokeTest2026!' \
+            -e Tenant__TimeZoneId=America/Bogota \
+            everdue:ci
+
+          for attempt in $(seq 1 40); do
+            if curl -fsS http://localhost:8080/health > /dev/null; then
+              echo "healthy after ${attempt}s"
+              exit 0
+            fi
+            sleep 1
+          done
+
+          echo "Container never became healthy:"
+          docker logs everdue-ci
+          exit 1
+
+      - name: Stop
+        if: always()
+        run: docker rm -f everdue-ci || true

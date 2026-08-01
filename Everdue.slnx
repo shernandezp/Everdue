@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/solution items/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="README.md" />
+    <File Path=".github/workflows/ci.yml" />
+    <File Path="deploy/Dockerfile" />
+    <File Path="deploy/docker-compose.yml" />
+  </Folder>
+  <Project Path="src/Server/Everdue.Server.csproj" />
+  <Project Path="src/Server.Tests/Everdue.Server.Tests.csproj" />
+</Solution>

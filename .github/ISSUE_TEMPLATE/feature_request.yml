@@ -1,0 +1,40 @@
+name: Feature request
+description: Something Everdue should do.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Everdue is deliberately narrow, and the boundary is the product:
+
+        > **This system manages WORK, not business data.**
+
+        It references a customer; it does not store their contracts, invoices or pipeline. Requests for documents,
+        e-mails, quotes, invoices, assets, calendars, chat or time tracking are individually reasonable and
+        collectively an ERP — the default answer to those is *no, or an integration*.
+
+        That is not a brush-off: it is why Everdue is simpler than the alternatives. See
+        [CONTRIBUTING.md](../../blob/main/CONTRIBUTING.md) and
+        [docs/architecture.md](../../blob/main/docs/architecture.md).
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: The operational problem, not the feature. What happens today, and what goes wrong?
+    validations:
+      required: true
+
+  - type: textarea
+    id: litmus
+    attributes:
+      label: How does this help answer "what work needs to happen, what happened, and what requires attention?"
+      description: If it does not, say so anyway — an integration may still be the right answer.
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: What are you doing instead right now?
+      description: A spreadsheet, a WhatsApp group, a second tool. This is usually the most useful part.

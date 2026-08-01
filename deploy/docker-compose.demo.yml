@@ -1,0 +1,54 @@
+# Everdue, full of believable data, in one command:
+#
+#   docker compose -f deploy/docker-compose.demo.yml up --build
+#
+# Then open http://localhost:8080 and sign in as ana@demo.everdue.app / EverdueDemo2026!
+#
+# ─── This is a DEMO. Do not put real work in it. ──────────────────────────────────────────────────
+#
+# Why it exists: an empty Everdue shows nothing that makes Everdue different. The occurrence ledger,
+# the compliance strip and the entity health table are all invisible without months of history, so a
+# stranger evaluating an empty install sees a task list. This seeds six months of it — on-time
+# completions, late ones, real misses, one chronically-missed responsibility, hold intervals across
+# several reasons, checklists, a photo-proof rule and a mix of one-off tasks.
+#
+# It runs in its own volume and refuses outright on a database that already contains data, so it
+# cannot damage a real install even if this file is copied into one.
+
+services:
+  everdue-demo:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: everdue:latest
+    container_name: everdue-demo
+    restart: 'no'
+    ports:
+      - '8080:8080'
+    environment:
+      Database__Provider: Sqlite
+      DataDir: /data
+
+      Tenant__Name: Everdue Demo
+      # A real zone rather than UTC: every period boundary and due date is computed in it, and a demo
+      # that shows local midnights is a demo that shows what the product actually does.
+      Tenant__TimeZoneId: America/Bogota
+      Tenant__DefaultLanguage: es
+
+      # The seeded administrator. Members are created by the demo seeder with the same password.
+      Bootstrap__AdminEmail: admin@demo.everdue.app
+      Bootstrap__AdminPassword: EverdueDemo2026!
+
+      Demo__Seed: 'true'
+      Demo__Password: EverdueDemo2026!
+      Demo__Months: '6'
+
+      # Nothing leaves the machine in demo mode: no SMTP, no chat channel, no webhook receiver. The
+      # notification bell still fills up, because in-app notifications need no channel at all.
+      Notifications__Enabled: 'true'
+    volumes:
+      - everdue-demo-data:/data
+
+volumes:
+  # Separate from the production compose file's volume on purpose.
+  everdue-demo-data:

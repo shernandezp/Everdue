@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Neutral (English) resource set for outbound notifications.
+
+    The per-type body keys are NotificationType member names, and the subject keys are
+    "subject.<member>". Adding a notification type means adding both to every resx in this family.
+
+    The three placeholders are the same for every body — {0} title, {1} context, {2} actor — so all
+    five templates submitted to Meta for WhatsApp have an identical shape.
+  -->
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a2c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a2c561934e089</value>
+  </resheader>
+  <data name="Assigned" xml:space="preserve">
+    <value>{2} assigned you: {0}</value>
+  </data>
+  <data name="DueToday" xml:space="preserve">
+    <value>Due today: {0}</value>
+  </data>
+  <data name="Missed" xml:space="preserve">
+    <value>Missed: {0}</value>
+  </data>
+  <data name="Mentioned" xml:space="preserve">
+    <value>{2} mentioned you on: {0}</value>
+  </data>
+  <data name="PutOnHold" xml:space="preserve">
+    <value>{2} put on hold: {0}</value>
+  </data>
+  <data name="subject.Assigned" xml:space="preserve">
+    <value>Everdue — new task assigned</value>
+  </data>
+  <data name="subject.DueToday" xml:space="preserve">
+    <value>Everdue — due today</value>
+  </data>
+  <data name="subject.Missed" xml:space="preserve">
+    <value>Everdue — task missed</value>
+  </data>
+  <data name="subject.Mentioned" xml:space="preserve">
+    <value>Everdue — you were mentioned</value>
+  </data>
+  <data name="subject.PutOnHold" xml:space="preserve">
+    <value>Everdue — task on hold</value>
+  </data>
+  <data name="context.entity" xml:space="preserve">
+    <value>Entity: {0}</value>
+  </data>
+  <data name="context.due" xml:space="preserve">
+    <value>Due: {0}</value>
+  </data>
+  <data name="someone" xml:space="preserve">
+    <value>Someone</value>
+  </data>
+  <data name="none" xml:space="preserve">
+    <value>—</value>
+  </data>
+  <data name="open" xml:space="preserve">
+    <value>Open in Everdue</value>
+  </data>
+  <data name="test" xml:space="preserve">
+    <value>Everdue test message. If you got this, the channel works.</value>
+  </data>
+</root>

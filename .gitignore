@@ -1,0 +1,41 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+artifacts/
+publish/
+
+## Data / local state
+data/
+*.db
+*.db-shm
+*.db-wal
+
+## Node / client
+node_modules/
+src/client/dist/
+.vite/
+
+## The SPA build output lands in the server's web root; keep the folder, ignore its contents.
+src/Server/wwwroot/*
+!src/Server/wwwroot/.gitkeep
+
+## Working context, not part of the product.
+## system-context/ is a map of the codebase kept for language models; the rest is long-form design
+## history and working notes. All of it is useful locally and none of it is published — the committed
+## documentation is README.md, docs/ and the in-app manual.
+system-context/
+oat-implementation/
+operational-accountability-tool.md
+chat.txt
+
+## Editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+## OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Neutral (English) resource set for the Telegram bot — the only two sentences it ever says.
+    "linkFailed" is deliberately vague about *why* the code did not work: a bot that confirms code
+    shapes is a bot that can be probed.
+  -->
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a2c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a2c561934e089</value>
+  </resheader>
+  <data name="linked" xml:space="preserve">
+    <value>All set, {0}. Your Everdue alerts will arrive here.</value>
+  </data>
+  <data name="linkFailed" xml:space="preserve">
+    <value>That code is not valid or has expired. Generate a new one in Everdue.</value>
+  </data>
+</root>

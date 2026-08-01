@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Spanish notifications. See NotificationStrings.resx for the placeholder contract. -->
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a2c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a2c561934e089</value>
+  </resheader>
+  <data name="Assigned" xml:space="preserve">
+    <value>{2} te asignó: {0}</value>
+  </data>
+  <data name="DueToday" xml:space="preserve">
+    <value>Vence hoy: {0}</value>
+  </data>
+  <data name="Missed" xml:space="preserve">
+    <value>Incumplida: {0}</value>
+  </data>
+  <data name="Mentioned" xml:space="preserve">
+    <value>{2} te mencionó en: {0}</value>
+  </data>
+  <data name="PutOnHold" xml:space="preserve">
+    <value>{2} puso en espera: {0}</value>
+  </data>
+  <data name="subject.Assigned" xml:space="preserve">
+    <value>Everdue — nueva tarea asignada</value>
+  </data>
+  <data name="subject.DueToday" xml:space="preserve">
+    <value>Everdue — vence hoy</value>
+  </data>
+  <data name="subject.Missed" xml:space="preserve">
+    <value>Everdue — tarea incumplida</value>
+  </data>
+  <data name="subject.Mentioned" xml:space="preserve">
+    <value>Everdue — te mencionaron</value>
+  </data>
+  <data name="subject.PutOnHold" xml:space="preserve">
+    <value>Everdue — tarea en espera</value>
+  </data>
+  <data name="context.entity" xml:space="preserve">
+    <value>Entidad: {0}</value>
+  </data>
+  <data name="context.due" xml:space="preserve">
+    <value>Vence: {0}</value>
+  </data>
+  <data name="someone" xml:space="preserve">
+    <value>Alguien</value>
+  </data>
+  <data name="none" xml:space="preserve">
+    <value>—</value>
+  </data>
+  <data name="open" xml:space="preserve">
+    <value>Abrir en Everdue</value>
+  </data>
+  <data name="test" xml:space="preserve">
+    <value>Mensaje de prueba de Everdue. Si lo recibiste, el canal funciona.</value>
+  </data>
+</root>

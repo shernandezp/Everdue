@@ -1,0 +1,56 @@
+name: Bug report
+description: Something does not work.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Not for security issues** — see [SECURITY.md](../../blob/main/SECURITY.md) for private reporting.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what happened, and what you expected instead.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Everdue version
+      description: Shown in the footer of any screen, or from `GET /api/v1/about`.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: database
+    attributes:
+      label: Database
+      options: [SQLite, PostgreSQL]
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install
+    attributes:
+      label: How it is installed
+      options: [Docker, Single binary, Windows service, systemd, Development (dotnet run + vite)]
+    validations:
+      required: true
+
+  - type: input
+    id: timezone
+    attributes:
+      label: Tenant time zone
+      description: >
+        `Tenant:TimeZoneId`. Worth asking for even when it seems irrelevant — every period boundary and due date
+        is computed in it, so a surprising number of bugs turn out to live there.
+      placeholder: America/Bogota
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please redact anything private. Log lines are more useful than screenshots of them.
+      render: text

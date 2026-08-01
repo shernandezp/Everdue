@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Everdue</title>
+
+    <!--
+      The application mark. The SVG is what every current browser picks; the .ico is there for the
+      ones that still ask for it by name, and the PNG for an iOS home screen.
+      All of them are generated from one geometry — see scripts/gen-icons.mjs.
+
+      The manifest is deliberately named .json rather than .webmanifest: it is served by
+      ASP.NET Core's static-file middleware, which only serves extensions it has a content type for.
+    -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#242424" />
+
+    <!--
+      Paints the page background before React mounts, so a dark-themed machine never gets a white
+      flash on load. Mantine stamps data-mantine-color-scheme on <html> once it starts, and those
+      rules then win over the media query — which is what makes an explicit choice beat the OS one.
+      A <style> block rather than a script: the CSP forbids inline script by design.
+    -->
+    <style>
+      html { background-color: #ffffff; }
+      @media (prefers-color-scheme: dark) {
+        html { background-color: #242424; }
+      }
+      html[data-mantine-color-scheme='light'] { background-color: #ffffff; }
+      html[data-mantine-color-scheme='dark'] { background-color: #242424; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
