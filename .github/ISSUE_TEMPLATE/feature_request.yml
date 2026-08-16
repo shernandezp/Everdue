@@ -14,8 +14,8 @@ body:
         collectively an ERP — the default answer to those is *no, or an integration*.
 
         That is not a brush-off: it is why Everdue is simpler than the alternatives. See
-        [CONTRIBUTING.md](../../blob/main/CONTRIBUTING.md) and
-        [docs/architecture.md](../../blob/main/docs/architecture.md).
+        [CONTRIBUTING.md](../../blob/master/CONTRIBUTING.md) and
+        [docs/architecture.md](../../blob/master/docs/architecture.md).
 
   - type: textarea
     id: problem
