@@ -41,7 +41,7 @@ Want it full of data to look at? See **[demo mode](README.md#demo-mode)**.
 Everything CI runs, you can run:
 
 ```bash
-dotnet test src/Server.Tests/Everdue.Server.Tests.csproj    # the PostgreSQL half skips without Docker
+dotnet test --project src/Server.Tests/Everdue.Server.Tests.csproj    # the PostgreSQL half skips without Docker
 cd src/client && npm run check:i18n && npm test && npm run build
 ```
 

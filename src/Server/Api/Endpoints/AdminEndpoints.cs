@@ -30,7 +30,7 @@ public static class AdminEndpoints
                 return Results.Created($"/api/v1/users/{created.Id}", created);
             })
             .RequireAuthorization(ApiPolicies.Admin)
-            .WithSummary("Creates a user. There is no self-service registration in v1.")
+            .WithSummary("Creates a user. There is no self-service registration.")
             .Produces<UserDto>(StatusCodes.Status201Created);
 
         group.MapPut("/{id:guid}", async (Guid id, UpdateUserCommand command, ISender sender, CancellationToken cancellationToken)

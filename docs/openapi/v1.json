@@ -2722,7 +2722,7 @@
         "tags": [
           "Users"
         ],
-        "summary": "Creates a user. There is no self-service registration in v1.",
+        "summary": "Creates a user. There is no self-service registration.",
         "requestBody": {
           "content": {
             "application/json": {

@@ -119,7 +119,7 @@ Signed in as the administrator:
 ## The test suites
 
 ```bash
-dotnet test src/Server.Tests/Everdue.Server.Tests.csproj   # the PostgreSQL half skips without Docker
+dotnet test --project src/Server.Tests/Everdue.Server.Tests.csproj   # the PostgreSQL half skips without Docker
 cd src/client
 npm run check:i18n    # both languages complete, no hardcoded strings
 npm test              # component tests

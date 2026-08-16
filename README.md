@@ -18,8 +18,8 @@ Two things make it different from every tool we could find:
 
 Because the ledger keeps every period forever, the same rows answer the questions a manager asks
 months later: which responsibilities are chronically missed, who is blocked rather than unreliable,
-which clients the team's work goes to, and where waiting time goes. That is
-[what v2 adds](#what-v2-adds--operational-memory), and it needed no new data entry to build.
+which clients the team's work goes to, and where waiting time goes. That is what the
+[Insights screens](#insights--operational-memory) answer, and they needed no new data entry to build.
 
 ---
 
@@ -156,7 +156,7 @@ Installing, upgrading, backing up and diagnosing an install: **[docs/operations.
 
 ---
 
-## What is in v1
+## The core — work, the ledger and the reports
 
 - Users and roles (Admin / Member), cookie authentication, no self-service registration.
   Members run the board and the entity screens; administrators additionally get the dashboard, the
@@ -164,8 +164,8 @@ Installing, upgrading, backing up and diagnosing an install: **[docs/operations.
   but see only active colleagues, and cannot create, edit or reset anyone.
 - **Anyone may work and edit anyone's item**, including handing it to someone else — in a team this
   size that is cover, not overreach. Every edit writes an `Updated` event naming who changed which
-  field and what the old value was, which is what makes the openness safe (and is what v1.5's
-  reassignment history will be built from). The two exceptions are undoing a completion and
+  field and what the old value was, which is what makes the openness safe (and is what the
+  reassignment history is built from). The two exceptions are undoing a completion and
   cancelling a task: both erase a record, so they stay owner-or-admin.
 - Entities (customer / supplier / equipment / department / company) — **name, type, active, nothing
   else**. Departments as a separate lookup for *who executes* the work.
@@ -185,11 +185,11 @@ Installing, upgrading, backing up and diagnosing an install: **[docs/operations.
 
 ---
 
-## What v1.5 adds — "keep people in the loop"
+## Keeping people in the loop — notifications and channels
 
-**Nothing here is load-bearing.** With no channel configured, Everdue behaves as v1 plus an in-app
-bell: notifications are still recorded and read in the app, no request path changes, and no error is
-shown. An unconfigured channel is a channel that is *not offered*, not a broken one.
+**Nothing here is load-bearing.** With no channel configured, notifications are still recorded and
+read in the app through the in-app bell, no request path changes, and no error is shown. An
+unconfigured channel is a channel that is *not offered*, not a broken one.
 
 - **Notifications**: assigned to you · due today · went missed · mentioned in a comment · your item
   put on hold by somebody else. In-app bell with an unread count, polled once a minute.
@@ -217,11 +217,11 @@ shown. An unconfigured channel is a channel that is *not offered*, not a broken 
   reassign / reschedule with per-item results.
 
 Deliberately **out**: time tracking, automations, native mobile, a report builder, SMS, and web push.
-*(Checklists and custom fields arrived in v2.5, bounded — see below.)*
+*(Checklists and custom fields exist, bounded — see below.)*
 
 ---
 
-## What v2 adds — "operational memory"
+## Insights — operational memory
 
 The intelligence layer. **No new data entry and no new tables**: every number below is computed on
 read from work items and their event history, so it works retroactively on whatever history an
@@ -293,9 +293,9 @@ wrong: **[docs/operations.md](docs/operations.md)**.
 
 ---
 
-## What v2.5 adds — "fit more businesses"
+## Fitting more businesses
 
-The version aimed at people who are not us. Everything here is about *work*, or about getting work into the system.
+Everything here is about *work*, or about getting work into the system.
 
 - **Checklists.** A responsibility carries an ordered template; every occurrence gets a **snapshot** of it at spawn,
   so editing the template never rewrites history. Any item can also take ad-hoc steps. Optionally, an occurrence
@@ -324,9 +324,9 @@ The version aimed at people who are not us. Everything here is about *work*, or 
   exponential backoff, and auto-disable after ten consecutive failures with a banner saying so.
 - **Additional languages as data.** A translation is one JSON file, three `.resx` files and two list entries — no
   `.tsx` change anywhere. The server owns the supported-language list and the client renders from it. See
-  [docs/translating.md](docs/translating.md). *(v2.5 ships no new translation itself: a machine-translated locale
-  nobody on the team can review reads as an abandoned product.)*
-- **Demo mode**, above. The highest-leverage thing in the version.
+  [docs/translating.md](docs/translating.md). *(Everdue itself ships only Spanish and English: a machine-translated
+  locale nobody on the team can review reads as an abandoned product.)*
+- **Demo mode**, above — the fastest way to see all of this with data in it.
 
 ### Two boundaries worth stating plainly
 
@@ -354,7 +354,7 @@ src/Server/
   Infrastructure/  EF Core (dual provider), Identity, tenancy, SMTP, migrations per provider
   Engine/          OccurrenceEngine + DigestService (both BackgroundService)
   Api/             minimal-API endpoint modules, one per resource, plus ProblemDetails
-                   Domain/Insights + Application/Insights hold the v2 metrics: pure bucket and rate
+                   Domain/Insights + Application/Insights hold the insight metrics: pure bucket and rate
                    maths in Domain, one reader and one handler per report in Application
 src/Server.Tests/  xUnit — recurrence battery, engine integration, API integration, report correctness
 src/client/        React + TypeScript + Vite + Mantine
@@ -367,7 +367,7 @@ through `IEverdueDbContext`; endpoints bind and dispatch, never decide; DTOs are
 **Key decisions**
 
 - **IDs are GUID v7** — index-friendly, opaque in URLs, merge-safe for a future hosted version.
-- **`TenantId` everywhere, one global query filter.** Single configured tenant in v1; the schema is
+- **`TenantId` everywhere, one global query filter.** Single configured tenant today; the schema is
   what makes the hosted version a no-migration step later.
 - **Timestamps are UTC**; all period math converts through the tenant's IANA zone as a civil date
   first, so DST never moves a period boundary off local midnight.
@@ -411,7 +411,7 @@ cd src/client && npm install && npm run dev
 ```
 
 ```bash
-dotnet test src/Server.Tests/Everdue.Server.Tests.csproj    # PostgreSQL half skips without Docker
+dotnet test --project src/Server.Tests/Everdue.Server.Tests.csproj    # PostgreSQL half skips without Docker
 cd src/client && npm run check:i18n && npm test && npm run build
 ```
 
@@ -445,7 +445,7 @@ It references a customer; it does not store their contracts, invoices or pipelin
 equipment; it is not an asset register. The litmus test for any feature request is whether it helps answer
 *"what work needs to happen, what happened, and what requires attention?"*
 
-v2.5's bounded custom fields are the one place this bends, and they are bent on purpose and no further: capped,
+The bounded custom fields are the one place this bends, and they are bent on purpose and no further: capped,
 typed, display-only, and unable to drive any behaviour. The moment a field on an entity *does* something, the drift
 has begun.
 

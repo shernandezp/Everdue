@@ -115,10 +115,11 @@ jobs:
         env:
           EVERDUE_TESTS_SKIP_POSTGRES: ${{ matrix.provider == 'sqlite' && '1' || '0' }}
         run: >-
-          dotnet test src/Server.Tests/Everdue.Server.Tests.csproj
+          dotnet test --project src/Server.Tests/Everdue.Server.Tests.csproj
           --configuration Release
           --no-build
-          --logger "trx;LogFileName=${{ matrix.provider }}.trx"
+          --report-xunit-trx
+          --report-xunit-trx-filename ${{ matrix.provider }}.trx
           --results-directory artifacts/test-results
 
       - uses: actions/upload-artifact@v4

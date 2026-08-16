@@ -2273,7 +2273,7 @@ export interface paths {
             };
         };
         put?: never;
-        /** Creates a user. There is no self-service registration in v1. */
+        /** Creates a user. There is no self-service registration. */
         post: {
             parameters: {
                 query?: never;

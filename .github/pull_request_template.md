@@ -6,7 +6,7 @@
 
 The four CI jobs are the gate; this is what they check.
 
-- [ ] `dotnet test src/Server.Tests/Everdue.Server.Tests.csproj` passes
+- [ ] `dotnet test --project src/Server.Tests/Everdue.Server.Tests.csproj` passes
       *(the PostgreSQL half skips without Docker — CI runs one leg each way)*
 - [ ] `cd src/client && npm run check:i18n && npm test && npm run build` passes
 - [ ] Any new user-visible string goes through i18next, in **both** locales

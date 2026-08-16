@@ -61,7 +61,7 @@ when it happens, which is why the test exists.
 
 ```bash
 cd src/client && npm run check:i18n     # key parity across every locale, and every key used in the code resolves
-dotnet test src/Server.Tests/Everdue.Server.Tests.csproj --filter LanguageResourceTests
+dotnet test --project src/Server.Tests/Everdue.Server.Tests.csproj --filter-class "*LanguageResourceTests"
 ```
 
 `check:i18n` reads every JSON file in the locales folder, so it picks a new language up on its own. It fails on a
