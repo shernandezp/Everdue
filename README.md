@@ -23,6 +23,22 @@ which clients the team's work goes to, and where waiting time goes. That is what
 
 ---
 
+## Live demo
+
+**<https://everdue.sergiohernandezp.com>** — a hosted instance pre-loaded with six months of
+realistic (fake) history, so every report and insight screen has something to say.
+
+| Sign in as | Email | Password |
+| --- | --- | --- |
+| Administrator | `ana@demo.everdue.app` | `EverdueDemo2026!` |
+| Member | `john@demo.everdue.app` | `EverdueDemo2026!` |
+
+The credentials are public on purpose, and none of the data on it is real. The instance is wiped and
+reseeded every Monday, so anything you change there is temporary by design. To run the same tour on
+your own machine instead, see [Demo mode](#demo-mode-one-command) below.
+
+---
+
 ## Install
 
 Two paths need no toolchain at all — the published Docker image and the release archives. Building
@@ -65,7 +81,8 @@ The same first-run behaviour applies: configure `Bootstrap:AdminEmail`/`AdminPas
 
 ### Demo mode (one command)
 
-Before installing anything for real, look at it with data in it:
+Before installing anything for real, look at it with data in it — on the [live demo](#live-demo)
+above, or locally:
 
 ```bash
 git clone https://github.com/shernandezp/everdue && cd everdue
@@ -326,7 +343,8 @@ Everything here is about *work*, or about getting work into the system.
   `.tsx` change anywhere. The server owns the supported-language list and the client renders from it. See
   [docs/translating.md](docs/translating.md). *(Everdue itself ships only Spanish and English: a machine-translated
   locale nobody on the team can review reads as an abandoned product.)*
-- **Demo mode**, above — the fastest way to see all of this with data in it.
+- **[Live demo](#live-demo)** and **Demo mode**, above — the fastest way to see all of this with
+  data in it.
 
 ### Two boundaries worth stating plainly
 
