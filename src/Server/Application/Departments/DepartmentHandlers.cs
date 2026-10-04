@@ -46,6 +46,17 @@ public sealed class ListDepartmentsHandler(IEverdueDbContext db)
     }
 }
 
+public sealed class ListDepartmentOptionsHandler(IEverdueDbContext db)
+    : IRequestHandler<ListDepartmentOptionsQuery, IReadOnlyList<DepartmentOptionDto>>
+{
+    public async Task<IReadOnlyList<DepartmentOptionDto>> Handle(ListDepartmentOptionsQuery request, CancellationToken cancellationToken = default)
+        => await db.Departments.AsNoTracking()
+            .Where(d => d.Active)
+            .OrderBy(d => d.Name)
+            .Select(d => new DepartmentOptionDto(d.Id, d.Name))
+            .ToListAsync(cancellationToken);
+}
+
 public sealed class GetDepartmentHandler(IEverdueDbContext db) : IRequestHandler<GetDepartmentQuery, DepartmentDto>
 {
     public async Task<DepartmentDto> Handle(GetDepartmentQuery request, CancellationToken cancellationToken = default)

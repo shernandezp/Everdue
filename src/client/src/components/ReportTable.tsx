@@ -1,5 +1,6 @@
 import { DataTable, type DataTableColumn, type DataTableProps, type DataTableSortStatus } from 'mantine-datatable';
 import { useTranslation } from 'react-i18next';
+import type { usePagination } from '../lib/pagination';
 
 /**
  * The table every report and insight screen renders.
@@ -21,6 +22,7 @@ export function ReportTable<T>({
   sort,
   onSortChange,
   compact = false,
+  pagination,
 }: {
   records: T[];
   columns: DataTableColumn<T>[];
@@ -32,6 +34,7 @@ export function ReportTable<T>({
   onSortChange?: (sort: DataTableSortStatus<T>) => void;
   /** Shorter minimum height, for a table that sits inside a card beside others. */
   compact?: boolean;
+  pagination?: ReturnType<typeof usePagination>;
 }) {
   const { t } = useTranslation();
 
@@ -48,6 +51,7 @@ export function ReportTable<T>({
     noRecordsText: emptyText ?? t('common.noResults'),
     columns,
     ...(sort && onSortChange ? { sortStatus: sort, onSortStatusChange: onSortChange } : {}),
+    ...pagination,
   } as DataTableProps<T>;
 
   return <DataTable {...props} />;

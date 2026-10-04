@@ -304,6 +304,29 @@
         }
       }
     },
+    "/api/v1/entities/options": {
+      "get": {
+        "tags": [
+          "Entities"
+        ],
+        "summary": "Every active entity, unpaged, with just the fields a picker shows.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EntityOptionDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/entities/{id}": {
       "get": {
         "tags": [
@@ -474,6 +497,29 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DepartmentDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/departments/options": {
+      "get": {
+        "tags": [
+          "Departments"
+        ],
+        "summary": "Every active department, unpaged, with just the fields a picker shows.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DepartmentOptionDto"
+                  }
                 }
               }
             }
@@ -6121,6 +6167,22 @@
           }
         }
       },
+      "DepartmentOptionDto": {
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
       "DigestFrequency": {
         "enum": [
           "Daily",
@@ -6382,6 +6444,26 @@
           },
           "drillThrough": {
             "$ref": "#/components/schemas/DrillThrough"
+          }
+        }
+      },
+      "EntityOptionDto": {
+        "required": [
+          "id",
+          "name",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/EntityType"
           }
         }
       },

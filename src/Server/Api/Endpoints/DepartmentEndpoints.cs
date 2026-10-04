@@ -16,6 +16,11 @@ public static class DepartmentEndpoints
             .WithSummary("Lists departments — the teams that execute work, not the entities work is about.")
             .Produces<PagedResult<DepartmentDto>>();
 
+        group.MapGet("/options", async (ISender sender, CancellationToken cancellationToken)
+                => Results.Ok(await sender.Send(new ListDepartmentOptionsQuery(), cancellationToken)))
+            .WithSummary("Every active department, unpaged, with just the fields a picker shows.")
+            .Produces<IReadOnlyList<DepartmentOptionDto>>();
+
         group.MapGet("/{id:guid}", async (Guid id, ISender sender, CancellationToken cancellationToken)
                 => Results.Ok(await sender.Send(new GetDepartmentQuery(id), cancellationToken)))
             .Produces<DepartmentDto>();

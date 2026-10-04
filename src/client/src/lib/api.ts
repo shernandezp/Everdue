@@ -22,11 +22,13 @@ import type {
   DemoModeResult,
   DemoStatus,
   DepartmentDto,
+  DepartmentOption,
   DigestFrequency,
   DigestSubscription,
   EntityDto,
   EntityFieldDef,
   EntityHealthRow,
+  EntityOption,
   EntityTimeline,
   ExceptionsReport,
   HoldAging,
@@ -80,6 +82,8 @@ async function postForm<T>(path: string, file: File, fields: Record<string, stri
 
   return (await response.json()) as T;
 }
+
+export const PAGE_SIZE = 100;
 
 export type WorkItemFilters = {
   view?: 'board' | 'list';
@@ -144,8 +148,9 @@ export const api = {
   },
 
   entities: {
-    list: (params: { search?: string; type?: string; includeInactive?: boolean; pageSize?: number } = {}) =>
-      http.get<Paged<EntityDto>>(`/entities${query({ ...params, pageSize: params.pageSize ?? 100 })}`),
+    list: (params: { search?: string; type?: string; includeInactive?: boolean; page?: number; pageSize?: number } = {}) =>
+      http.get<Paged<EntityDto>>(`/entities${query({ ...params, pageSize: params.pageSize ?? PAGE_SIZE })}`),
+    options: () => http.get<EntityOption[]>('/entities/options'),
     get: (id: string) => http.get<EntityDto>(`/entities/${id}`),
     /**
      * `customFields` is keyed by definition id. Omitting it leaves stored values alone; sending a key with an
@@ -161,16 +166,18 @@ export const api = {
   },
 
   departments: {
-    list: (params: { search?: string; includeInactive?: boolean; pageSize?: number } = {}) =>
-      http.get<Paged<DepartmentDto>>(`/departments${query({ ...params, pageSize: params.pageSize ?? 100 })}`),
+    list: (params: { search?: string; includeInactive?: boolean; page?: number; pageSize?: number } = {}) =>
+      http.get<Paged<DepartmentDto>>(`/departments${query({ ...params, pageSize: params.pageSize ?? PAGE_SIZE })}`),
+    options: () => http.get<DepartmentOption[]>('/departments/options'),
+    get: (id: string) => http.get<DepartmentDto>(`/departments/${id}`),
     create: (body: { name: string }) => http.post<DepartmentDto>('/departments', body),
     update: (id: string, body: { name: string; active: boolean }) => http.put<DepartmentDto>(`/departments/${id}`, body),
     deactivate: (id: string) => http.del<DepartmentDto>(`/departments/${id}`),
   },
 
   responsibilities: {
-    list: (params: { search?: string; includeInactive?: boolean; pageSize?: number } = {}) =>
-      http.get<Paged<ResponsibilityDto>>(`/responsibilities${query({ ...params, pageSize: params.pageSize ?? 100 })}`),
+    list: (params: { search?: string; includeInactive?: boolean; page?: number; pageSize?: number } = {}) =>
+      http.get<Paged<ResponsibilityDto>>(`/responsibilities${query({ ...params, pageSize: params.pageSize ?? PAGE_SIZE })}`),
     get: (id: string) => http.get<ResponsibilityDto>(`/responsibilities/${id}`),
     events: (id: string) => http.get<ResponsibilityEventDto[]>(`/responsibilities/${id}/events`),
     create: (body: Record<string, unknown>) => http.post<ResponsibilityDto>('/responsibilities', body),
@@ -300,8 +307,8 @@ export const api = {
   reports: {
     exceptions: (filters: ReportFilters = {}) => http.get<ExceptionsReport>(`/reports/exceptions${query(filters)}`),
     entityHealth: (
-      filters: ReportFilters & { sort?: string; descending?: boolean; search?: string; pageSize?: number } = {},
-    ) => http.get<Paged<EntityHealthRow>>(`/reports/entity-health${query({ ...filters, pageSize: filters.pageSize ?? 100 })}`),
+      filters: ReportFilters & { sort?: string; descending?: boolean; search?: string; page?: number; pageSize?: number } = {},
+    ) => http.get<Paged<EntityHealthRow>>(`/reports/entity-health${query({ ...filters, pageSize: filters.pageSize ?? PAGE_SIZE })}`),
     neglect: (filters: ReportFilters & { days?: number } = {}) =>
       http.get<NeglectRow[]>(`/reports/neglect${query({ ...filters, days: filters.days ?? 90 })}`),
     blockedByEntity: (filters: ReportFilters = {}) =>
@@ -315,8 +322,8 @@ export const api = {
    * filters are the whole request: there is nothing stored to get out of date.
    */
   insights: {
-    compliance: (filters: InsightFilters & { sort?: string; descending?: boolean; pageSize?: number } = {}) =>
-      http.get<Paged<ComplianceRow>>(`/insights/compliance${query({ ...filters, pageSize: filters.pageSize ?? 100 })}`),
+    compliance: (filters: InsightFilters & { sort?: string; descending?: boolean; page?: number; pageSize?: number } = {}) =>
+      http.get<Paged<ComplianceRow>>(`/insights/compliance${query({ ...filters, pageSize: filters.pageSize ?? PAGE_SIZE })}`),
     responsibility: (responsibilityId: string, filters: InsightFilters = {}) =>
       http.get<ResponsibilityCompliance>(`/insights/responsibilities/${responsibilityId}/compliance${query(filters)}`),
     reliability: (filters: InsightFilters & { sort?: string; descending?: boolean } = {}) =>

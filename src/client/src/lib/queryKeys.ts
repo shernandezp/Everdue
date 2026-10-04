@@ -24,21 +24,22 @@ export const keys = {
   entities: {
     all: ['entities'] as const,
     picker: ['entities', 'picker'] as const,
-    pickerSearch: (search: string) => ['entities', 'picker', search] as const,
     one: (id: string | null) => ['entities', 'one', id] as const,
-    list: (filters: { search?: string; showInactive?: boolean }) => ['entities', filters] as const,
+    list: (filters: { search?: string; showInactive?: boolean; page: number }) => ['entities', filters] as const,
   },
 
   departments: {
     all: ['departments'] as const,
     picker: ['departments', 'picker'] as const,
-    list: (filters: { includeInactive?: boolean }) => ['departments', filters] as const,
+    one: (id: string | null) => ['departments', 'one', id] as const,
+    list: (filters: { includeInactive?: boolean; page: number }) => ['departments', filters] as const,
   },
 
   responsibilities: {
     all: ['responsibilities'] as const,
     one: (id: string | null) => ['responsibilities', 'one', id] as const,
     events: (id: string | null) => ['responsibilities', 'events', id] as const,
+    list: (page: number) => ['responsibilities', 'list', page] as const,
   },
 
   workItems: {
@@ -67,8 +68,8 @@ export const keys = {
   reports: {
     all: ['reports'] as const,
     exceptions: (filters: ReportFilters) => ['reports', 'exceptions', filters] as const,
-    entityHealth: (filters: ReportFilters, search: string, sort: unknown) =>
-      ['reports', 'entity-health', filters, search, sort] as const,
+    entityHealth: (filters: ReportFilters, search: string, sort: unknown, page: number) =>
+      ['reports', 'entity-health', filters, search, sort, page] as const,
     neglect: (filters: ReportFilters, days: number) => ['reports', 'neglect', filters, days] as const,
     blocked: (filters: ReportFilters) => ['reports', 'blocked', filters] as const,
     timeline: (entityId: string | undefined) => ['reports', 'timeline', entityId] as const,
@@ -76,7 +77,8 @@ export const keys = {
 
   insights: {
     all: ['insights'] as const,
-    compliance: (filters: InsightFilters, sort: unknown) => ['insights', 'compliance', filters, sort] as const,
+    compliance: (filters: InsightFilters, sort: unknown, page: number) =>
+      ['insights', 'compliance', filters, sort, page] as const,
     responsibility: (responsibilityId: string | undefined, window: unknown) =>
       ['insights', 'responsibility', responsibilityId, window] as const,
     reliability: (filters: InsightFilters, sort: unknown) => ['insights', 'reliability', filters, sort] as const,

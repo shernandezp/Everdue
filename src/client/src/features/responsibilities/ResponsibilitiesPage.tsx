@@ -10,19 +10,19 @@ import {
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { DataTable } from 'mantine-datatable';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ResponsibilityDto } from '../../api/types';
 import { PageHeader } from '../../components/PageHeader';
-import { TruncationNotice } from '../../components/TruncationNotice';
 import { api } from '../../lib/api';
 import { formatDate, toDateInputValue } from '../../lib/format';
 import { notifyError, notifySaved } from '../../lib/notify';
 import { ReassignResponsibilityModal } from './ReassignResponsibilityModal';
 import { ResponsibilityHistoryModal } from './ResponsibilityHistoryModal';
 import { ResponsibilityModal } from './ResponsibilityModal';
+import { usePagination } from '../../lib/pagination';
 import { keys } from '../../lib/queryKeys';
 
 const WEEKDAYS = [0, 1, 2, 3, 4, 5, 6];
@@ -34,14 +34,18 @@ export function ResponsibilitiesPage() {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<ResponsibilityDto | null>(null);
   const [creating, setCreating] = useState(false);
+  const [page, setPage] = useState(1);
   const [pausing, setPausing] = useState<ResponsibilityDto | null>(null);
   const [reassigning, setReassigning] = useState<ResponsibilityDto | null>(null);
   const [historyFor, setHistoryFor] = useState<ResponsibilityDto | null>(null);
 
   const list = useQuery({
-    queryKey: keys.responsibilities.all,
-    queryFn: () => api.responsibilities.list({ includeInactive: true }),
+    queryKey: keys.responsibilities.list(page),
+    queryFn: () => api.responsibilities.list({ includeInactive: true, page }),
+    placeholderData: keepPreviousData,
   });
+
+  const paging = usePagination(list.data, page, setPage);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: keys.responsibilities.all });
 
@@ -76,6 +80,7 @@ export function ResponsibilitiesPage() {
         minHeight={200}
         fetching={list.isFetching}
         records={list.data?.items ?? []}
+        {...paging}
         idAccessor="id"
         noRecordsText={t('responsibility.empty')}
         columns={[
@@ -179,8 +184,6 @@ export function ResponsibilitiesPage() {
           },
         ]}
       />
-
-      <TruncationNotice shown={list.data?.items.length ?? 0} total={list.data?.totalCount ?? 0} />
 
       <ResponsibilityModal
         responsibility={editing}

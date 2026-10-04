@@ -17,6 +17,9 @@ public sealed record ListEntitiesQuery(
     public EntityType? ResolvedType => EnumQuery.Parse<EntityType>(Type, nameof(Type));
 }
 
+/// <summary>Every active entity, unpaged, for pickers.</summary>
+public sealed record ListEntityOptionsQuery : IQuery<IReadOnlyList<EntityOptionDto>>;
+
 public sealed record GetEntityQuery(Guid Id) : IQuery<EntityDto>;
 
 /// <summary>

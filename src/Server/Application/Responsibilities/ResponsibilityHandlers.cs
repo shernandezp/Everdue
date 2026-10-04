@@ -161,7 +161,7 @@ public sealed class ListResponsibilitiesHandler(IEverdueDbContext db, IUserDirec
         var total = await query.CountAsync(cancellationToken);
 
         var rows = await ResponsibilityMapping
-            .Project(query.OrderBy(r => r.Title).Skip((page - 1) * pageSize).Take(pageSize))
+            .Project(query.OrderBy(r => r.Title).ThenBy(r => r.Id).Skip((page - 1) * pageSize).Take(pageSize))
             .ToListAsync(cancellationToken);
 
         var items = await new ResponsibilityDtoBuilder(db, users, tenants, clock).BuildAsync(rows, cancellationToken);

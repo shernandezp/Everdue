@@ -416,6 +416,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/entities/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every active entity, unpaged, with just the fields a picker shows. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EntityOptionDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/entities/{id}": {
         parameters: {
             query?: never;
@@ -558,6 +594,42 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/departments/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every active department, unpaged, with just the fields a picker shows. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DepartmentOptionDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -4592,6 +4664,11 @@ export interface components {
             name: string;
             active: boolean;
         };
+        DepartmentOptionDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
         /** @enum {unknown} */
         DigestFrequency: "Daily" | "Weekly";
         DigestSubscriptionDto: {
@@ -4667,6 +4744,12 @@ export interface components {
             /** Format: int32 */
             daysSinceLastActivity: null | number;
             drillThrough: components["schemas"]["DrillThrough"];
+        };
+        EntityOptionDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            type: components["schemas"]["EntityType"];
         };
         EntityTimelineDto: {
             /** Format: uuid */

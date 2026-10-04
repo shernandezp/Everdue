@@ -137,4 +137,31 @@ public class QueryFilterTests
         clamped.PageSize.ShouldBe(Paging.MaxPageSize);
         clamped.Page.ShouldBe(1);
     }
+
+    [Theory]
+    [MemberData(nameof(Providers))]
+    public async Task Picker_options_are_unpaged_and_active_only(TestProvider provider)
+    {
+        await using var app = await EverdueApp.StartAsync(provider);
+        var client = await app.SignInAsAdminAsync();
+
+        var created = new List<EntityDto>();
+        for (var i = 0; i <= Paging.MaxPageSize + 1; i++)
+        {
+            created.Add(await client.PostJsonAsync<EntityDto>("/api/v1/entities", new { name = $"Client {i:D3}", type = nameof(EntityType.Customer) }));
+        }
+
+        var department = await client.PostJsonAsync<DepartmentDto>("/api/v1/departments", new { name = "Retired" });
+        (await client.DeleteAsync($"/api/v1/entities/{created[0].Id}")).EnsureSuccessStatusCode();
+        (await client.DeleteAsync($"/api/v1/departments/{department.Id}")).EnsureSuccessStatusCode();
+
+        var active = await client.GetJsonAsync<PagedResult<EntityDto>>("/api/v1/entities");
+        var entities = await client.GetJsonAsync<List<EntityOptionDto>>("/api/v1/entities/options");
+        entities.Count.ShouldBe(active.TotalCount);
+        entities.Count.ShouldBeGreaterThan(Paging.MaxPageSize);
+        entities.ShouldNotContain(e => e.Id == created[0].Id);
+
+        var departments = await client.GetJsonAsync<List<DepartmentOptionDto>>("/api/v1/departments/options");
+        departments.ShouldNotContain(d => d.Id == department.Id);
+    }
 }

@@ -138,7 +138,6 @@
     "retry": "Try again",
     "required": "This field is required",
     "noResults": "Nothing to show",
-    "showingOf": "Showing the first {{shown}} of {{total}}. Refine the search or filters to see the rest.",
     "saved": "Saved",
     "name": "Name",
     "type": "Type",
