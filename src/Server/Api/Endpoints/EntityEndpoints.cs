@@ -16,6 +16,11 @@ public static class EntityEndpoints
             .WithSummary("Lists entities. Members read; administrators write.")
             .Produces<PagedResult<EntityDto>>();
 
+        group.MapGet("/options", async (ISender sender, CancellationToken cancellationToken)
+                => Results.Ok(await sender.Send(new ListEntityOptionsQuery(), cancellationToken)))
+            .WithSummary("Every active entity, unpaged, with just the fields a picker shows.")
+            .Produces<IReadOnlyList<EntityOptionDto>>();
+
         group.MapGet("/{id:guid}", async (Guid id, ISender sender, CancellationToken cancellationToken)
                 => Results.Ok(await sender.Send(new GetEntityQuery(id), cancellationToken)))
             .Produces<EntityDto>();

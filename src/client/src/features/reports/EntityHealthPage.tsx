@@ -1,13 +1,12 @@
 import { Group, TextInput } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { EntityHealthRow } from '../../api/types';
 import { ExportCsvButton } from '../../components/ExportCsvButton';
 import { PageHeader } from '../../components/PageHeader';
 import { ReportTable } from '../../components/ReportTable';
-import { TruncationNotice } from '../../components/TruncationNotice';
 import {
   countColumn,
   drillThroughColumn,
@@ -17,6 +16,7 @@ import {
   nullableCountColumn,
 } from '../../components/reportColumns';
 import { api, type ReportFilters } from '../../lib/api';
+import { usePagination } from '../../lib/pagination';
 import { keys } from '../../lib/queryKeys';
 import { useServerSort } from '../../lib/useServerSort';
 import { ReportFilterBar } from './ReportFilterBar';
@@ -39,15 +39,18 @@ export function EntityHealthPage() {
   const [search, setSearch] = useState('');
   // Debounced so typing costs one request, not one per keystroke.
   const [debouncedSearch] = useDebouncedValue(search, 250);
+  const [page, setPage] = useState(1);
   const { sort, setSort, params } = useServerSort<EntityHealthRow>(SORT_NAMES, {
     column: 'entityName',
     direction: 'asc',
   });
 
   const report = useQuery({
-    queryKey: keys.reports.entityHealth(filters, debouncedSearch, sort),
-    queryFn: () => api.reports.entityHealth({ ...filters, search: debouncedSearch || undefined, ...params }),
+    queryKey: keys.reports.entityHealth(filters, debouncedSearch, sort, page),
+    queryFn: () => api.reports.entityHealth({ ...filters, search: debouncedSearch || undefined, ...params, page }),
+    placeholderData: keepPreviousData,
   });
+  const paging = usePagination(report.data, page, setPage);
 
   return (
     <>
@@ -55,13 +58,22 @@ export function EntityHealthPage() {
         title={t('reports.entityHealthTitle')}
         actions={<ExportCsvButton href={api.exports.report('entity-health', filters)} />}
       />
-      <ReportFilterBar value={filters} onChange={setFilters} />
+      <ReportFilterBar
+        value={filters}
+        onChange={(value) => {
+          setFilters(value);
+          setPage(1);
+        }}
+      />
 
       <Group mb="sm">
         <TextInput
           placeholder={t('common.search')}
           value={search}
-          onChange={(event) => setSearch(event.currentTarget.value)}
+          onChange={(event) => {
+            setSearch(event.currentTarget.value);
+            setPage(1);
+          }}
           w={240}
         />
       </Group>
@@ -71,7 +83,11 @@ export function EntityHealthPage() {
         records={report.data?.items ?? []}
         idAccessor="entityId"
         sort={sort}
-        onSortChange={setSort}
+        onSortChange={(value) => {
+          setSort(value);
+          setPage(1);
+        }}
+        pagination={paging}
         columns={[
           { ...entityNameColumn(t), sortable: true },
           entityTypeColumn(t),
@@ -85,11 +101,6 @@ export function EntityHealthPage() {
           nullableCountColumn('daysSinceLastActivity', t('reports.daysSince'), true),
           drillThroughColumn(t),
         ]}
-      />
-
-      <TruncationNotice
-        shown={report.data?.items.length ?? 0}
-        total={report.data?.totalCount ?? 0}
       />
     </>
   );

@@ -11,6 +11,9 @@ public sealed record ListDepartmentsQuery(
     int? Page = null,
     int? PageSize = null) : IQuery<PagedResult<DepartmentDto>>;
 
+/// <summary>Every active department, unpaged, for pickers.</summary>
+public sealed record ListDepartmentOptionsQuery : IQuery<IReadOnlyList<DepartmentOptionDto>>;
+
 public sealed record GetDepartmentQuery(Guid Id) : IQuery<DepartmentDto>;
 
 public sealed record CreateDepartmentCommand(

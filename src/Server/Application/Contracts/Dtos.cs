@@ -59,6 +59,10 @@ public sealed record EntityDto(
 
 public sealed record DepartmentDto(Guid Id, string Name, bool Active);
 
+public sealed record EntityOptionDto(Guid Id, string Name, EntityType Type);
+
+public sealed record DepartmentOptionDto(Guid Id, string Name);
+
 public sealed record ResponsibilityDto(
     Guid Id,
     string Title,

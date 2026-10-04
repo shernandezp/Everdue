@@ -139,7 +139,7 @@ public sealed class EntityHealthHandler(IEverdueDbContext db, IClock clock)
             _ => descending ? rows.OrderByDescending(r => r.EntityName) : rows.OrderBy(r => r.EntityName),
         };
 
-        return ordered.ThenBy(r => r.EntityName);
+        return ordered.ThenBy(r => r.EntityName).ThenBy(r => r.EntityId);
     }
 }
 

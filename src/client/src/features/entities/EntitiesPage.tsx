@@ -2,16 +2,16 @@ import { ActionIcon, Anchor, Button, Group, Modal, Select, Stack, Switch, Text, 
 import { useDebouncedValue } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
 import { IconDeviceFloppy, IconFileImport, IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { DataTable } from 'mantine-datatable';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ENTITY_TYPES, type EntityCustomFieldValue, type EntityDto } from '../../api/types';
 import { PageHeader } from '../../components/PageHeader';
-import { TruncationNotice } from '../../components/TruncationNotice';
 import { api } from '../../lib/api';
 import { notifyError, notifySaved } from '../../lib/notify';
+import { usePagination } from '../../lib/pagination';
 import { importLink, routes } from '../../lib/routes';
 import { useSession } from '../auth/session';
 import { keys } from '../../lib/queryKeys';
@@ -28,11 +28,15 @@ export function EntitiesPage() {
   const [debouncedSearch] = useDebouncedValue(search, 250);
   const [editing, setEditing] = useState<EntityDto | null>(null);
   const [creating, setCreating] = useState(false);
+  const [page, setPage] = useState(1);
 
   const entities = useQuery({
-    queryKey: keys.entities.list({ search: debouncedSearch, showInactive }),
-    queryFn: () => api.entities.list({ search: debouncedSearch || undefined, includeInactive: showInactive }),
+    queryKey: keys.entities.list({ search: debouncedSearch, showInactive, page }),
+    queryFn: () => api.entities.list({ search: debouncedSearch || undefined, includeInactive: showInactive, page }),
+    placeholderData: keepPreviousData,
   });
+
+  const paging = usePagination(entities.data, page, setPage);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: keys.entities.all });
 
@@ -63,13 +67,19 @@ export function EntitiesPage() {
         <TextInput
           placeholder={t('common.search')}
           value={search}
-          onChange={(event) => setSearch(event.currentTarget.value)}
+          onChange={(event) => {
+            setSearch(event.currentTarget.value);
+            setPage(1);
+          }}
           w={240}
         />
         <Switch
           label={t('entities.showInactive')}
           checked={showInactive}
-          onChange={(event) => setShowInactive(event.currentTarget.checked)}
+          onChange={(event) => {
+            setShowInactive(event.currentTarget.checked);
+            setPage(1);
+          }}
         />
       </Group>
 
@@ -80,6 +90,7 @@ export function EntitiesPage() {
         fetching={entities.isFetching}
         records={entities.data?.items ?? []}
         idAccessor="id"
+        {...paging}
         /*
          * The empty state is the on-ramp: somebody arriving here for the first time has their client list in a
          * spreadsheet, and the fastest way to a useful Everdue is to point at it.
@@ -146,11 +157,6 @@ export function EntitiesPage() {
               ),
           },
         ]}
-      />
-
-      <TruncationNotice
-        shown={entities.data?.items.length ?? 0}
-        total={entities.data?.totalCount ?? 0}
       />
 
       <EntityModal

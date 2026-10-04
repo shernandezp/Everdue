@@ -68,6 +68,18 @@ public sealed class ListEntitiesHandler(IEverdueDbContext db, EntityCustomFieldW
     }
 }
 
+public sealed class ListEntityOptionsHandler(IEverdueDbContext db)
+    : IRequestHandler<ListEntityOptionsQuery, IReadOnlyList<EntityOptionDto>>
+{
+    public async Task<IReadOnlyList<EntityOptionDto>> Handle(ListEntityOptionsQuery request, CancellationToken cancellationToken = default)
+        => await db.Entities.AsNoTracking()
+            .Where(e => e.Active)
+            .OrderBy(e => e.Name)
+            .ThenBy(e => e.Type)
+            .Select(e => new EntityOptionDto(e.Id, e.Name, e.Type))
+            .ToListAsync(cancellationToken);
+}
+
 public sealed class GetEntityHandler(IEverdueDbContext db, EntityCustomFieldWriter customFields)
     : IRequestHandler<GetEntityQuery, EntityDto>
 {

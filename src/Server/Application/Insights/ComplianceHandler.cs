@@ -84,7 +84,8 @@ public sealed class ComplianceHandler(
             return (descending
                     ? ordered.ThenByDescending(r => r.Rate)
                     : ordered.ThenBy(r => r.Rate))
-                .ThenBy(r => r.Title);
+                .ThenBy(r => r.Title)
+                .ThenBy(r => r.ResponsibilityId);
         }
 
         Func<ComplianceRowDto, int> key = sort switch
@@ -99,10 +100,12 @@ public sealed class ComplianceHandler(
         if (sort == ComplianceSort.Title)
         {
             return descending
-                ? rows.OrderByDescending(r => r.Title)
-                : rows.OrderBy(r => r.Title);
+                ? rows.OrderByDescending(r => r.Title).ThenBy(r => r.ResponsibilityId)
+                : rows.OrderBy(r => r.Title).ThenBy(r => r.ResponsibilityId);
         }
 
-        return (descending ? rows.OrderByDescending(key) : rows.OrderBy(key)).ThenBy(r => r.Title);
+        return (descending ? rows.OrderByDescending(key) : rows.OrderBy(key))
+            .ThenBy(r => r.Title)
+            .ThenBy(r => r.ResponsibilityId);
     }
 }

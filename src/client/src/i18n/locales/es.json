@@ -138,7 +138,6 @@
     "retry": "Reintentar",
     "required": "Este campo es obligatorio",
     "noResults": "Nada que mostrar",
-    "showingOf": "Mostrando los primeros {{shown}} de {{total}}. Ajusta la búsqueda o los filtros para ver el resto.",
     "saved": "Guardado",
     "name": "Nombre",
     "type": "Tipo",

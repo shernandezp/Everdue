@@ -1,8 +1,7 @@
 import { ActionIcon, Button, Group, Modal, Stack, Switch, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconDeviceFloppy, IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
-import { TruncationNotice } from '../../components/TruncationNotice';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { DataTable } from 'mantine-datatable';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +9,7 @@ import type { DepartmentDto } from '../../api/types';
 import { PageHeader } from '../../components/PageHeader';
 import { api } from '../../lib/api';
 import { notifyError, notifySaved } from '../../lib/notify';
+import { usePagination } from '../../lib/pagination';
 import { keys } from '../../lib/queryKeys';
 
 export function DepartmentsPage() {
@@ -17,11 +17,15 @@ export function DepartmentsPage() {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<DepartmentDto | null>(null);
   const [creating, setCreating] = useState(false);
+  const [page, setPage] = useState(1);
 
   const departments = useQuery({
-    queryKey: keys.departments.list({ includeInactive: true }),
-    queryFn: () => api.departments.list({ includeInactive: true }),
+    queryKey: keys.departments.list({ includeInactive: true, page }),
+    queryFn: () => api.departments.list({ includeInactive: true, page }),
+    placeholderData: keepPreviousData,
   });
+
+  const paging = usePagination(departments.data, page, setPage);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: keys.departments.all });
 
@@ -52,6 +56,7 @@ export function DepartmentsPage() {
         minHeight={200}
         fetching={departments.isFetching}
         records={departments.data?.items ?? []}
+        {...paging}
         idAccessor="id"
         noRecordsText={t('departments.empty')}
         columns={[
@@ -84,11 +89,6 @@ export function DepartmentsPage() {
             ),
           },
         ]}
-      />
-
-      <TruncationNotice
-        shown={departments.data?.items.length ?? 0}
-        total={departments.data?.totalCount ?? 0}
       />
 
       <DepartmentModal

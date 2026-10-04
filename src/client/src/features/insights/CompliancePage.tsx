@@ -1,5 +1,5 @@
 import { Anchor, Badge, Group } from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -7,10 +7,10 @@ import type { ComplianceRow } from '../../api/types';
 import { ExportCsvButton } from '../../components/ExportCsvButton';
 import { PageHeader } from '../../components/PageHeader';
 import { ReportTable } from '../../components/ReportTable';
-import { TruncationNotice } from '../../components/TruncationNotice';
 import { countColumn, drillThroughColumn } from '../../components/reportColumns';
 import { api, type ReportFilters } from '../../lib/api';
 import { EM_DASH } from '../../lib/format';
+import { usePagination } from '../../lib/pagination';
 import { keys } from '../../lib/queryKeys';
 import { routes } from '../../lib/routes';
 import { useServerSort } from '../../lib/useServerSort';
@@ -37,12 +37,15 @@ export function CompliancePage() {
   const [filters, setFilters] = useState<ReportFilters>({});
   const [window, setWindow] = useState<InsightWindow>({ bucket: 'Week', buckets: 12 });
   const { sort, setSort, params } = useServerSort<ComplianceRow>(SORT_NAMES, { column: 'missed' });
+  const [page, setPage] = useState(1);
 
   const query = { ...filters, ...window };
   const report = useQuery({
-    queryKey: keys.insights.compliance(query, sort),
-    queryFn: () => api.insights.compliance({ ...query, ...params }),
+    queryKey: keys.insights.compliance(query, sort, page),
+    queryFn: () => api.insights.compliance({ ...query, ...params, page }),
+    placeholderData: keepPreviousData,
   });
+  const paging = usePagination(report.data, page, setPage);
 
   return (
     <>
@@ -51,8 +54,20 @@ export function CompliancePage() {
         description={t('insights.complianceIntro')}
         actions={<ExportCsvButton href={api.exports.insight('compliance', { ...filters, ...window })} />}
       />
-      <ReportFilterBar value={filters} onChange={setFilters} />
-      <InsightsWindowBar value={window} onChange={setWindow} />
+      <ReportFilterBar
+        value={filters}
+        onChange={(value) => {
+          setFilters(value);
+          setPage(1);
+        }}
+      />
+      <InsightsWindowBar
+        value={window}
+        onChange={(value) => {
+          setWindow(value);
+          setPage(1);
+        }}
+      />
 
       <ReportTable
         fetching={report.isFetching}
@@ -60,7 +75,11 @@ export function CompliancePage() {
         idAccessor="responsibilityId"
         emptyText={t('insights.complianceEmpty')}
         sort={sort}
-        onSortChange={setSort}
+        onSortChange={(value) => {
+          setSort(value);
+          setPage(1);
+        }}
+        pagination={paging}
         columns={[
           {
             accessor: 'title',
@@ -114,8 +133,6 @@ export function CompliancePage() {
           drillThroughColumn(t),
         ]}
       />
-
-      <TruncationNotice shown={report.data?.items.length ?? 0} total={report.data?.totalCount ?? 0} />
     </>
   );
 }
