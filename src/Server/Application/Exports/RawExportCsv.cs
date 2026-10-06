@@ -43,6 +43,10 @@ public sealed class ExportRawTableHandler(IEverdueDbContext db, EntityCustomFiel
 
         string[] headers = ["id", "name", "type", "active", .. fieldColumns];
 
+        var fields = definitions
+            .Select(d => (d.Id, d.FieldType, Options: EntityCustomFields.ParseOptions(d.OptionsJson)))
+            .ToArray();
+
         return new CsvDocument("entities", headers, Rows());
 
         async IAsyncEnumerable<string?[]> Rows()
@@ -63,7 +67,7 @@ public sealed class ExportRawTableHandler(IEverdueDbContext db, EntityCustomFiel
                     entity.Name,
                     entity.Type.ToString(),
                     CsvValue.Bool(entity.Active),
-                    .. definitions.Select(d => values.TryGetValue(d.Id, out var value) ? value : null),
+                    .. fields.Select(f => EntityCustomFields.Current(f.FieldType, f.Options, values.GetValueOrDefault(f.Id))),
                 ];
             }
         }

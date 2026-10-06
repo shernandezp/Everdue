@@ -57,10 +57,19 @@ public static class TestDatabases
 
     private static async Task<TestDatabase> CreatePostgresAsync()
     {
-        var container = await EnsureContainerAsync();
+        // CI runs one leg with this set (proving SQLite stands alone on a machine without Docker)
+        // and one without it (the real dual-provider matrix).
+        if (Environment.GetEnvironmentVariable("EVERDUE_TESTS_SKIP_POSTGRES") is "1" or "true")
+        {
+            Assert.Skip("PostgreSQL tests are disabled by EVERDUE_TESTS_SKIP_POSTGRES.");
+        }
+
+        // An existing server instead of a container, for machines without Docker.
+        var external = Environment.GetEnvironmentVariable("EVERDUE_TESTS_POSTGRES");
 
         var databaseName = $"everdue_{Guid.CreateVersion7():N}";
-        var admin = new NpgsqlConnectionStringBuilder(container.GetConnectionString());
+        var admin = new NpgsqlConnectionStringBuilder(
+            string.IsNullOrWhiteSpace(external) ? (await EnsureContainerAsync()).GetConnectionString() : external);
 
         await using (var connection = new NpgsqlConnection(admin.ConnectionString))
         {
@@ -91,12 +100,6 @@ public static class TestDatabases
     /// </summary>
     private static async Task<PostgreSqlContainer> EnsureContainerAsync()
     {
-        // CI runs one leg with this set (proving SQLite stands alone on a machine without Docker)
-        // and one without it (the real dual-provider matrix).
-        if (Environment.GetEnvironmentVariable("EVERDUE_TESTS_SKIP_POSTGRES") is "1" or "true")
-        {
-            Assert.Skip("PostgreSQL tests are disabled by EVERDUE_TESTS_SKIP_POSTGRES.");
-        }
 
         if (_postgresUnavailableReason is not null)
         {

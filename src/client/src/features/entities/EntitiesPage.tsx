@@ -15,7 +15,7 @@ import { usePagination } from '../../lib/pagination';
 import { importLink, routes } from '../../lib/routes';
 import { useSession } from '../auth/session';
 import { keys } from '../../lib/queryKeys';
-import { customFieldValues, EntityCustomFieldsSection } from './EntityCustomFieldsSection';
+import { customFieldValues, EntityCustomFieldsSection, submittableValues } from './EntityCustomFieldsSection';
 
 export function EntitiesPage() {
   const { t } = useTranslation();
@@ -217,9 +217,13 @@ function EntityModal({
             name: submitted.name.trim(),
             type: submitted.type,
             active: submitted.active,
-            customFields: values,
+            customFields: submittableValues(fields, values),
           })
-        : api.entities.create({ name: submitted.name.trim(), type: submitted.type, customFields: values }),
+        : api.entities.create({
+            name: submitted.name.trim(),
+            type: submitted.type,
+            customFields: submittableValues(fields, values),
+          }),
     onSuccess: async () => {
       await onSaved();
       notifySaved();

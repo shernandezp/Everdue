@@ -88,13 +88,15 @@ public sealed class EntityCustomFieldWriter(IEverdueDbContext db)
         return definitions
             .Where(d => d.EntityType == entityType)
             .OrderBy(d => d.Position)
-            .Select(d => new EntityCustomFieldValueDto(
-                d.Id,
-                d.Name,
-                d.FieldType,
-                EntityCustomFields.ParseOptions(d.OptionsJson),
-                d.Position,
-                stored.TryGetValue(d.Id, out var value) ? value : null))
+            .Select(d =>
+            {
+                var options = EntityCustomFields.ParseOptions(d.OptionsJson);
+
+                // Echoed back by the form, a removed option would fail validation and block every later save.
+                var value = EntityCustomFields.Current(d.FieldType, options, stored.GetValueOrDefault(d.Id));
+
+                return new EntityCustomFieldValueDto(d.Id, d.Name, d.FieldType, options, d.Position, value);
+            })
             .ToArray();
     }
 }

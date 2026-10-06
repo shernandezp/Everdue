@@ -115,6 +115,7 @@ export const keys = {
 
   entityFields: {
     all: ['entity-fields'] as const,
+    includingInactive: ['entity-fields', 'including-inactive'] as const,
   },
 
   apiKeys: {

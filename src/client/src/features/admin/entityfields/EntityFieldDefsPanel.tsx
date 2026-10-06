@@ -1,6 +1,6 @@
-import { ActionIcon, Alert, Badge, Button, Group, Modal, Select, Stack, Text, TextInput } from '@mantine/core';
+import { ActionIcon, Alert, Badge, Button, Group, Modal, Select, Stack, Text, Textarea, TextInput } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { IconInfoCircle, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconDeviceFloppy, IconInfoCircle, IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,10 +19,10 @@ import { keys } from '../../../lib/queryKeys';
 export function EntityFieldDefsPanel() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [creating, setCreating] = useState(false);
+  const [editing, setEditing] = useState<EntityFieldDef | 'new' | null>(null);
 
   const defs = useQuery({
-    queryKey: keys.entityFields.all,
+    queryKey: keys.entityFields.includingInactive,
     queryFn: () => api.entityFields.list({ includeInactive: true }),
   });
 
@@ -43,7 +43,7 @@ export function EntityFieldDefsPanel() {
         <Text size="sm" c="dimmed" maw={640}>
           {t('entityFields.description')}
         </Text>
-        <Button size="xs" leftSection={<IconPlus size={14} />} onClick={() => setCreating(true)}>
+        <Button size="xs" leftSection={<IconPlus size={14} />} onClick={() => setEditing('new')}>
           {t('entityFields.add')}
         </Button>
       </Group>
@@ -82,14 +82,19 @@ export function EntityFieldDefsPanel() {
             title: t('common.actions'),
             textAlign: 'right',
             render: (row: EntityFieldDef) => (
-              <ActionIcon
-                variant="subtle"
-                color="red"
-                aria-label={t('common.delete')}
-                onClick={() => remove.mutate(row.id)}
-              >
-                <IconTrash size={16} />
-              </ActionIcon>
+              <Group gap={4} justify="flex-end" wrap="nowrap">
+                <ActionIcon variant="subtle" aria-label={t('common.edit')} onClick={() => setEditing(row)}>
+                  <IconPencil size={16} />
+                </ActionIcon>
+                <ActionIcon
+                  variant="subtle"
+                  color="red"
+                  aria-label={t('common.delete')}
+                  onClick={() => remove.mutate(row.id)}
+                >
+                  <IconTrash size={16} />
+                </ActionIcon>
+              </Group>
             ),
           },
         ]}
@@ -99,60 +104,74 @@ export function EntityFieldDefsPanel() {
         {t('entityFields.deleteNote')}
       </Text>
 
-      <CreateFieldModal opened={creating} onClose={() => setCreating(false)} onCreated={refresh} />
+      {editing && (
+        <FieldModal field={editing === 'new' ? null : editing} onClose={() => setEditing(null)} onSaved={refresh} />
+      )}
     </Stack>
   );
 }
 
-function CreateFieldModal({
-  opened,
+const MAX_OPTIONS = 20;
+
+// One per line, or tab-separated as pasted from a spreadsheet row. Not commas: entity names contain them.
+// Deduplicated case-insensitively, as the server does, so the limit counts what will actually be stored.
+const parseOptions = (text: string) => {
+  const options = text
+    .split(/[\r\n\t]+/)
+    .map((option) => option.trim())
+    .filter((option) => option.length > 0);
+
+  return options.filter(
+    (option, index) => options.findIndex((other) => other.toLowerCase() === option.toLowerCase()) === index,
+  );
+};
+
+// Mounted only while open, so each opening starts from the stored field rather than a previous draft.
+function FieldModal({
+  field,
   onClose,
-  onCreated,
+  onSaved,
 }: {
-  opened: boolean;
+  field: EntityFieldDef | null;
   onClose: () => void;
-  onCreated: () => Promise<unknown>;
+  onSaved: () => Promise<unknown>;
 }) {
   const { t } = useTranslation();
-  const [entityType, setEntityType] = useState<string>('Customer');
-  const [name, setName] = useState('');
-  const [fieldType, setFieldType] = useState<EntityFieldType>('Text');
-  const [options, setOptions] = useState('');
+  const [entityType, setEntityType] = useState<string>(field?.entityType ?? 'Customer');
+  const [name, setName] = useState(field?.name ?? '');
+  const [fieldType, setFieldType] = useState<EntityFieldType>(field?.fieldType ?? 'Text');
+  const [options, setOptions] = useState(field?.options.join('\n') ?? '');
 
-  const create = useMutation({
+  const parsed = fieldType === 'Select' ? parseOptions(options) : null;
+  const tooManyOptions = (parsed?.length ?? 0) > MAX_OPTIONS;
+
+  const save = useMutation({
     mutationFn: () =>
-      api.entityFields.create({
-        entityType,
-        name: name.trim(),
-        fieldType,
-
-        // One per line: an option list separated by commas cannot contain a comma, and entity names do.
-        options:
-          fieldType === 'Select'
-            ? options
-                .split('\n')
-                .map((option) => option.trim())
-                .filter((option) => option.length > 0)
-            : null,
-      }),
+      field
+        ? api.entityFields.update(field.id, {
+            name: name.trim(),
+            options: parsed,
+            position: field.position,
+            active: field.active,
+          })
+        : api.entityFields.create({ entityType, name: name.trim(), fieldType, options: parsed }),
     onSuccess: async () => {
       notifySaved();
-      setName('');
-      setOptions('');
-      await onCreated();
+      await onSaved();
       onClose();
     },
     onError: notifyError,
   });
 
   return (
-    <Modal opened={opened} onClose={onClose} title={t('entityFields.add')}>
+    <Modal opened onClose={onClose} title={t(field ? 'entityFields.edit' : 'entityFields.add')}>
       <Stack>
         <Select
           label={t('entityFields.entityType')}
           data={ENTITY_TYPES.map((type) => ({ value: type, label: t(`entityType.${type}`) }))}
           value={entityType}
           allowDeselect={false}
+          disabled={field !== null}
           onChange={(value) => setEntityType(value ?? 'Customer')}
         />
 
@@ -170,13 +189,17 @@ function CreateFieldModal({
           data={ENTITY_FIELD_TYPES.map((type) => ({ value: type, label: t(`entityFields.type.${type}`) }))}
           value={fieldType}
           allowDeselect={false}
+          disabled={field !== null}
           onChange={(value) => setFieldType((value ?? 'Text') as EntityFieldType)}
         />
 
         {fieldType === 'Select' && (
-          <TextInput
+          <Textarea
             label={t('entityFields.options')}
-            description={t('entityFields.optionsHint')}
+            description={t(field ? 'entityFields.optionsEditHint' : 'entityFields.optionsHint')}
+            error={tooManyOptions ? t('entityFields.tooManyOptions', { max: MAX_OPTIONS }) : undefined}
+            autosize
+            minRows={3}
             value={options}
             onChange={(event) => setOptions(event.currentTarget.value)}
           />
@@ -187,12 +210,12 @@ function CreateFieldModal({
             {t('common.cancel')}
           </Button>
           <Button
-            loading={create.isPending}
-            disabled={name.trim().length === 0}
-            leftSection={<IconPlus size={16} />}
-            onClick={() => create.mutate()}
+            loading={save.isPending}
+            disabled={name.trim().length === 0 || tooManyOptions}
+            leftSection={field ? <IconDeviceFloppy size={16} /> : <IconPlus size={16} />}
+            onClick={() => save.mutate()}
           >
-            {t('common.create')}
+            {t(field ? 'common.save' : 'common.create')}
           </Button>
         </Group>
       </Stack>

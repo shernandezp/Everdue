@@ -90,6 +90,12 @@ public static class EntityCustomFields
     public static string SerializeOptions(IEnumerable<string> options)
         => JsonSerializer.Serialize(options.ToArray(), JsonOptions);
 
+    /// <summary>A Select value no longer among the options reads as empty, like a deleted definition.</summary>
+    public static string? Current(EntityFieldType fieldType, IReadOnlyList<string> options, string? stored)
+        => fieldType == EntityFieldType.Select && stored is not null
+            ? options.FirstOrDefault(o => string.Equals(o, stored, StringComparison.OrdinalIgnoreCase))
+            : stored;
+
     /// <summary>
     /// Checks and normalises one submitted value. Numbers and dates are stored in a canonical,
     /// culture-independent form so the same value reads identically in every language — the column is
