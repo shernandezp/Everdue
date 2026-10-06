@@ -79,3 +79,18 @@ export function EntityCustomFieldsSection({
 export function customFieldValues(fields: EntityCustomFieldValue[] | undefined): Record<string, string> {
   return Object.fromEntries((fields ?? []).map((field) => [field.definitionId, field.value ?? '']));
 }
+
+/** Clears a choice whose option was removed after the entity was loaded, which the server would reject. */
+export function submittableValues(fields: EntityCustomFieldValue[], values: Record<string, string>) {
+  return Object.fromEntries(
+    Object.entries(values).map(([definitionId, value]) => {
+      const field = fields.find((candidate) => candidate.definitionId === definitionId);
+      const removed =
+        field?.fieldType === 'Select' &&
+        value !== '' &&
+        !field.options.some((option) => option.toLowerCase() === value.toLowerCase());
+
+      return [definitionId, removed ? '' : value];
+    }),
+  );
+}

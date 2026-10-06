@@ -45,7 +45,9 @@ dotnet test --project src/Server.Tests/Everdue.Server.Tests.csproj    # the Post
 cd src/client && npm run check:i18n && npm test && npm run build
 ```
 
-`EVERDUE_TESTS_SKIP_POSTGRES=1` forces the PostgreSQL half to skip. **You do not need Docker to contribute** —
+`EVERDUE_TESTS_SKIP_POSTGRES=1` forces the PostgreSQL half to skip. To run it against an existing PostgreSQL server
+instead of a container, set `EVERDUE_TESTS_POSTGRES` to a connection string for a user that can create databases.
+**You do not need Docker to contribute** —
 CI runs one leg each way, which also proves the product works on a machine that has none.
 
 ---

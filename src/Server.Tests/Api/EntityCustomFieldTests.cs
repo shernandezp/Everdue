@@ -186,6 +186,58 @@ public class EntityCustomFieldTests
 
     [Theory]
     [MemberData(nameof(Providers))]
+    public async Task Removing_an_option_does_not_block_saving_an_entity_that_used_it(TestProvider provider)
+    {
+        await using var app = await EverdueApp.StartAsync(provider);
+        var admin = await app.SignInAsAdminAsync();
+
+        var field = await admin.PostJsonAsync<EntityFieldDefDto>("/api/v1/entity-fields", new
+        {
+            entityType = nameof(EntityType.Customer),
+            name = "Tier",
+            fieldType = nameof(EntityFieldType.Select),
+            options = new[] { "Gold", "Silver" },
+        });
+
+        var gold = await admin.PostJsonAsync<EntityDto>("/api/v1/entities", new
+        {
+            name = "Grupo Andino",
+            type = nameof(EntityType.Customer),
+            customFields = new Dictionary<string, string> { [field.Id.ToString()] = "Gold" },
+        });
+
+        var silver = await admin.PostJsonAsync<EntityDto>("/api/v1/entities", new
+        {
+            name = "Ferretería Sol",
+            type = nameof(EntityType.Customer),
+            customFields = new Dictionary<string, string> { [field.Id.ToString()] = "Silver" },
+        });
+
+        await admin.PutJsonAsync<EntityFieldDefDto>($"/api/v1/entity-fields/{field.Id}", new
+        {
+            name = "Tier",
+            options = new[] { "SILVER", "Bronze" },
+            position = field.Position,
+            active = true,
+        });
+
+        (await admin.GetJsonAsync<EntityDto>($"/api/v1/entities/{gold.Id}")).CustomFields.Single().Value.ShouldBeNull();
+        (await admin.GetJsonAsync<EntityDto>($"/api/v1/entities/{silver.Id}")).CustomFields.Single().Value.ShouldBe("SILVER");
+
+        // Saved the way the form does it: the values it was given, sent straight back.
+        var resaved = await admin.PutJsonAsync<EntityDto>($"/api/v1/entities/{gold.Id}", new
+        {
+            name = "Grupo Andino",
+            type = nameof(EntityType.Customer),
+            active = true,
+            customFields = new Dictionary<string, string> { [field.Id.ToString()] = "" },
+        });
+
+        resaved.CustomFields.Single().Value.ShouldBeNull();
+    }
+
+    [Theory]
+    [MemberData(nameof(Providers))]
     public async Task Omitting_the_section_entirely_leaves_stored_values_alone(TestProvider provider)
     {
         await using var app = await EverdueApp.StartAsync(provider);

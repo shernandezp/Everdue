@@ -249,4 +249,43 @@ public class ExportTests
         csv.ShouldContain("Luisa Franco");
         csv.ShouldContain("Ferretería El Progreso");
     }
+
+    [Theory]
+    [MemberData(nameof(Providers))]
+    public async Task The_raw_entity_export_leaves_out_a_removed_option(TestProvider provider)
+    {
+        await using var app = await EverdueApp.StartAsync(provider);
+        var admin = await app.SignInAsAdminAsync();
+
+        var field = await admin.PostJsonAsync<EntityFieldDefDto>("/api/v1/entity-fields", new
+        {
+            entityType = nameof(EntityType.Customer),
+            name = "Tier",
+            fieldType = nameof(EntityFieldType.Select),
+            options = new[] { "Platinum", "Silver" },
+        });
+
+        foreach (var (name, tier) in new[] { ("Grupo Andino", "Platinum"), ("Ferretería Sol", "Silver") })
+        {
+            await admin.PostJsonAsync<EntityDto>("/api/v1/entities", new
+            {
+                name,
+                type = nameof(EntityType.Customer),
+                customFields = new Dictionary<string, string> { [field.Id.ToString()] = tier },
+            });
+        }
+
+        await admin.PutJsonAsync<EntityFieldDefDto>($"/api/v1/entity-fields/{field.Id}", new
+        {
+            name = "Tier",
+            options = new[] { "SILVER" },
+            position = field.Position,
+            active = true,
+        });
+
+        var (csv, _) = await CsvAsync(admin, "/api/v1/exports/raw/entities");
+
+        csv.ShouldNotContain("Platinum");
+        csv.ShouldContain("SILVER");
+    }
 }
