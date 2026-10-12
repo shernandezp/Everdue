@@ -91,27 +91,26 @@ export function DepartmentsPage() {
         ]}
       />
 
-      <DepartmentModal
-        department={editing}
-        opened={creating || editing !== null}
-        onClose={() => {
-          setCreating(false);
-          setEditing(null);
-        }}
-        onSaved={invalidate}
-      />
+      {(creating || editing) && (
+        <DepartmentModal
+          department={editing}
+          onClose={() => {
+            setCreating(false);
+            setEditing(null);
+          }}
+          onSaved={invalidate}
+        />
+      )}
     </>
   );
 }
 
 function DepartmentModal({
   department,
-  opened,
   onClose,
   onSaved,
 }: {
   department: DepartmentDto | null;
-  opened: boolean;
   onClose: () => void;
   onSaved: () => Promise<unknown>;
 }) {
@@ -137,11 +136,10 @@ function DepartmentModal({
 
   return (
     <Modal
-      opened={opened}
+      opened
       onClose={onClose}
       title={department ? t('departments.edit') : t('departments.new')}
       centered
-      key={department?.id ?? 'new'}
     >
       <form onSubmit={form.onSubmit((values) => save.mutate(values))}>
         <Stack>

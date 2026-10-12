@@ -15,11 +15,9 @@ import { keys } from '../../lib/queryKeys';
  */
 export function EditWorkItemModal({
   item,
-  opened,
   onClose,
 }: {
   item: WorkItem;
-  opened: boolean;
   onClose: () => void;
 }) {
   const { t } = useTranslation();
@@ -61,7 +59,7 @@ export function EditWorkItemModal({
   });
 
   return (
-    <Modal opened={opened} onClose={onClose} title={t('workItem.editTitle')} centered size="lg" key={item.id}>
+    <Modal opened onClose={onClose} title={t('workItem.editTitle')} centered size="lg">
       <form onSubmit={form.onSubmit((values) => save.mutate(values))}>
         <Stack>
           <TextInput label={t('workItem.title')} data-autofocus {...form.getInputProps('title')} />

@@ -159,27 +159,26 @@ export function EntitiesPage() {
         ]}
       />
 
-      <EntityModal
-        entity={editing}
-        opened={creating || editing !== null}
-        onClose={() => {
-          setCreating(false);
-          setEditing(null);
-        }}
-        onSaved={invalidate}
-      />
+      {(creating || editing) && (
+        <EntityModal
+          entity={editing}
+          onClose={() => {
+            setCreating(false);
+            setEditing(null);
+          }}
+          onSaved={invalidate}
+        />
+      )}
     </>
   );
 }
 
 function EntityModal({
   entity,
-  opened,
   onClose,
   onSaved,
 }: {
   entity: EntityDto | null;
-  opened: boolean;
   onClose: () => void;
   onSaved: () => Promise<unknown>;
 }) {
@@ -194,7 +193,6 @@ function EntityModal({
   const definitions = useQuery({
     queryKey: keys.entityFields.all,
     queryFn: () => api.entityFields.list(),
-    enabled: opened,
   });
 
   const [values, setValues] = useState<Record<string, string>>(() => customFieldValues(entity?.customFields));
@@ -234,12 +232,10 @@ function EntityModal({
 
   return (
     <Modal
-      opened={opened}
+      opened
       onClose={onClose}
       title={entity ? t('entities.edit') : t('entities.new')}
       centered
-      // Remount on target change so the form always starts from the row being edited.
-      key={entity?.id ?? 'new'}
     >
       <form onSubmit={form.onSubmit((values) => save.mutate(values))}>
         <Stack>

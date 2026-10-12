@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ResponsibilityDto } from '../../api/types';
 import { PageHeader } from '../../components/PageHeader';
+import { useSession } from '../auth/session';
 import { api } from '../../lib/api';
 import { formatDate, toDateInputValue } from '../../lib/format';
 import { notifyError, notifySaved } from '../../lib/notify';
@@ -29,9 +30,11 @@ const WEEKDAYS = [0, 1, 2, 3, 4, 5, 6];
 
 type TranslateFn = ReturnType<typeof useTranslation>['t'];
 
-export function ResponsibilitiesPage() {
+export function ResponsibilitiesPage({ mine = false }: { mine?: boolean }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { user, isAdmin } = useSession();
+  const ownerId = mine ? user?.id : undefined;
   const [editing, setEditing] = useState<ResponsibilityDto | null>(null);
   const [creating, setCreating] = useState(false);
   const [page, setPage] = useState(1);
@@ -40,8 +43,8 @@ export function ResponsibilitiesPage() {
   const [historyFor, setHistoryFor] = useState<ResponsibilityDto | null>(null);
 
   const list = useQuery({
-    queryKey: keys.responsibilities.list(page),
-    queryFn: () => api.responsibilities.list({ includeInactive: true, page }),
+    queryKey: keys.responsibilities.list(page, ownerId),
+    queryFn: () => api.responsibilities.list({ ownerId, includeInactive: isAdmin, page }),
     placeholderData: keepPreviousData,
   });
 
@@ -66,11 +69,13 @@ export function ResponsibilitiesPage() {
   return (
     <>
       <PageHeader
-        title={t('responsibility.title')}
+        title={mine ? t('nav.myResponsibilities') : t('responsibility.title')}
         actions={
-          <Button leftSection={<IconPlus size={16} />} onClick={() => setCreating(true)}>
-            {t('responsibility.new')}
-          </Button>
+          isAdmin && (
+            <Button leftSection={<IconPlus size={16} />} onClick={() => setCreating(true)}>
+              {t('responsibility.new')}
+            </Button>
+          )
         }
       />
 
@@ -82,7 +87,7 @@ export function ResponsibilitiesPage() {
         records={list.data?.items ?? []}
         {...paging}
         idAccessor="id"
-        noRecordsText={t('responsibility.empty')}
+        noRecordsText={mine ? t('responsibility.emptyMine') : t('responsibility.empty')}
         columns={[
           {
             accessor: 'title',
@@ -142,30 +147,35 @@ export function ResponsibilitiesPage() {
             textAlign: 'right',
             render: (row) => (
               <Group gap={4} justify="flex-end">
-                <ActionIcon variant="subtle" aria-label={t('common.edit')} onClick={() => setEditing(row)}>
-                  <IconPencil size={16} />
-                </ActionIcon>
+                {isAdmin && (
+                  <>
+                    <ActionIcon variant="subtle" aria-label={t('common.edit')} onClick={() => setEditing(row)}>
+                      <IconPencil size={16} />
+                    </ActionIcon>
 
-                {/* Future occurrences follow the owner automatically; existing ones on request. */}
-                <ActionIcon variant="subtle" aria-label={t('reassign.responsibility')} onClick={() => setReassigning(row)}>
-                  <IconArrowsExchange size={16} />
-                </ActionIcon>
+                    {/* Future occurrences follow the owner automatically; existing ones on request. */}
+                    <ActionIcon variant="subtle" aria-label={t('reassign.responsibility')} onClick={() => setReassigning(row)}>
+                      <IconArrowsExchange size={16} />
+                    </ActionIcon>
+                  </>
+                )}
 
                 <ActionIcon variant="subtle" aria-label={t('respHistory.open')} onClick={() => setHistoryFor(row)}>
                   <IconHistory size={16} />
                 </ActionIcon>
 
-                {row.pausedUntil && new Date(row.pausedUntil) > new Date() ? (
-                  <ActionIcon variant="subtle" aria-label={t('responsibility.resume')} onClick={() => void resume(row.id)}>
-                    <IconPlayerPlay size={16} />
-                  </ActionIcon>
-                ) : (
-                  <ActionIcon variant="subtle" aria-label={t('responsibility.pause')} onClick={() => setPausing(row)}>
-                    <IconPlayerPause size={16} />
-                  </ActionIcon>
-                )}
+                {isAdmin &&
+                  (row.pausedUntil && new Date(row.pausedUntil) > new Date() ? (
+                    <ActionIcon variant="subtle" aria-label={t('responsibility.resume')} onClick={() => void resume(row.id)}>
+                      <IconPlayerPlay size={16} />
+                    </ActionIcon>
+                  ) : (
+                    <ActionIcon variant="subtle" aria-label={t('responsibility.pause')} onClick={() => setPausing(row)}>
+                      <IconPlayerPause size={16} />
+                    </ActionIcon>
+                  ))}
 
-                {row.active && (
+                {isAdmin && row.active && (
                   <ActionIcon
                     variant="subtle"
                     color="red"
@@ -185,27 +195,28 @@ export function ResponsibilitiesPage() {
         ]}
       />
 
-      <ResponsibilityModal
-        responsibility={editing}
-        opened={creating || editing !== null}
-        onClose={() => {
-          setCreating(false);
-          setEditing(null);
-        }}
-        onSaved={invalidate}
-      />
+      {(creating || editing) && (
+        <ResponsibilityModal
+          responsibility={editing}
+          onClose={() => {
+            setCreating(false);
+            setEditing(null);
+          }}
+          onSaved={invalidate}
+        />
+      )}
 
-      <PauseModal responsibility={pausing} onClose={() => setPausing(null)} onSaved={invalidate} />
+      {pausing && <PauseModal responsibility={pausing} onClose={() => setPausing(null)} onSaved={invalidate} />}
 
-      <ReassignResponsibilityModal
-        responsibility={reassigning}
-        opened={reassigning !== null}
-        onClose={() => setReassigning(null)}
-      />
+      {reassigning && <ReassignResponsibilityModal responsibility={reassigning} onClose={() => setReassigning(null)} />}
 
       <ResponsibilityHistoryModal responsibility={historyFor} onClose={() => setHistoryFor(null)} />
     </>
   );
+}
+
+export function MyResponsibilitiesPage() {
+  return <ResponsibilitiesPage mine />;
 }
 
 function describeRecurrence(row: ResponsibilityDto, t: TranslateFn): string {
@@ -230,7 +241,7 @@ function PauseModal({
   onClose,
   onSaved,
 }: {
-  responsibility: ResponsibilityDto | null;
+  responsibility: ResponsibilityDto;
   onClose: () => void;
   onSaved: () => Promise<unknown>;
 }) {
@@ -238,7 +249,7 @@ function PauseModal({
   const [until, setUntil] = useState<string | null>(toDateInputValue(new Date()));
 
   const pause = useMutation({
-    mutationFn: () => api.responsibilities.pause(responsibility!.id, until!),
+    mutationFn: () => api.responsibilities.pause(responsibility.id, until!),
     onSuccess: async () => {
       await onSaved();
       notifySaved();
@@ -248,7 +259,7 @@ function PauseModal({
   });
 
   return (
-    <Modal opened={responsibility !== null} onClose={onClose} title={t('responsibility.pause')} centered>
+    <Modal opened onClose={onClose} title={t('responsibility.pause')} centered>
       <Stack>
         <Text size="sm" c="dimmed">
           {t('responsibility.pauseHint')}

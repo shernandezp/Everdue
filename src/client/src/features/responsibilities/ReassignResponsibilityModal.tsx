@@ -16,11 +16,9 @@ import { keys } from '../../lib/queryKeys';
  */
 export function ReassignResponsibilityModal({
   responsibility,
-  opened,
   onClose,
 }: {
-  responsibility: ResponsibilityDto | null;
-  opened: boolean;
+  responsibility: ResponsibilityDto;
   onClose: () => void;
 }) {
   const { t } = useTranslation();
@@ -31,7 +29,7 @@ export function ReassignResponsibilityModal({
 
   const reassign = useMutation({
     mutationFn: () =>
-      api.responsibilities.reassign(responsibility!.id, {
+      api.responsibilities.reassign(responsibility.id, {
         newOwnerUserId: newOwnerUserId!,
         applyToWorkableOccurrences: applyToWorkable,
       }),
@@ -49,7 +47,7 @@ export function ReassignResponsibilityModal({
   });
 
   return (
-    <Modal opened={opened} onClose={onClose} title={t('reassign.responsibility')} centered>
+    <Modal opened onClose={onClose} title={t('reassign.responsibility')} centered>
       <Stack>
         <Alert color="blue" icon={<IconInfoCircle size={16} />}>
           {t('reassign.futureHint')}

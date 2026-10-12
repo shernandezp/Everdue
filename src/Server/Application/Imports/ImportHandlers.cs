@@ -23,7 +23,7 @@ public sealed class PreviewImportHandler(
             : WorkItemImportHandler.Fields;
 
         var aliases = request.Kind == ImportKind.Entities
-            ? EntityImportHandler.Aliases
+            ? await entities.AliasesAsync(cancellationToken)
             : WorkItemImportHandler.Aliases;
 
         var suggestion = ImportMapping.Suggest(table.Headers, fields, aliases);

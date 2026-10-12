@@ -176,7 +176,7 @@ export const api = {
   },
 
   responsibilities: {
-    list: (params: { search?: string; includeInactive?: boolean; page?: number; pageSize?: number } = {}) =>
+    list: (params: { search?: string; ownerId?: string; includeInactive?: boolean; page?: number; pageSize?: number } = {}) =>
       http.get<Paged<ResponsibilityDto>>(`/responsibilities${query({ ...params, pageSize: params.pageSize ?? PAGE_SIZE })}`),
     get: (id: string) => http.get<ResponsibilityDto>(`/responsibilities/${id}`),
     events: (id: string) => http.get<ResponsibilityEventDto[]>(`/responsibilities/${id}/events`),

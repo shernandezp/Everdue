@@ -39,7 +39,7 @@ export const keys = {
     all: ['responsibilities'] as const,
     one: (id: string | null) => ['responsibilities', 'one', id] as const,
     events: (id: string | null) => ['responsibilities', 'events', id] as const,
-    list: (page: number) => ['responsibilities', 'list', page] as const,
+    list: (page: number, ownerId?: string) => ['responsibilities', 'list', page, ownerId] as const,
   },
 
   workItems: {

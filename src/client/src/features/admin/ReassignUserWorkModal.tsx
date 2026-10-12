@@ -16,11 +16,9 @@ import { keys } from '../../lib/queryKeys';
  */
 export function ReassignUserWorkModal({
   user,
-  opened,
   onClose,
 }: {
-  user: UserDto | null;
-  opened: boolean;
+  user: UserDto;
   onClose: () => void;
 }) {
   const { t } = useTranslation();
@@ -32,7 +30,7 @@ export function ReassignUserWorkModal({
 
   const handOver = useMutation({
     mutationFn: () =>
-      api.users.reassignAll(user!.id, { toUserId: toUserId!, includeResponsibilities, includeWorkableItems }),
+      api.users.reassignAll(user.id, { toUserId: toUserId!, includeResponsibilities, includeWorkableItems }),
     onSuccess: async (result) => {
       notifySaved(t('reassign.handedOver', { responsibilities: result.responsibilities, items: result.workItems }));
 
@@ -47,13 +45,11 @@ export function ReassignUserWorkModal({
   });
 
   return (
-    <Modal opened={opened} onClose={onClose} title={t('reassign.handOver')} centered>
+    <Modal opened onClose={onClose} title={t('reassign.handOver')} centered>
       <Stack>
-        {user && (
-          <Text size="sm" c="dimmed">
-            {t('reassign.handOverHint', { name: user.displayName })}
-          </Text>
-        )}
+        <Text size="sm" c="dimmed">
+          {t('reassign.handOverHint', { name: user.displayName })}
+        </Text>
 
         <UserPicker label={t('reassign.newOwner')} value={toUserId} onChange={setToUserId} clearable={false} />
 
@@ -77,7 +73,7 @@ export function ReassignUserWorkModal({
             {t('common.cancel')}
           </Button>
           <Button
-            disabled={!toUserId || toUserId === user?.id}
+            disabled={!toUserId || toUserId === user.id}
             loading={handOver.isPending}
             leftSection={<IconArrowsExchange size={16} />}
             onClick={() => handOver.mutate()}
