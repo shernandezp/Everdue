@@ -40,6 +40,10 @@ const ResponsibilitiesPage = lazyPage(
   () => import('./features/responsibilities/ResponsibilitiesPage'),
   (m) => m.ResponsibilitiesPage,
 );
+const MyResponsibilitiesPage = lazyPage(
+  () => import('./features/responsibilities/ResponsibilitiesPage'),
+  (m) => m.MyResponsibilitiesPage,
+);
 const DepartmentsPage = lazyPage(() => import('./features/entities/DepartmentsPage'), (m) => m.DepartmentsPage);
 const UsersPage = lazyPage(() => import('./features/admin/UsersPage'), (m) => m.UsersPage);
 const SettingsPage = lazyPage(() => import('./features/admin/SettingsPage'), (m) => m.SettingsPage);
@@ -114,6 +118,7 @@ export function App() {
       <Route path={routes.holdAging} element={<Protected adminOnly><HoldAgingPage /></Protected>} />
 
       <Route path={routes.responsibilities} element={<Protected adminOnly><ResponsibilitiesPage /></Protected>} />
+      <Route path={routes.myResponsibilities} element={<Protected><MyResponsibilitiesPage /></Protected>} />
       <Route path={routes.departments} element={<Protected adminOnly><DepartmentsPage /></Protected>} />
       <Route path={routes.users} element={<Protected adminOnly><UsersPage /></Protected>} />
       <Route path={routes.settings} element={<Protected adminOnly><SettingsPage /></Protected>} />

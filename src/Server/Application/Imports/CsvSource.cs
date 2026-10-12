@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Unicode;
 using Everdue.Server.Application.Common;
 using Sylvan.Data.Csv;
 
@@ -17,7 +18,7 @@ public sealed record CsvTable(
 /// Two things here are not incidental. <strong>The delimiter is detected</strong> between <c>,</c> and
 /// <c>;</c>, because Spanish-locale Excel writes semicolons and a Spanish-first product that cannot read
 /// Spanish Excel's CSV is not importable. <strong>The encoding is detected from the byte-order mark</strong>,
-/// falling back to UTF-8, which is what a file that has been through Excel and back actually looks like.
+/// falling back to UTF-8 if the bytes are valid UTF-8 and to Windows-1252 (Excel's plain "CSV") otherwise.
 ///
 /// Quoting, embedded newlines and ragged rows are the library's problem, deliberately: those are the edge
 /// cases hand-rolled CSV readers get wrong.
@@ -99,7 +100,7 @@ public static class CsvSource
         }
 
         preambleLength = 0;
-        return new UTF8Encoding(false);
+        return Utf8.IsValid(content) ? new UTF8Encoding(false) : CodePagesEncodingProvider.Instance.GetEncoding(1252)!;
     }
 
     /// <summary>

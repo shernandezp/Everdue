@@ -101,35 +101,30 @@ export function UsersPage() {
         ]}
       />
 
-      <UserModal
-        user={editing}
-        opened={creating || editing !== null}
-        onClose={() => {
-          setCreating(false);
-          setEditing(null);
-        }}
-        onSaved={invalidate}
-      />
+      {(creating || editing) && (
+        <UserModal
+          user={editing}
+          onClose={() => {
+            setCreating(false);
+            setEditing(null);
+          }}
+          onSaved={invalidate}
+        />
+      )}
 
-      <ResetPasswordModal user={resetting} onClose={() => setResetting(null)} onSaved={invalidate} />
+      {resetting && <ResetPasswordModal user={resetting} onClose={() => setResetting(null)} onSaved={invalidate} />}
 
-      <ReassignUserWorkModal
-        user={handingOver}
-        opened={handingOver !== null}
-        onClose={() => setHandingOver(null)}
-      />
+      {handingOver && <ReassignUserWorkModal user={handingOver} onClose={() => setHandingOver(null)} />}
     </>
   );
 }
 
 function UserModal({
   user,
-  opened,
   onClose,
   onSaved,
 }: {
   user: UserDto | null;
-  opened: boolean;
   onClose: () => void;
   onSaved: () => Promise<unknown>;
 }) {
@@ -179,7 +174,7 @@ function UserModal({
   });
 
   return (
-    <Modal opened={opened} onClose={onClose} title={user ? t('users.edit') : t('users.new')} centered key={user?.id ?? 'new'}>
+    <Modal opened onClose={onClose} title={user ? t('users.edit') : t('users.new')} centered>
       <form onSubmit={form.onSubmit((values) => save.mutate(values))}>
         <Stack>
           <TextInput label={t('auth.email')} disabled={user !== null} {...form.getInputProps('email')} />
@@ -244,7 +239,7 @@ function ResetPasswordModal({
   onClose,
   onSaved,
 }: {
-  user: UserDto | null;
+  user: UserDto;
   onClose: () => void;
   onSaved: () => Promise<unknown>;
 }) {
@@ -252,18 +247,17 @@ function ResetPasswordModal({
   const [password, setPassword] = useState('');
 
   const reset = useMutation({
-    mutationFn: () => api.users.resetPassword(user!.id, password),
+    mutationFn: () => api.users.resetPassword(user.id, password),
     onSuccess: async () => {
       await onSaved();
       notifySaved();
-      setPassword('');
       onClose();
     },
     onError: notifyError,
   });
 
   return (
-    <Modal opened={user !== null} onClose={onClose} title={t('users.resetPassword')} centered>
+    <Modal opened onClose={onClose} title={t('users.resetPassword')} centered>
       <Stack>
         <PasswordInput
           label={t('auth.newPassword')}

@@ -15,7 +15,7 @@ import {
 import { DatePickerInput } from '@mantine/dates';
 import { IconDeviceFloppy } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RECURRENCE_KINDS, type RecurrenceKind, type ResponsibilityDto } from '../../api/types';
@@ -43,24 +43,26 @@ const MAX_TEMPLATE_ITEMS = 50;
  */
 export function ResponsibilityModal({
   responsibility,
-  opened,
   onClose,
   onSaved,
 }: {
   responsibility: ResponsibilityDto | null;
-  opened: boolean;
   onClose: () => void;
   onSaved: () => Promise<unknown>;
 }) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
 
   // Loaded alongside the responsibility rather than folded into its DTO: the template is a list, and the list page
   // only needs to know how long it is.
   const template = useQuery({
     queryKey: keys.checklists.template(responsibility?.id ?? null),
     queryFn: () => api.checklists.template(responsibility!.id),
-    enabled: opened && responsibility !== null,
+    enabled: responsibility !== null,
   });
+
+  // Saving replaces the stored template, so it must not happen before the stored one is known.
+  const templateReady = responsibility === null || template.isSuccess;
 
   const [checklist, setChecklist] = useState<TemplateLine[] | null>(null);
 
@@ -122,17 +124,17 @@ export function ResponsibilityModal({
 
       // Second call on purpose: the template is its own resource, and the responsibility has to exist before it can
       // have one. Nothing is lost if this fails — the responsibility saved, and the form reports the error.
-      await api.checklists.saveTemplate(
+      const savedTemplate = await api.checklists.saveTemplate(
         saved.id,
         usable.map((line) => ({ text: line.text.trim(), required: line.required })),
       );
+      queryClient.setQueryData(keys.checklists.template(saved.id), savedTemplate);
 
       return saved;
     },
     onSuccess: async () => {
       await onSaved();
       notifySaved();
-      setChecklist(null);
       onClose();
     },
     onError: notifyError,
@@ -145,12 +147,11 @@ export function ResponsibilityModal({
 
   return (
     <Modal
-      opened={opened}
+      opened
       onClose={onClose}
       title={responsibility ? t('responsibility.edit') : t('responsibility.new')}
       centered
       size="lg"
-      key={responsibility?.id ?? 'new'}
     >
       <form onSubmit={form.onSubmit((values) => save.mutate(values))}>
         <Stack>
@@ -228,7 +229,7 @@ export function ResponsibilityModal({
 
           <Divider />
 
-          <ChecklistTemplateEditor items={lines} onChange={setChecklist} max={MAX_TEMPLATE_ITEMS} />
+          {templateReady && <ChecklistTemplateEditor items={lines} onChange={setChecklist} max={MAX_TEMPLATE_ITEMS} />}
 
           <CompletionRulesFields
             requireChecklist={form.values.requireChecklistToComplete}
@@ -257,7 +258,7 @@ export function ResponsibilityModal({
             <Button variant="default" onClick={onClose}>
               {t('common.cancel')}
             </Button>
-            <Button type="submit" loading={save.isPending} leftSection={<IconDeviceFloppy size={16} />}>
+            <Button type="submit" loading={save.isPending} disabled={!templateReady} leftSection={<IconDeviceFloppy size={16} />}>
               {t('common.save')}
             </Button>
           </Group>

@@ -32,6 +32,7 @@ export const routes = {
   holdAging: '/insights/hold-aging',
 
   responsibilities: '/responsibilities',
+  myResponsibilities: '/my-responsibilities',
   departments: '/departments',
   users: '/users',
   settings: '/settings',

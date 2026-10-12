@@ -99,7 +99,10 @@ export function BulkActionBar({ ids, onDone }: { ids: string[]; onDone: () => vo
               size="xs"
               variant="light"
               leftSection={<IconArrowsExchange size={14} />}
-              onClick={() => setPending({ kind: 'reassign' })}
+              onClick={() => {
+                setOwnerUserId(null);
+                setPending({ kind: 'reassign' });
+              }}
             >
               {t('bulk.reassign')}
             </Button>
@@ -108,7 +111,11 @@ export function BulkActionBar({ ids, onDone }: { ids: string[]; onDone: () => vo
               variant="light"
               color="grape"
               leftSection={<IconCalendarEvent size={14} />}
-              onClick={() => setPending({ kind: 'reschedule' })}
+              onClick={() => {
+                setNewDueDate(null);
+                setNote('');
+                setPending({ kind: 'reschedule' });
+              }}
             >
               {t('workItem.reschedule')}
             </Button>

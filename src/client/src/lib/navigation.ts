@@ -51,6 +51,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { to: routes.board, labelKey: 'nav.myWork', icon: IconLayoutKanban },
       { to: routes.work, labelKey: 'nav.list', icon: IconList },
+      { to: routes.myResponsibilities, labelKey: 'nav.myResponsibilities', icon: IconRepeat },
       { to: routes.entities, labelKey: 'nav.entities', icon: IconBuildingStore },
     ],
   },

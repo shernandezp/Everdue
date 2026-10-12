@@ -68,6 +68,15 @@ export function WorkItemDrawer({ id, onClose }: { id: string | null; onClose: ()
   const [comment, setComment] = useState('');
   const [mentioned, setMentioned] = useState<string[]>([]);
 
+  // One drawer serves every item: drafts belong to the item they were typed on, but survive closing and reopening it.
+  const [draftsFor, setDraftsFor] = useState(id);
+  if (id !== null && id !== draftsFor) {
+    setDraftsFor(id);
+    setNote('');
+    setComment('');
+    setMentioned([]);
+  }
+
   const item = detail.data?.item;
   const allowed = detail.data?.allowedTransitions ?? [];
   const isOwnerOrAdmin = isAdmin || item?.ownerUserId === user?.id;
@@ -408,7 +417,7 @@ export function WorkItemDrawer({ id, onClose }: { id: string | null; onClose: ()
         onConfirm={(reason, text) => run({ kind: 'hold', reason, text })}
       />
 
-      {item && <EditWorkItemModal item={item} opened={editOpen} onClose={() => setEditOpen(false)} />}
+      {item && editOpen && <EditWorkItemModal item={item} onClose={() => setEditOpen(false)} />}
 
       <Modal opened={rescheduleOpen} onClose={() => setRescheduleOpen(false)} title={t('workItem.reschedule')} centered>
         <Stack>

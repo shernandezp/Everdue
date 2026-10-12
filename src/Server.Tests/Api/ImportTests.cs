@@ -101,6 +101,17 @@ public class ImportTests
         entities.Items.Select(entity => entity.Name).ShouldContain("Ferretería El Progreso");
     }
 
+    [Fact]
+    public void A_windows_1252_file_without_a_bom_keeps_its_accents()
+    {
+        var bytes = Encoding.Latin1.GetBytes("Nombre;Región\r\nPanadería La Espiga;Montaña\r\n");
+
+        var table = CsvSource.Read(bytes, maxRows: 10);
+
+        table.Encoding.ShouldBe("windows-1252");
+        table.Rows[0].ShouldBe(["Panadería La Espiga", "Montaña"]);
+    }
+
     [Theory]
     [MemberData(nameof(Providers))]
     public async Task Valid_rows_are_created_and_invalid_ones_are_reported_with_their_row_number(TestProvider provider)
@@ -183,6 +194,32 @@ public class ImportTests
 
         var entities = await admin.GetJsonAsync<PagedResult<EntityDto>>("/api/v1/entities");
         entities.Items.Single().CustomFields.Single().Value.ShouldBe("Diana Ospina");
+    }
+
+    [Theory]
+    [MemberData(nameof(Providers))]
+    public async Task A_header_named_like_a_custom_field_is_suggested_for_it(TestProvider provider)
+    {
+        await using var app = await EverdueApp.StartAsync(provider);
+        var admin = await app.SignInAsAdminAsync();
+
+        var field = await admin.PostJsonAsync<EntityFieldDefDto>("/api/v1/entity-fields", new
+        {
+            entityType = nameof(EntityType.Customer),
+            name = "Región",
+            fieldType = nameof(EntityFieldType.Select),
+            options = new[] { "Costa", "Montaña" },
+        });
+
+        var response = await admin.PostAsync(
+            "/api/v1/imports/entities/preview",
+            Csv("nombre,tipo,region\nHotel Miramar,Customer,Montaña\n"));
+
+        await response.ShouldBeSuccessAsync();
+
+        var preview = (await response.Content.ReadFromJsonAsync<ImportPreviewDto>(EverdueApp.Json))!;
+        preview.SuggestedMapping[ImportFields.Custom(field.Id)].ShouldBe("region");
+        preview.Rows.Single().Error.ShouldBeNull();
     }
 
     [Theory]
