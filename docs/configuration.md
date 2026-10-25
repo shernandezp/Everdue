@@ -84,7 +84,7 @@ access promptly.
 |---|---|---|
 | `Attachments:MaxSizeBytes` | `10485760` (10 MB) | Per file |
 | `Attachments:MaxPerWorkItem` | `10` | Per work item |
-| `Attachments:AllowedContentTypes` / `AllowedExtensions` | images, PDF, office documents, plain text | Both are checked; both must pass |
+| `Attachments:AllowedContentTypes` / `AllowedExtensions` | images (PNG, JPEG, WebP, HEIC), PDF, Excel (`.xlsx`), plain text | Both are checked; both must pass |
 | `Checklists:MaxItemsPerTemplate` / `MaxItemsPerWorkItem` | `50` / `50` | Steps per template and per item |
 | `EntityFields:MaxPerEntityType` | `10` | The cap that keeps custom fields from becoming a schema |
 | `Exports:MaxRows` | `50000` | Report and insight exports over this return **400 with an instruction**, never a shorter file. Raw table dumps are streamed and uncapped |

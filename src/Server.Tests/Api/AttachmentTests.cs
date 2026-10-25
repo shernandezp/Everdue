@@ -77,6 +77,20 @@ public class AttachmentTests
 
     [Theory]
     [MemberData(nameof(Providers))]
+    public async Task An_excel_workbook_uploads(TestProvider provider)
+    {
+        await using var app = await EverdueApp.StartAsync(provider);
+        var admin = await app.SignInAsAdminAsync();
+        var id = await ATaskAsync(app, admin);
+
+        await (await admin.PostAsync(
+                $"/api/v1/workitems/{id}/attachments",
+                File("stock.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")))
+            .ShouldBeSuccessAsync();
+    }
+
+    [Theory]
+    [MemberData(nameof(Providers))]
     public async Task An_oversize_file_is_refused(TestProvider provider)
     {
         await using var app = await EverdueApp.StartAsync(
@@ -112,6 +126,23 @@ public class AttachmentTests
         // A PDF extension over a disallowed declared type is refused too.
         var mismatched = await admin.PostAsync($"/api/v1/workitems/{id}/attachments", File("note.pdf", "application/octet-stream"));
         mismatched.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+    }
+
+    /// <summary>Only the 2007+ format: the refusal names the extension and what is accepted instead.</summary>
+    [Theory]
+    [MemberData(nameof(Providers))]
+    public async Task A_legacy_excel_workbook_is_refused_with_the_allowed_extensions(TestProvider provider)
+    {
+        await using var app = await EverdueApp.StartAsync(provider);
+        var admin = await app.SignInAsAdminAsync();
+        var id = await ATaskAsync(app, admin);
+
+        var response = await admin.PostAsync($"/api/v1/workitems/{id}/attachments", File("stock.xls", "application/vnd.ms-excel"));
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var body = await response.Content.ReadAsStringAsync();
+        body.ShouldContain("'.xls' files are not allowed");
+        body.ShouldContain(".xlsx");
     }
 
     [Theory]

@@ -25,6 +25,11 @@ export function notifyError(error: unknown): void {
 
 export function describe(error: unknown): string {
   if (error instanceof ApiError) {
+    const fieldMessages = Object.values(error.fieldErrors).flat();
+    if (error.code === 'validation_failed' && fieldMessages.length > 0) {
+      return fieldMessages.join(' ');
+    }
+
     if (error.problem.detail) {
       return error.problem.detail;
     }

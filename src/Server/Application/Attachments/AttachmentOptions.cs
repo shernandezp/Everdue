@@ -23,12 +23,13 @@ public sealed class AttachmentOptions
         "image/jpeg",
         "image/webp",
         "application/pdf",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "text/plain",
     ];
 
     /// <summary>Checked as well as the declared type: a caller controls both, so both have to agree.</summary>
     public string[] AllowedExtensions { get; set; } =
     [
-        ".png", ".jpg", ".jpeg", ".webp", ".pdf", ".txt",
+        ".png", ".jpg", ".jpeg", ".webp", ".pdf", ".xlsx", ".txt",
     ];
 }

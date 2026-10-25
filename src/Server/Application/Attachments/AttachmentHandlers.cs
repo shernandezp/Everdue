@@ -95,12 +95,19 @@ public sealed class UploadAttachmentHandler(
 
         // Both are caller-controlled, so both have to agree with the allow-list. This is not content
         // sniffing and does not pretend to be — scanning is a hosted-version concern.
-        if (!limits.AllowedContentTypes.Contains(contentType, StringComparer.OrdinalIgnoreCase)
-            || !limits.AllowedExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
+        if (!limits.AllowedExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
         {
             throw new ValidationException(new Dictionary<string, string[]>
             {
-                ["file"] = [$"Files of type '{contentType}' are not allowed. Allowed: {string.Join(", ", limits.AllowedContentTypes)}."],
+                ["file"] = [$"{(extension.Length == 0 ? "Files without an extension" : $"'{extension}' files")} are not allowed. Allowed: {string.Join(", ", limits.AllowedExtensions)}."],
+            });
+        }
+
+        if (!limits.AllowedContentTypes.Contains(contentType, StringComparer.OrdinalIgnoreCase))
+        {
+            throw new ValidationException(new Dictionary<string, string[]>
+            {
+                ["file"] = [$"The file was sent as '{contentType}', which is not an allowed type."],
             });
         }
 

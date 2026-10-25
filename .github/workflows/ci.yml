@@ -20,11 +20,11 @@ jobs:
       run:
         working-directory: src/client
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 26
           cache: npm
           cache-dependency-path: src/client/package-lock.json
 
@@ -40,7 +40,7 @@ jobs:
       - name: Type-check and build
         run: npm run build
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: client-dist
           path: src/client/dist
@@ -50,15 +50,15 @@ jobs:
     name: API contract is current
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 26
           cache: npm
           cache-dependency-path: src/client/package-lock.json
 
@@ -96,9 +96,9 @@ jobs:
         # The dual-provider discipline is only real if CI proves it every time.
         provider: [sqlite, postgres]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
 
@@ -122,7 +122,7 @@ jobs:
           --report-xunit-trx-filename ${{ matrix.provider }}.trx
           --results-directory artifacts/test-results
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-results-${{ matrix.provider }}
@@ -138,15 +138,15 @@ jobs:
       matrix:
         runtime: [win-x64, linux-x64]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 26
           cache: npm
           cache-dependency-path: src/client/package-lock.json
 
@@ -159,7 +159,7 @@ jobs:
           -p:SelfContainedPublish=true
           -p:BuildClient=true
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: everdue-${{ matrix.runtime }}
           path: artifacts/${{ matrix.runtime }}
@@ -170,7 +170,7 @@ jobs:
     needs: [client, server]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Build the image
         run: docker build -f deploy/Dockerfile -t everdue:ci .
