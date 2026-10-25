@@ -1,6 +1,6 @@
 # Running and testing Everdue locally
 
-You need the **.NET 10 SDK** and **Node 24**. Pick one of the four ways below; the first is the
+You need the **.NET 10 SDK** and **Node 26**. Pick one of the four ways below; the first is the
 quickest way to click around, and the last is the quickest way to see the product with data in it.
 
 ---

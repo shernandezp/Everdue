@@ -2,7 +2,7 @@
 # Build from the repository root:  docker build -f deploy/Dockerfile -t everdue .
 
 # --- 1. Client -------------------------------------------------------------------------------
-FROM node:24-bookworm-slim AS client
+FROM node:26-bookworm-slim AS client
 WORKDIR /src/client
 
 COPY src/client/package.json src/client/package-lock.json ./
