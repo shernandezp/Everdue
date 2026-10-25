@@ -61,16 +61,28 @@ if (-not (Test-Path $DataDir)) {
     New-Item -ItemType Directory -Path $DataDir -Force | Out-Null
 }
 
-# The service account has no user profile, so both the URLs and the data directory are set as
-# machine-level environment variables rather than left to defaults.
-[Environment]::SetEnvironmentVariable('ASPNETCORE_URLS', $Url, 'Machine')
-[Environment]::SetEnvironmentVariable('DataDir', $DataDir, 'Machine')
-[Environment]::SetEnvironmentVariable('ASPNETCORE_ENVIRONMENT', 'Production', 'Machine')
+$serviceEnvironment = [ordered]@{
+    ASPNETCORE_URLS        = $Url
+    DataDir                = $DataDir
+    ASPNETCORE_ENVIRONMENT = 'Production'
+}
 
 Write-Host "Installing service '$ServiceName' -> $executable" -ForegroundColor Cyan
 
 & sc.exe create $ServiceName binPath= "`"$executable`"" start= auto DisplayName= 'Everdue'
 if ($LASTEXITCODE -ne 0) { throw "sc.exe create failed with exit code $LASTEXITCODE." }
+
+# The service's own environment, not machine variables: those are shared with every other program
+# on the server, and another installer writing its own DataDir would repoint this one.
+$entries = [string[]]($serviceEnvironment.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" })
+Set-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\$ServiceName" -Name Environment -Type MultiString -Value $entries
+
+# Older versions wrote these machine-wide; a value another product has since overwritten is theirs.
+foreach ($legacy in $serviceEnvironment.GetEnumerator()) {
+    if ([Environment]::GetEnvironmentVariable($legacy.Key, 'Machine') -eq $legacy.Value) {
+        [Environment]::SetEnvironmentVariable($legacy.Key, $null, 'Machine')
+    }
+}
 
 & sc.exe description $ServiceName 'Everdue - operational accountability' | Out-Null
 & sc.exe failure $ServiceName reset= 86400 actions= restart/5000/restart/10000/restart/30000 | Out-Null
