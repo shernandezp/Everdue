@@ -193,6 +193,7 @@ export const api = {
 
   workItems: {
     list: (filters: WorkItemFilters) => http.get<Paged<WorkItem>>(`/workitems${query(filters)}`),
+    search: (q: string, limit: number) => http.get<WorkItem[]>(`/workitems/search${query({ q, limit })}`),
     get: (id: string) => http.get<WorkItemDetail>(`/workitems/${id}`),
     create: (body: {
       title: string;
@@ -260,7 +261,8 @@ export const api = {
 
       return (await response.json()) as Attachment;
     },
-    downloadUrl: (id: string) => `/api/v1/attachments/${id}`,
+    // The name is part of the URL so a client that ignores Content-Disposition still saves it right.
+    downloadUrl: (id: string, fileName: string) => `/api/v1/attachments/${id}/${encodeURIComponent(fileName)}`,
     remove: (id: string) => http.del<void>(`/attachments/${id}`),
   },
 

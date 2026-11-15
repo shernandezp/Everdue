@@ -124,16 +124,18 @@ export function ResponsibilitiesPage({ mine = false }: { mine?: boolean }) {
               </Stack>
             ),
           },
-          { accessor: 'recurrence', title: t('recurrence.kind'), render: (row) => describeRecurrence(row, t) },
-          { accessor: 'ownerDisplayName', title: t('workItem.owner') },
+          { accessor: 'recurrence', title: t('recurrence.kind'), noWrap: true, render: (row) => describeRecurrence(row, t) },
+          { accessor: 'ownerDisplayName', title: t('workItem.owner'), noWrap: true },
           {
             accessor: 'entityName',
             title: t('workItem.entity'),
+            noWrap: true,
             render: (row) => row.entityName ?? t('common.none'),
           },
           {
             accessor: 'nextScheduledDate',
             title: t('recurrence.nextDate'),
+            noWrap: true,
             render: (row) => (row.nextScheduledDate ? formatDate(row.nextScheduledDate) : t('common.none')),
           },
           {
@@ -146,7 +148,7 @@ export function ResponsibilitiesPage({ mine = false }: { mine?: boolean }) {
             title: '',
             textAlign: 'right',
             render: (row) => (
-              <Group gap={4} justify="flex-end">
+              <Group gap={2} justify="flex-end" wrap="nowrap">
                 {isAdmin && (
                   <>
                     <ActionIcon variant="subtle" aria-label={t('common.edit')} onClick={() => setEditing(row)}>

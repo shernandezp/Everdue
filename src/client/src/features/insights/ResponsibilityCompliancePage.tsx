@@ -62,7 +62,7 @@ export function ResponsibilityCompliancePage() {
         <Stack gap="lg">
           <SimpleGrid cols={{ base: 2, md: 5 }} spacing="sm">
             <Card withBorder padding="md">
-              <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
+              <Text size="sm" c="dimmed" fw={600}>
                 {t('insights.rate')}
               </Text>
               <RateCell
@@ -105,7 +105,7 @@ export function ResponsibilityCompliancePage() {
               h={220}
               data={page.data!.buckets.map((point) => ({
                 label: point.label,
-                rate: point.rate === null ? null : Math.round(point.rate * 100),
+                rate: point.rate == null ? null : Math.round(point.rate * 100),
               }))}
               dataKey="label"
               series={[{ name: 'rate', label: t('insights.rate'), color: 'everdue.6' }]}
@@ -130,7 +130,7 @@ export function ResponsibilityCompliancePage() {
 function Metric({ label, value, color }: { label: string; value: number; color?: string }) {
   return (
     <Card withBorder padding="md">
-      <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
+      <Text size="sm" c="dimmed" fw={600}>
         {label}
       </Text>
       <Text fz={28} fw={700} c={value > 0 ? color : undefined}>

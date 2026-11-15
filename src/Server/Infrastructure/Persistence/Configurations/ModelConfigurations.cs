@@ -50,6 +50,7 @@ public sealed class EntityConfiguration : IEntityTypeConfiguration<Entity>
         builder.ToTable("Entities");
         builder.HasKey(e => e.Id);
         builder.Property(e => e.Name).HasMaxLength(200).IsRequired();
+        builder.Property(e => e.SearchName).HasMaxLength(200).HasDefaultValue(string.Empty);
         builder.Property(e => e.Type).HasConversion<int>();
 
         // Display-only reference values. Bounded by the ten-fields-per-type cap and never queried, so the
@@ -89,6 +90,7 @@ public sealed class WorkItemConfiguration : IEntityTypeConfiguration<WorkItem>
         builder.HasKey(w => w.Id);
         builder.Property(w => w.Title).HasMaxLength(300).IsRequired();
         builder.Property(w => w.Description).HasMaxLength(4000);
+        builder.Property(w => w.SearchDocument).HasMaxLength(4400).HasDefaultValue(string.Empty);
         builder.Property(w => w.Status).HasConversion<int>();
         builder.Property(w => w.HoldReason).HasConversion<int>();
         builder.Property(w => w.HoldReasonText).HasMaxLength(1000);

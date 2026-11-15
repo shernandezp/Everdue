@@ -45,6 +45,7 @@ export const keys = {
   workItems: {
     all: ['workitems'] as const,
     list: (filters: WorkItemFilters) => ['workitems', filters] as const,
+    search: (query: string) => ['workitems', 'search', query] as const,
 
     /** A single item, kept separate from the lists so opening a drawer never refetches a page. */
     detail: ['workitem'] as const,

@@ -139,7 +139,18 @@ export function BoardPage() {
       )}
 
       <DndContext sensors={sensors} onDragEnd={onDragEnd}>
-        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3, xl: 5 }} spacing="sm">
+        <SimpleGrid
+          cols={{ base: 1, sm: 2, lg: 3, xl: 5 }}
+          spacing="sm"
+          className="everdue-board"
+          style={
+            {
+              '--everdue-board-columns': BOARD_COLUMNS.map((column) =>
+                grouped[column].length > 0 ? 'minmax(0, 1fr)' : 'minmax(0, 0.65fr)',
+              ).join(' '),
+            } as CSSProperties
+          }
+        >
           {BOARD_COLUMNS.map((column) => (
             <Column key={column} id={column} items={grouped[column]}>
               {grouped[column].map((item) => (

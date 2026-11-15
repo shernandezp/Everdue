@@ -1,4 +1,4 @@
-import { Anchor, Group } from '@mantine/core';
+import { ActionIcon, Text, Tooltip } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons-react';
 import type { DataTableColumn } from 'mantine-datatable';
 import type { TFunction } from 'i18next';
@@ -28,13 +28,18 @@ export function drillThroughColumn<T extends Drillable>(t: TFunction): DataTable
   return {
     accessor: 'drillThrough',
     title: '',
+    width: 44,
     render: (row) => (
-      <Anchor component={Link} to={drillLink(row.drillThrough)} size="xs">
-        <Group gap={2} wrap="nowrap">
-          {t('reports.drillThrough')}
-          <IconChevronRight size={12} />
-        </Group>
-      </Anchor>
+      <Tooltip label={t('reports.drillThrough')}>
+        <ActionIcon
+          component={Link}
+          to={drillLink(row.drillThrough)}
+          variant="subtle"
+          aria-label={t('reports.drillThrough')}
+        >
+          <IconChevronRight size={16} />
+        </ActionIcon>
+      </Tooltip>
     ),
   };
 }
@@ -65,6 +70,24 @@ export function entityTypeColumn<T extends { entityType: EntityType | null }>(t:
 /** A count. Right-aligned, because a column of numbers is only scannable when the digits line up. */
 export function countColumn<T>(accessor: string, title: string, sortable = false): DataTableColumn<T> {
   return { accessor, title, sortable, textAlign: 'right' };
+}
+
+/** A count of things that went wrong: red and bold above zero, quiet at zero. */
+export function alertCountColumn<T>(accessor: keyof T & string, title: string, sortable = false): DataTableColumn<T> {
+  return {
+    accessor,
+    title,
+    sortable,
+    textAlign: 'right',
+    render: (row) => {
+      const count = row[accessor] as number;
+      return (
+        <Text span size="sm" fw={count > 0 ? 700 : undefined} c={count > 0 ? 'red' : 'dimmed'}>
+          {count}
+        </Text>
+      );
+    },
+  };
 }
 
 /** A wait measured in calendar days, to one decimal. */

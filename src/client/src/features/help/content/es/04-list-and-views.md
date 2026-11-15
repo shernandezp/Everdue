@@ -13,7 +13,7 @@ la vez.
 
 | Filtro | Sirve para encontrar |
 |---|---|
-| **Buscar** | Palabras del título o la descripción |
+| **Buscar** | Palabras del título, la descripción o el nombre de la entidad |
 | **Responsable** | El trabajo de una persona |
 | **Entidad** | Todo lo relativo a un cliente, una máquina, un proveedor… |
 | **Departamento** | Todo lo que ejecuta un equipo |
@@ -23,6 +23,17 @@ la vez.
 | **Mostrar canceladas** | Las tareas canceladas, ocultas por defecto |
 
 **Limpiar** quita todos los filtros de una vez.
+
+## Búsqueda rápida
+
+El buscador de la parte superior de cada pantalla encuentra una tarea estés donde estés: pulsa en él
+o usa **Ctrl+K** (**⌘K** en Mac). Escribe una o varias palabras. Tienen que aparecer todas, en
+cualquier orden, y no importan las mayúsculas ni los acentos: *ferreteria* encuentra *Ferretería El
+Progreso*. De una tarea recurrente se muestran sus dos ocurrencias más relevantes, para que no tape
+todo lo demás.
+
+Pulsa **Intro** para abrir la tarea sin salir de la pantalla en la que estás, o elige **Ver todas las
+coincidencias en la lista** para llevar las mismas palabras a los filtros de arriba.
 
 > Tus filtros viven en la barra de direcciones, así que puedes copiar el enlace y mandárselo a un
 > compañero. Verá la misma lista, dentro de lo que su cuenta tenga permitido ver.

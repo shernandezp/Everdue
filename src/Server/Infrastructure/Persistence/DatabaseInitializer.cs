@@ -40,6 +40,8 @@ public sealed class DatabaseInitializer(
             await db.Database.MigrateAsync(cancellationToken);
         }
 
+        await BackfillSearchDocumentsAsync(cancellationToken);
+
         var tenant = await EnsureTenantAsync(cancellationToken);
         tenantContext.Resolve(tenant.Id);
 
@@ -48,6 +50,38 @@ public sealed class DatabaseInitializer(
         // Last, and only when explicitly asked for: it needs the tenant resolved and the admin in place, and it
         // refuses outright on a database that already holds data.
         await demo.SeedAsync(cancellationToken);
+    }
+
+    // Rows that predate the columns hold their empty default. The values are derived, so the
+    // tracked snapshot already equals them and the write has to be forced. The ids are read once
+    // up front: a name that folds to nothing stays empty, and must not be picked up again.
+    private async Task BackfillSearchDocumentsAsync(CancellationToken cancellationToken)
+    {
+        var workItems = await db.WorkItems.IgnoreQueryFilters().Where(w => w.SearchDocument == "").Select(w => w.Id).ToListAsync(cancellationToken);
+
+        foreach (var ids in workItems.Chunk(500))
+        {
+            foreach (var item in await db.WorkItems.IgnoreQueryFilters().Where(w => ids.Contains(w.Id)).ToListAsync(cancellationToken))
+            {
+                db.Entry(item).Property(w => w.SearchDocument).IsModified = true;
+            }
+
+            await db.SaveChangesAsync(cancellationToken);
+            db.ChangeTracker.Clear();
+        }
+
+        var entities = await db.Entities.IgnoreQueryFilters().Where(e => e.SearchName == "").Select(e => e.Id).ToListAsync(cancellationToken);
+
+        foreach (var ids in entities.Chunk(500))
+        {
+            foreach (var entity in await db.Entities.IgnoreQueryFilters().Where(e => ids.Contains(e.Id)).ToListAsync(cancellationToken))
+            {
+                db.Entry(entity).Property(e => e.SearchName).IsModified = true;
+            }
+
+            await db.SaveChangesAsync(cancellationToken);
+            db.ChangeTracker.Clear();
+        }
     }
 
     /// <summary>Resolves the tenant without touching the schema — used by tests and by the OpenAPI export path.</summary>

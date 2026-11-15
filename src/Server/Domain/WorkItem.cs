@@ -15,6 +15,13 @@ public class WorkItem : ITenantOwned
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
 
+    // Derived on read so no writer can forget it; the setter exists only for EF.
+    public string SearchDocument
+    {
+        get => SearchText.Document(Title, Description);
+        private set { }
+    }
+
     public Guid OwnerUserId { get; set; }
     public Guid? EntityId { get; set; }
     public Guid? DepartmentId { get; set; }

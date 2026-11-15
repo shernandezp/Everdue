@@ -32,6 +32,10 @@ public static class AttachmentEndpoints
         single.MapGet("/{id:guid}", DownloadAsync)
             .WithSummary("Streams the file to an authenticated caller. Never served as a static file.");
 
+        // The name rides in the URL as well: clients that ignore Content-Disposition (Android
+        // in-app browsers, header-stripping proxies) name the download after the last path segment.
+        single.MapGet("/{id:guid}/{fileName}", DownloadAsync).ExcludeFromDescription();
+
         single.MapDelete("/{id:guid}", async (Guid id, ISender sender, CancellationToken cancellationToken) =>
             {
                 await sender.Send(new DeleteAttachmentCommand(id), cancellationToken);

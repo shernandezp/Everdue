@@ -43,6 +43,7 @@ export function ReportTable<T>({
   // once here — which is the whole reason this cast is in one file instead of eleven.
   const props = {
     withTableBorder: true,
+    className: 'everdue-report-table',
     highlightOnHover: true,
     minHeight: compact ? 160 : 200,
     fetching,

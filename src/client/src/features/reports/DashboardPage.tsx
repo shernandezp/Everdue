@@ -166,30 +166,39 @@ function MetricCard({
       padding="md"
       component={Link}
       to={drillLink(metric.drillThrough)}
-      className="everdue-interactive"
+      title={t('reports.drillThrough')}
+      className="everdue-interactive everdue-metric"
+      data-active={metric.count > 0 || undefined}
       style={{ '--everdue-accent': `var(--mantine-color-${color}-6)` } as CSSProperties}
     >
-      <Group justify="space-between" align="flex-start" wrap="nowrap" mb={2}>
-        <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
+      <Group justify="space-between" align="flex-start" wrap="nowrap" mb="xs">
+        <Text size="sm" fw={600}>
           {label}
         </Text>
-        <ThemeIcon size="md" radius="md" variant="light" color={color}>
-          <Icon size={16} />
+        <ThemeIcon
+          size={40}
+          radius="md"
+          variant={metric.count > 0 ? 'gradient' : 'default'}
+          gradient={{ from: `${color}.5`, to: `${color}.8`, deg: 135 }}
+          className="everdue-metric-icon"
+        >
+          <Icon size={22} stroke={1.8} />
         </ThemeIcon>
       </Group>
 
-      <Stack gap={2}>
-        {/* A zero is not news: it stays in the text colour, and only a number above zero is coloured. */}
-        <Text fz={32} fw={700} c={metric.count > 0 ? color : undefined}>
+      <Group justify="space-between" align="flex-end" wrap="nowrap">
+        {/* A zero is not news: it stays quiet, and only a number above zero is coloured. */}
+        <Text
+          fz={40}
+          fw={800}
+          lh={1}
+          c={metric.count > 0 ? color : 'dimmed'}
+          style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}
+        >
           {formatNumber(metric.count)}
         </Text>
-        <Group gap={2} wrap="nowrap">
-          <Text size="xs" c="dimmed">
-            {t('reports.drillThrough')}
-          </Text>
-          <IconChevronRight size={12} style={{ color: 'var(--mantine-color-dimmed)' }} />
-        </Group>
-      </Stack>
+        <IconChevronRight size={16} className="everdue-drill" />
+      </Group>
     </Card>
   );
 }

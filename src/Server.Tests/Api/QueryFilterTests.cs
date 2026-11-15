@@ -107,6 +107,102 @@ public class QueryFilterTests
         missing.TotalCount.ShouldBe(0);
     }
 
+    [Theory]
+    [MemberData(nameof(Providers))]
+    public async Task Task_search_matches_every_word_ignoring_case_accents_and_order(TestProvider provider)
+    {
+        await using var app = await EverdueApp.StartAsync(provider);
+        var client = await app.SignInAsAdminAsync();
+        var ownerId = await app.UserIdAsync(EverdueApp.AdminEmail);
+
+        var entity = await client.PostJsonAsync<EntityDto>("/api/v1/entities", new
+        {
+            name = "Ferretería El Progreso",
+            type = nameof(EntityType.Customer),
+        });
+
+        async Task AddAsync(string title, string? description = null, Guid? entityId = null)
+            => await client.PostJsonAsync<WorkItemDto>("/api/v1/workitems", new
+            {
+                title,
+                description,
+                entityId,
+                ownerUserId = ownerId,
+                dueDate = app.Clock.UtcNow.AddDays(1),
+            });
+
+        await AddAsync("Revisar la guía de RECEPCIÓN");
+        await AddAsync("Llamar al proveedor", "Preguntar por la\nrecepción del pedido 50%");
+        await AddAsync("Visita mensual", entityId: entity.Id);
+        await AddAsync("Inventario");
+
+        async Task<string[]> SearchAsync(string q)
+            => (await client.GetJsonAsync<IReadOnlyList<WorkItemDto>>($"/api/v1/workitems/search?q={Uri.EscapeDataString(q)}"))
+                .Select(w => w.Title).ToArray();
+
+        (await SearchAsync("recepcion")).ShouldBe(["Revisar la guía de RECEPCIÓN", "Llamar al proveedor"]);
+        (await SearchAsync("GUIA revisar")).ShouldBe(["Revisar la guía de RECEPCIÓN"]);
+        (await SearchAsync("pedido prov")).ShouldBe(["Llamar al proveedor"]);
+        (await SearchAsync("ferreteria")).ShouldBe(["Visita mensual"]);
+        (await SearchAsync("50%")).ShouldBe(["Llamar al proveedor"]);
+        (await SearchAsync("recepcion inventario")).ShouldBeEmpty();
+        (await SearchAsync("  ")).ShouldBeEmpty();
+
+        var listed = await client.GetJsonAsync<PagedResult<WorkItemDto>>("/api/v1/workitems?search=PEDIDO");
+        listed.Items.Select(w => w.Title).ShouldBe(["Llamar al proveedor"]);
+
+        var inventory = (await client.GetJsonAsync<IReadOnlyList<WorkItemDto>>("/api/v1/workitems/search?q=inventario")).Single();
+        await client.PutJsonAsync<WorkItemDto>($"/api/v1/workitems/{inventory.Id}", new
+        {
+            title = "Conteo físico 한국어 😀",
+            description = "Bodega norte",
+            ownerUserId = ownerId,
+        });
+
+        (await SearchAsync("inventario")).ShouldBeEmpty();
+        (await SearchAsync("fisico bodega")).Length.ShouldBe(1);
+        (await SearchAsync("한국어")).Length.ShouldBe(1);
+
+        await client.PutJsonAsync<EntityDto>($"/api/v1/entities/{entity.Id}", new
+        {
+            name = "Almacén Central",
+            type = nameof(EntityType.Customer),
+            active = true,
+        });
+
+        (await SearchAsync("ferreteria")).ShouldBeEmpty();
+        (await SearchAsync("almacen")).ShouldBe(["Visita mensual"]);
+    }
+
+    [Theory]
+    [MemberData(nameof(Providers))]
+    public async Task A_daily_responsibility_does_not_crowd_other_tasks_out_of_search(TestProvider provider)
+    {
+        await using var app = await EverdueApp.StartAsync(provider);
+        var client = await app.SignInAsAdminAsync();
+        var ownerId = await app.UserIdAsync(EverdueApp.AdminEmail);
+
+        await app.SeedAsync((ledger, owner) =>
+        {
+            var daily = ledger.Responsibility("Daily stock check", owner);
+            for (var day = 1; day <= 120; day++)
+            {
+                ledger.Occurrence(daily, ledger.Today.AddDays(-day), 1, WorkItemStatus.Missed);
+            }
+        });
+
+        await client.PostJsonAsync<WorkItemDto>("/api/v1/workitems", new
+        {
+            title = "Check the fire extinguishers",
+            ownerUserId = ownerId,
+            dueDate = app.Clock.UtcNow.AddDays(-200),
+        });
+
+        var found = await client.GetJsonAsync<IReadOnlyList<WorkItemDto>>("/api/v1/workitems/search?q=check");
+
+        found.Select(w => w.Title).ShouldBe(["Daily stock check", "Daily stock check", "Check the fire extinguishers"]);
+    }
+
     /// <summary>A literal % must search for a percent sign, not match every row.</summary>
     [Theory]
     [MemberData(nameof(Providers))]

@@ -697,5 +697,12 @@
     "mention": "Mention",
     "mentionPlaceholder": "Who should see this?",
     "drag": "Drag to move"
+  },
+  "search": {
+    "open": "Search tasks",
+    "placeholder": "Search tasks…",
+    "hint": "Type one or more words. Titles and descriptions are searched, ignoring case and accents.",
+    "empty": "No task matches “{{query}}”.",
+    "seeAll": "See every match in the list"
   }
 }

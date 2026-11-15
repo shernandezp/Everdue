@@ -34,6 +34,31 @@ public sealed class ListWorkItemsHandler(
     }
 }
 
+public sealed class SearchWorkItemsHandler(IEverdueDbContext db, IUserDirectory users, IClock clock)
+    : IRequestHandler<SearchWorkItemsQuery, IReadOnlyList<WorkItemDto>>
+{
+    public async Task<IReadOnlyList<WorkItemDto>> Handle(SearchWorkItemsQuery request, CancellationToken cancellationToken = default)
+    {
+        var terms = SearchText.Terms(request.Q);
+        if (terms.Length == 0)
+        {
+            return [];
+        }
+
+        var matches = WorkItemQueries.Matching(
+            db.WorkItems.AsNoTracking().Where(w => w.Status != WorkItemStatus.Cancelled),
+            terms);
+
+        var best = WorkItemQueries
+            .ByRelevance(WorkItemQueries.TwoPerResponsibility(matches), terms)
+            .Take(Math.Clamp(request.Limit ?? 8, 1, 50));
+
+        var rows = await WorkItemQueries.Project(best).ToListAsync(cancellationToken);
+
+        return await WorkItemQueries.ToDtosAsync(rows, users, clock.UtcNow, cancellationToken);
+    }
+}
+
 public sealed class GetWorkItemHandler(
     IEverdueDbContext db,
     IUserDirectory users,

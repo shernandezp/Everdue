@@ -184,7 +184,7 @@ export function WorkItemDrawer({ id, onClose }: { id: string | null; onClose: ()
                 */}
                 <Button
                   size="xs"
-                  color="teal"
+                  color="green"
                   leftSection={<IconCircleCheck size={14} />}
                   onClick={() => {
                     if (!completionBlockedReason) run({ kind: 'complete' });
@@ -202,7 +202,7 @@ export function WorkItemDrawer({ id, onClose }: { id: string | null; onClose: ()
               <Button
                 size="xs"
                 variant="light"
-                color="indigo"
+                color="violet"
                 leftSection={<IconPlayerPlay size={14} />}
                 onClick={() => run({ kind: 'start' })}
                 loading={actions.isPending}

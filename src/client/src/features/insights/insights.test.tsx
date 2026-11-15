@@ -69,6 +69,13 @@ describe('RateCell', () => {
     expect(screen.queryByText(/33%/)).not.toBeInTheDocument();
   });
 
+  it('treats a rate the server left out exactly like a withheld one', () => {
+    wrap(<RateCell rate={undefined} suppressed onTime={0} concluded={2} />);
+
+    expect(screen.getByText('—')).toBeInTheDocument();
+    expect(screen.queryByText(/NaN/)).not.toBeInTheDocument();
+  });
+
   it('does not imply failure when nothing was due', () => {
     wrap(<RateCell rate={null} suppressed={false} onTime={0} concluded={0} />);
 

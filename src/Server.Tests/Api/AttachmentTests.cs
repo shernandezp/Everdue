@@ -215,6 +215,10 @@ public class AttachmentTests
         header.ShouldStartWith("attachment;");
         header.ShouldContain("filename*=UTF-8''");
         header.ShouldContain(Uri.EscapeDataString("Guía de recepción.txt"));
+
+        var named = await admin.GetAsync($"/api/v1/attachments/{attachment.Id}/{Uri.EscapeDataString(attachment.FileName)}");
+        named.StatusCode.ShouldBe(HttpStatusCode.OK);
+        named.Content.Headers.GetValues("Content-Disposition").Single().ShouldBe(header);
     }
 
     [Theory]

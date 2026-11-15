@@ -12,7 +12,7 @@ The filter card sits above the table. Every filter narrows the list; several fil
 
 | Filter | Use it to find |
 |---|---|
-| **Search** | Words in a title or description |
+| **Search** | Words in a title, a description or an entity's name |
 | **Owner** | One person's work |
 | **Entity** | Everything about one customer, machine, supplier… |
 | **Department** | Everything one team executes |
@@ -22,6 +22,16 @@ The filter card sits above the table. Every filter narrows the list; several fil
 | **Show cancelled** | Cancelled tasks, which are hidden by default |
 
 **Clear** removes every filter at once.
+
+## Quick search
+
+The search box at the top of every screen finds a task from wherever you are: click it, or press
+**Ctrl+K** (**⌘K** on a Mac). Type one or more words. Every word has to appear, in any order, and
+capitals and accents do not matter — *ferreteria* finds *Ferretería El Progreso*. A recurring task
+shows its two most relevant occurrences, so it cannot hide everything else.
+
+Press **Enter** to open the task without leaving the screen you are on, or choose **See every match
+in the list** to carry the same words into the filters above.
 
 > Your filters live in the address bar, so you can copy the link and send it to a colleague. They will
 > see the same list — subject to what their account is allowed to see.

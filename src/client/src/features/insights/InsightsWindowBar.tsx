@@ -26,7 +26,7 @@ export function InsightsWindowBar({
         <ThemeIcon size="sm" radius="sm" variant="light" color="grape">
           <IconCalendarStats size={14} />
         </ThemeIcon>
-        <Text size="xs" tt="uppercase" fw={700} c="dimmed">
+        <Text size="sm" fw={600} c="dimmed">
           {t('insights.window')}
         </Text>
       </Group>

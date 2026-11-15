@@ -7,7 +7,7 @@ import type { ComplianceRow } from '../../api/types';
 import { ExportCsvButton } from '../../components/ExportCsvButton';
 import { PageHeader } from '../../components/PageHeader';
 import { ReportTable } from '../../components/ReportTable';
-import { countColumn, drillThroughColumn } from '../../components/reportColumns';
+import { alertCountColumn, countColumn, drillThroughColumn } from '../../components/reportColumns';
 import { api, type ReportFilters } from '../../lib/api';
 import { EM_DASH } from '../../lib/format';
 import { usePagination } from '../../lib/pagination';
@@ -123,7 +123,7 @@ export function CompliancePage() {
           },
           countColumn('onTime', t('insights.onTime'), true),
           countColumn('late', t('insights.late'), true),
-          countColumn('missed', t('insights.missed'), true),
+          alertCountColumn('missed', t('insights.missed'), true),
           countColumn('inFlight', t('insights.inFlight')),
           {
             accessor: 'trend',
