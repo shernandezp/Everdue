@@ -697,5 +697,12 @@
     "mention": "Mencionar",
     "mentionPlaceholder": "¿Quién debería verlo?",
     "drag": "Arrastrar para mover"
+  },
+  "search": {
+    "open": "Buscar tareas",
+    "placeholder": "Buscar tareas…",
+    "hint": "Escribe una o varias palabras. Busca en títulos y descripciones, sin distinguir mayúsculas ni acentos.",
+    "empty": "Ninguna tarea coincide con «{{query}}».",
+    "seeAll": "Ver todas las coincidencias en la lista"
   }
 }

@@ -24,6 +24,7 @@ import { routes } from '../lib/routes';
 import { SECTION_COLOR } from '../theme';
 import { useSession } from '../features/auth/session';
 import { NotificationBell } from '../features/notifications/NotificationBell';
+import { QuickSearch } from '../features/search/QuickSearch';
 import { BrandMark } from './BrandMark';
 import { ColorSchemeToggle } from './ColorSchemeToggle';
 import { LegalNotice } from './LegalNotice';
@@ -61,8 +62,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
       padding="md"
     >
       <AppShell.Header>
-        <Group h="100%" px="md" justify="space-between">
-          <Group gap="sm">
+        <Group h="100%" px="md" justify="space-between" wrap="nowrap">
+          <Group gap="sm" wrap="nowrap">
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
 
             {/* The mark, then the name in the mark's own gradient: one identity, not two. */}
@@ -90,14 +91,22 @@ export function AppLayout({ children }: { children: ReactNode }) {
                 Shown to every role, including the members who never reach the settings screen. */}
             {user?.tenant.demoMode && (
               <Tooltip label={t('demo.bannerHint')}>
-                <Badge variant="filled" color="orange" radius="sm" leftSection={<IconFlask size={12} />}>
+                <Badge
+                  variant="filled"
+                  color="orange"
+                  radius="sm"
+                  leftSection={<IconFlask size={12} />}
+                  className="everdue-demo-badge"
+                >
                   {t('demo.badge')}
                 </Badge>
               </Tooltip>
             )}
           </Group>
 
-          <Group gap="xs">
+          <Group gap="xs" wrap="nowrap">
+            <QuickSearch />
+
             {/* The manual, one click from every screen — where somebody stuck actually looks. */}
             <Tooltip label={t('nav.help')}>
               <ActionIcon
@@ -107,6 +116,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
                 color="gray"
                 size="lg"
                 aria-label={t('nav.help')}
+                visibleFrom="xs"
               >
                 <IconHelp size={20} />
               </ActionIcon>
@@ -210,7 +220,7 @@ function NavSectionPanel({
           <ThemeIcon size="sm" radius="sm" variant="light" color={colour}>
             <SectionIcon size={14} />
           </ThemeIcon>
-          <Text size="xs" tt="uppercase" fw={700} c="dimmed">
+          <Text size="sm" fw={600} c="dimmed">
             {t(section.labelKey)}
           </Text>
         </Group>

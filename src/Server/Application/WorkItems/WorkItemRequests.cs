@@ -95,6 +95,9 @@ public sealed record ListWorkItemsQuery(
             HoldReason: holdReason?.ToString());
 }
 
+/// <summary>The quick search: the best few matches by relevance, never a page.</summary>
+public sealed record SearchWorkItemsQuery(string? Q = null, int? Limit = null) : IQuery<IReadOnlyList<WorkItemDto>>;
+
 public sealed record GetWorkItemQuery(Guid Id) : IQuery<WorkItemDetailDto>;
 
 /// <summary>One-off tasks only. Occurrences are created by the engine and by nothing else.</summary>

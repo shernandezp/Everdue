@@ -1,9 +1,9 @@
 using Everdue.Server.Application.Abstractions;
 using Everdue.Server.Domain;
 using Everdue.Server.Infrastructure.Options;
+using MailKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
@@ -70,7 +70,7 @@ public sealed class EmailChannel(
                 await client.AuthenticateAsync(config.User, config.Password ?? string.Empty, cancellationToken);
             }
 
-            await client.SendAsync(mime, cancellationToken);
+            await client.SendAsync(new SendRequest(mime), cancellationToken);
             await client.DisconnectAsync(quit: true, cancellationToken);
 
             logger.LogInformation("Sent '{Subject}' to {Recipient}.", message.Subject, recipient.Email);

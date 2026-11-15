@@ -4,7 +4,7 @@ import type { BucketPoint } from '../../api/types';
 
 /** The rates of the periods that were actually judged, in order. Buckets with nothing due have none. */
 export function judgedRates(points: BucketPoint[]): number[] {
-  return points.filter((point) => point.rate !== null).map((point) => Math.round(point.rate! * 100));
+  return points.filter((point) => point.rate != null).map((point) => Math.round(point.rate! * 100));
 }
 
 /**

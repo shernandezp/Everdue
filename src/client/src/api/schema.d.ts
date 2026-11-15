@@ -1110,6 +1110,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/workitems/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Quick search over titles, descriptions and entity names: every word must match, ignoring case and accents. */
+        get: {
+            parameters: {
+                query?: {
+                    Q?: string;
+                    Limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["WorkItemDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workitems/{id}": {
         parameters: {
             query?: never;

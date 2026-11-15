@@ -25,7 +25,7 @@ export function ReportFilterBar({
         <ThemeIcon size="sm" radius="sm" variant="light" color={accent}>
           <IconFilter size={14} />
         </ThemeIcon>
-        <Text size="xs" tt="uppercase" fw={700} c="dimmed">
+        <Text size="sm" fw={600} c="dimmed">
           {t('common.filters')}
         </Text>
       </Group>

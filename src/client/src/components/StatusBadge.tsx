@@ -24,7 +24,7 @@ export function StatusBadge({ status, isOverdue, holdReason, holdReasonText, siz
   const glyph = size === 'xs' ? 12 : 14;
 
   return (
-    <Group gap={6} wrap="nowrap">
+    <Group gap={4}>
       <Badge color={STATUS_COLOR[status]} variant="light" size={size} leftSection={<Icon size={glyph} />}>
         {t(`status.${status}`)}
       </Badge>

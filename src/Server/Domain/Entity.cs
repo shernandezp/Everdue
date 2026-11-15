@@ -9,6 +9,13 @@ public class Entity : ITenantOwned
     public Guid Id { get; set; } = Guid.CreateVersion7();
     public Guid TenantId { get; set; }
     public string Name { get; set; } = string.Empty;
+
+    public string SearchName
+    {
+        get => SearchText.Fold(Name);
+        private set { }
+    }
+
     public EntityType Type { get; set; }
     public bool Active { get; set; } = true;
 

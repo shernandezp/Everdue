@@ -154,10 +154,7 @@ public static class WorkItemQueries
             query = query.Where(w => Outstanding.Contains(w.Status) && w.DueDate < now);
         }
 
-        if (SearchPattern.For(filter.Search) is { } pattern)
-        {
-            query = query.Where(w => EF.Functions.Like(w.Title.ToLower(), pattern, SearchPattern.Escape));
-        }
+        query = Matching(query, SearchText.Terms(filter.Search));
 
         if (filter.ResolvedView == WorkItemView.Board)
         {
@@ -170,6 +167,59 @@ public static class WorkItemQueries
         }
 
         return query;
+    }
+
+    /// <summary>Every term must appear in the title, the description or the entity's name, in any order.</summary>
+    public static IQueryable<WorkItem> Matching(IQueryable<WorkItem> query, string[] terms)
+    {
+        foreach (var term in terms)
+        {
+            var pattern = SearchPattern.For(term)!;
+            query = query.Where(w =>
+                EF.Functions.Like(w.SearchDocument, pattern, SearchPattern.Escape)
+                || (w.EntityId != null && EF.Functions.Like(w.Entity!.SearchName, pattern, SearchPattern.Escape)));
+        }
+
+        return query;
+    }
+
+    /// <summary>
+    /// At most two occurrences of each responsibility. A daily one matches hundreds of times with the
+    /// same title, and would otherwise crowd every other task out of a short result list.
+    /// </summary>
+    public static IQueryable<WorkItem> TwoPerResponsibility(IQueryable<WorkItem> query)
+    {
+        var occurrences = query
+            .Where(w => w.ResponsibilityId != null)
+            .Select(w => w.ResponsibilityId)
+            .Distinct()
+            .SelectMany(responsibilityId => query
+                .Where(w => w.ResponsibilityId == responsibilityId)
+                .OrderByDescending(w => Workable.Contains(w.Status))
+                .ThenByDescending(w => w.DueDate)
+                .ThenBy(w => w.Id)
+                .Take(2));
+
+        return query.Where(w => w.ResponsibilityId == null).Concat(occurrences);
+    }
+
+    /// <summary>Title hits first, then work still on someone's plate, then the most recent.</summary>
+    public static IQueryable<WorkItem> ByRelevance(IQueryable<WorkItem> query, string[] terms)
+    {
+        IOrderedQueryable<WorkItem>? ordered = null;
+
+        foreach (var term in terms)
+        {
+            var inTitle = SearchPattern.For(term) + SearchText.TitleEnd + "%";
+
+            ordered = ordered is null
+                ? query.OrderByDescending(w => EF.Functions.Like(w.SearchDocument, inTitle, SearchPattern.Escape))
+                : ordered.ThenByDescending(w => EF.Functions.Like(w.SearchDocument, inTitle, SearchPattern.Escape));
+        }
+
+        return (ordered?.ThenByDescending(w => Workable.Contains(w.Status)) ?? query.OrderByDescending(w => Workable.Contains(w.Status)))
+            .ThenByDescending(w => w.DueDate)
+            .ThenBy(w => w.Id);
     }
 
     /// <summary>Stable order: whatever the caller sorts by, ties break on Id so paging never repeats a row.</summary>

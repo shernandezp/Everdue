@@ -1,5 +1,6 @@
 using Everdue.Server.Application.Abstractions;
 using Everdue.Server.Infrastructure.Options;
+using MailKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Logging;
@@ -48,7 +49,7 @@ public sealed class SmtpEmailSender(IOptions<SmtpOptions> options, ILogger<SmtpE
             await client.AuthenticateAsync(_options.User, _options.Password ?? string.Empty, cancellationToken);
         }
 
-        await client.SendAsync(mime, cancellationToken);
+        await client.SendAsync(new SendRequest(mime), cancellationToken);
         await client.DisconnectAsync(quit: true, cancellationToken);
 
         logger.LogInformation("Sent '{Subject}' to {Recipient}.", message.Subject, message.ToAddress);

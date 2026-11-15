@@ -18,15 +18,20 @@ import {
   IconBan,
   IconBrandTelegram,
   IconBrandWhatsapp,
+  IconBuildingSkyscraper,
+  IconBuildingStore,
   IconCircleCheck,
   IconCircleDot,
   IconClockCheck,
   IconMail,
   IconPlayerPause,
   IconProgress,
+  IconSitemap,
+  IconTool,
+  IconTruckDelivery,
   type TablerIcon,
 } from '@tabler/icons-react';
-import type { NotificationChannel, WorkItemStatus } from './api/types';
+import type { EntityType, NotificationChannel, WorkItemStatus } from './api/types';
 
 /**
  * The brand ramp. Deliberately the same indigo-blue as the application mark's gradient start
@@ -46,6 +51,8 @@ const everdue: MantineColorsTuple = [
   '#284094',
 ];
 
+const BADGE_FONT_SIZE: Record<string, string> = { xs: '11px', sm: '12px', md: '13px', lg: '14px', xl: '16px' };
+
 export const theme = createTheme({
   primaryColor: 'everdue',
   primaryShade: { light: 6, dark: 5 },
@@ -62,7 +69,7 @@ export const theme = createTheme({
   autoContrast: true,
 
   fontFamily:
-    'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+    'Figtree, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
   headings: { fontWeight: '650' },
   cursorType: 'pointer',
 
@@ -74,7 +81,15 @@ export const theme = createTheme({
     Card: Card.extend({ defaultProps: { radius: 'lg' } }),
     Button: Button.extend({ defaultProps: { radius: 'md' } }),
     ActionIcon: ActionIcon.extend({ defaultProps: { radius: 'md' } }),
-    Badge: Badge.extend({ defaultProps: { radius: 'sm' } }),
+    Badge: Badge.extend({
+      defaultProps: { radius: 'sm' },
+      // Sentence case reads at a glance where small capitals have to be spelled out; the type
+      // grows a step to make up for the height the capitals gave it.
+      vars: (_, props) => ({
+        root: { '--badge-fz': BADGE_FONT_SIZE[props.size as string] ?? BADGE_FONT_SIZE.md },
+      }),
+      styles: { label: { textTransform: 'none', fontWeight: 600, letterSpacing: 0 } },
+    }),
     SegmentedControl: SegmentedControl.extend({ defaultProps: { radius: 'md' } }),
     Accordion: Accordion.extend({ defaultProps: { radius: 'md' } }),
     Notification: Notification.extend({ defaultProps: { radius: 'md' } }),
@@ -101,12 +116,26 @@ export const theme = createTheme({
 /** One colour per status, used identically by badges, board columns and report chips. */
 export const STATUS_COLOR: Record<WorkItemStatus, string> = {
   Open: 'blue',
-  InProgress: 'indigo',
+  InProgress: 'violet',
   OnHold: 'orange',
   Missed: 'red',
-  Completed: 'teal',
+  Completed: 'green',
   CompletedLate: 'lime',
   Cancelled: 'gray',
+};
+
+/**
+ * The two shades a task card's band runs between. Deep ones on purpose: the band carries white
+ * text, and every pair here keeps it above 4.5:1 once app.css darkens both ends a little.
+ */
+export const STATUS_BAND: Record<WorkItemStatus, [string, string]> = {
+  Open: ['blue-8', 'cyan-9'],
+  InProgress: ['violet-8', 'grape-8'],
+  OnHold: ['orange-9', 'red-8'],
+  Missed: ['red-8', 'pink-8'],
+  Completed: ['green-9', 'teal-9'],
+  CompletedLate: ['lime-9', 'green-9'],
+  Cancelled: ['gray-7', 'gray-7'],
 };
 
 /**
@@ -122,6 +151,15 @@ export const STATUS_ICON: Record<WorkItemStatus, TablerIcon> = {
   Completed: IconCircleCheck,
   CompletedLate: IconClockCheck,
   Cancelled: IconBan,
+};
+
+/** One glyph per kind of entity, so a card says what a task is about before the name is read. */
+export const ENTITY_ICON: Record<EntityType, TablerIcon> = {
+  Customer: IconBuildingStore,
+  Supplier: IconTruckDelivery,
+  Equipment: IconTool,
+  Department: IconSitemap,
+  Company: IconBuildingSkyscraper,
 };
 
 /** One glyph per delivery channel, for the settings forms and the delivery-health table. */

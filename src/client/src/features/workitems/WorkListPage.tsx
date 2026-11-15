@@ -177,7 +177,7 @@ export function WorkListPage() {
           <ThemeIcon size="sm" radius="sm" variant="light" color="everdue">
             <IconFilter size={14} />
           </ThemeIcon>
-          <Text size="xs" tt="uppercase" fw={700} c="dimmed">
+          <Text size="sm" fw={600} c="dimmed">
             {t('common.filters')}
           </Text>
         </Group>
@@ -309,7 +309,7 @@ export function WorkListPage() {
             sortable: true,
             render: (item) => (
               <Text size="sm" c={item.isOverdue ? 'red' : undefined}>
-                {formatDueDate(item.dueDate, item.responsibilityId !== null)}
+                {formatDueDate(item.dueDate, item.responsibilityId != null)}
               </Text>
             ),
           },

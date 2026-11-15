@@ -22,6 +22,11 @@ public static class WorkItemEndpoints
             .WithSummary("The board and list views, and the target of every report drill-through.")
             .Produces<PagedResult<WorkItemDto>>();
 
+        group.MapGet("/search", async ([AsParameters] SearchWorkItemsQuery query, ISender sender, CancellationToken cancellationToken)
+                => Results.Ok(await sender.Send(query, cancellationToken)))
+            .WithSummary("Quick search over titles, descriptions and entity names: every word must match, ignoring case and accents.")
+            .Produces<IReadOnlyList<WorkItemDto>>();
+
         group.MapGet("/{id:guid}", async (Guid id, ISender sender, CancellationToken cancellationToken)
                 => Results.Ok(await sender.Send(new GetWorkItemQuery(id), cancellationToken)))
             .WithSummary("The item with its event history, comments and the transitions currently allowed.")

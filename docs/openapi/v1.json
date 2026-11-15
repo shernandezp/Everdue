@@ -1172,6 +1172,46 @@
         }
       }
     },
+    "/api/v1/workitems/search": {
+      "get": {
+        "tags": [
+          "Work items"
+        ],
+        "summary": "Quick search over titles, descriptions and entity names: every word must match, ignoring case and accents.",
+        "parameters": [
+          {
+            "name": "Q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkItemDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/workitems/{id}": {
       "get": {
         "tags": [

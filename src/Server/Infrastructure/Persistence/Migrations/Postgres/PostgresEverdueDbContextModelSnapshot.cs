@@ -17,7 +17,7 @@ namespace Everdue.Server.Infrastructure.Persistence.Migrations.Postgres
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.10")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -341,6 +341,13 @@ namespace Everdue.Server.Infrastructure.Persistence.Migrations.Postgres
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<string>("SearchName")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasDefaultValue("");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -821,6 +828,13 @@ namespace Everdue.Server.Infrastructure.Persistence.Migrations.Postgres
 
                     b.Property<Guid?>("ResponsibilityId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("SearchDocument")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(4400)
+                        .HasColumnType("character varying(4400)")
+                        .HasDefaultValue("");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");

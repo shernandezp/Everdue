@@ -15,7 +15,7 @@ namespace Everdue.Server.Infrastructure.Persistence.Migrations.Sqlite
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.10");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.13");
 
             modelBuilder.Entity("Everdue.Server.Domain.ApiKey", b =>
                 {
@@ -340,6 +340,13 @@ namespace Everdue.Server.Infrastructure.Persistence.Migrations.Sqlite
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("SearchName")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("TEXT");
@@ -828,6 +835,13 @@ namespace Everdue.Server.Infrastructure.Persistence.Migrations.Sqlite
 
                     b.Property<Guid?>("ResponsibilityId")
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("SearchDocument")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(4400)
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("");
 
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");

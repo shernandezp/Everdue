@@ -1,7 +1,16 @@
 import { ActionIcon, Anchor, Button, FileButton, Group, Stack, Text } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { IconCamera, IconPaperclip, IconTrash } from '@tabler/icons-react';
+import {
+  IconCamera,
+  IconFileSpreadsheet,
+  IconFileText,
+  IconFileTypePdf,
+  IconPaperclip,
+  IconPhoto,
+  IconTrash,
+  type TablerIcon,
+} from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import { notifyError } from '../../lib/notify';
@@ -13,6 +22,13 @@ function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function iconFor(contentType: string): TablerIcon {
+  if (contentType.startsWith('image/')) return IconPhoto;
+  if (contentType === 'application/pdf') return IconFileTypePdf;
+  if (contentType.includes('spreadsheet')) return IconFileSpreadsheet;
+  return IconFileText;
 }
 
 export function AttachmentsPanel({ workItemId }: { workItemId: string }) {
@@ -55,14 +71,22 @@ export function AttachmentsPanel({ workItemId }: { workItemId: string }) {
 
   return (
     <Stack gap="xs">
-      {items.map((attachment) => (
+      {items.map((attachment) => {
+        const FileIcon = iconFor(attachment.contentType);
+
+        return (
         <Group key={attachment.id} justify="space-between" wrap="nowrap">
           <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
-            <IconPaperclip size={16} style={{ color: 'var(--mantine-color-dimmed)', flexShrink: 0 }} />
-            <Anchor href={api.attachments.downloadUrl(attachment.id)} size="sm" lineClamp={1}>
+            <FileIcon size={18} style={{ color: 'var(--mantine-color-dimmed)', flexShrink: 0 }} />
+            <Anchor
+              href={api.attachments.downloadUrl(attachment.id, attachment.fileName)}
+              download={attachment.fileName}
+              size="sm"
+              lineClamp={1}
+            >
               {attachment.fileName}
             </Anchor>
-            <Text size="xs" c="dimmed">
+            <Text size="xs" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
               {formatSize(attachment.sizeBytes)}
             </Text>
           </Group>
@@ -78,7 +102,8 @@ export function AttachmentsPanel({ workItemId }: { workItemId: string }) {
             </ActionIcon>
           )}
         </Group>
-      ))}
+        );
+      })}
 
       {items.length === 0 && (
         <Text size="sm" c="dimmed">

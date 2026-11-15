@@ -88,7 +88,7 @@ export function BulkActionBar({ ids, onDone }: { ids: string[]; onDone: () => vo
           <Group gap="xs">
             <Button
               size="xs"
-              color="teal"
+              color="green"
               leftSection={<IconCircleCheck size={14} />}
               onClick={() => run.mutate({ ids, action: 'Complete' })}
               loading={run.isPending}
